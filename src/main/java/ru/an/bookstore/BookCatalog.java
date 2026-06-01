@@ -9,9 +9,7 @@ public class BookCatalog {
     private LocalDate yearPublication;
     private String isbn;
     private Integer numberPages;
-    private Price price;
     private String annotation;
-    private Images image;
 
     public Long getIdBook() {
         return idBook;
@@ -73,19 +71,4 @@ public class BookCatalog {
         this.publishingHouses = publishingHouses;
     }
 
-    public Price getPrice() {
-        return price;
-    }
-
-    public void setPrice(Price price) {
-        this.price = price;
-    }
-
-    public Images getImage() {
-        return image;
-    }
-
-    public void setImage(Images image) {
-        this.image = image;
-    }
 }

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="515.0" prefWidth="1127.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <SplitPane dividerPositions="0.32711111111111113" prefHeight="515.0" prefWidth="1127.0">
+         <items>
+            <AnchorPane prefHeight="515.0" prefWidth="303.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Название:" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="5.0" />
+                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="25.0" />
+                  <Text layoutX="10.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Издательство:" />
+                  <ComboBox layoutX="14.0" layoutY="70.0" prefWidth="150.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+                  <Text layoutX="10.0" layoutY="108.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Год издания:" />
+                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="115.0" />
+                  <Text layoutX="10.0" layoutY="153.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ISBN:" />
+                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="160.0" />
+                  <Text layoutX="10.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Количество страниц:" />
+                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="205.0" />
+                  <Text layoutX="10.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Цена:" />
+                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="250.0" />
+                  <Text layoutX="10.0" layoutY="288.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Аннотация" />
+                  <TextField prefHeight="92.0" prefWidth="283.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="295.0" />
+                  <Text layoutX="10.0" layoutY="420.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Изображение:" />
+                  <ImageView fitHeight="92.0" fitWidth="114.0" layoutX="108.0" layoutY="407.0" pickOnBounds="true" preserveRatio="true" />
+                  <Button layoutX="14.0" layoutY="424.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="79.0" text="Выбрать" AnchorPane.bottomAnchor="66.0" AnchorPane.leftAnchor="10.0" />
+                  <Button layoutX="14.0" layoutY="476.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="79.0" text="Сохранить" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="10.0" />
+                  <Text layoutX="239.0" layoutY="409.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Примечание: чтобы добавить жанр или автора в книгу, необходимо сохранить основную информацию" wrappingWidth="114.80859375" />
+               </children>
+            </AnchorPane>
+            <AnchorPane prefHeight="499.0" prefWidth="494.0">
+               <children>
+                  <SplitPane dividerPositions="0.5, 0.5" orientation="VERTICAL" prefHeight="513.0" prefWidth="754.0">
+                    <items>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <SplitPane dividerPositions="0.49733333333333335" prefHeight="237.0" prefWidth="752.0">
+                                 <items>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="237.0" prefWidth="398.0">
+                                       <children>
+                                          <Text layoutX="125.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Список авторов:" AnchorPane.leftAnchor="125.0" AnchorPane.topAnchor="2.734375">
+                                             <font>
+                                                <Font size="16.0" />
+                                             </font>
+                                          </Text>
+                                          <TableView prefHeight="175.0" prefWidth="370.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                                            <columns>
+                                              <TableColumn prefWidth="129.0" text="Фамилия" />
+                                              <TableColumn prefWidth="93.0" text="Имя" />
+                                                <TableColumn prefWidth="147.0" text="Отчество" />
+                                            </columns>
+                                          </TableView>
+                                          <Button layoutX="287.0" layoutY="197.0" mnemonicParsing="false" text="Добавить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
+                                          <TextField layoutX="14.0" layoutY="209.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                                          <Button layoutX="160.0" layoutY="209.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
+                                       </children>
+                                    </AnchorPane>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="237.0" prefWidth="398.0">
+                                       <children>
+                                          <Text layoutX="128.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Авторы в книге:" AnchorPane.leftAnchor="128.0" AnchorPane.topAnchor="2.734375">
+                                             <font>
+                                                <Font size="16.0" />
+                                             </font>
+                                          </Text>
+                                          <TableView prefHeight="175.0" prefWidth="374.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                                             <columns>
+                                                <TableColumn prefWidth="129.0" text="Фамилия" />
+                                                <TableColumn prefWidth="103.0" text="Имя" />
+                                                <TableColumn prefWidth="141.0" text="Отчество" />
+                                             </columns>
+                                          </TableView>
+                                          <Button mnemonicParsing="false" text="Удалить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
+                                          <TextField layoutX="14.0" layoutY="207.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                                          <Button layoutX="162.0" layoutY="209.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </items>
+                              </SplitPane>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <SplitPane dividerPositions="0.49866666666666665" prefHeight="200.0" prefWidth="752.0">
+                                 <items>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                       <children>
+                                          <Text layoutX="138.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Список жанров:" AnchorPane.topAnchor="2.734375">
+                                             <font>
+                                                <Font size="16.0" />
+                                             </font>
+                                          </Text>
+                                          <TableView prefHeight="139.0" prefWidth="372.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                                             <columns>
+                                                <TableColumn prefWidth="371.0" text="Жанр" />
+                                             </columns>
+                                          </TableView>
+                                          <Button mnemonicParsing="false" text="Добавить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
+                                          <TextField layoutX="14.0" layoutY="164.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                                          <Button layoutX="161.0" layoutY="170.0" mnemonicParsing="false" text="Найти" />
+                                       </children>
+                                    </AnchorPane>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                       <children>
+                                          <Text layoutX="129.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Жанры в книге:" AnchorPane.topAnchor="2.734375">
+                                             <font>
+                                                <Font size="16.0" />
+                                             </font>
+                                          </Text>
+                                          <TableView prefHeight="139.0" prefWidth="372.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                                             <columns>
+                                                <TableColumn prefWidth="371.0" text="Жанр" />
+                                             </columns>
+                                          </TableView>
+                                          <Button mnemonicParsing="false" text="Удалить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
+                                          <TextField layoutX="9.0" layoutY="170.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                                          <Button layoutX="161.0" layoutY="172.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </items>
+                              </SplitPane>
+                           </children>
+                        </AnchorPane>
+                        <Button mnemonicParsing="false" text="Вернуться" />
+                    </items>
+                  </SplitPane>
+               </children>
+            </AnchorPane>
+         </items>
+      </SplitPane>
+   </children>
+</AnchorPane>

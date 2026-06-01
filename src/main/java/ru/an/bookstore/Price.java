@@ -8,6 +8,16 @@ public class Price {
     private BigDecimal price;
     private LocalDateTime dateTime;
 
+    public BookCatalog getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(BookCatalog bookId) {
+        this.bookId = bookId;
+    }
+
+    private BookCatalog bookId;
+
     public LocalDateTime getDateTime() {
         return dateTime;
     }
