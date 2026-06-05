@@ -1,10 +1,26 @@
 package ru.an.bookstore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Authors {
     private Long idAuthors;
     private String surname;
     private String nameAuthor;
     private String patronymic;
+    private List<AuthorsBook> authorsBooks;
+
+    public Authors() {
+        this.authorsBooks = new ArrayList<>();
+    }
+
+    public List<AuthorsBook> getAuthorsBooks() {
+        return authorsBooks;
+    }
+
+    public void setAuthorsBooks(List<AuthorsBook> authorsBooks) {
+        this.authorsBooks = authorsBooks;
+    }
 
     public String getSurname() {
         return surname;

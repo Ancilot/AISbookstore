@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.an.bookstore.WarehouseController">
    <children>
       <SplitPane dividerPositions="0.29797979797979796" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
@@ -22,20 +22,20 @@
                     <menus>
                       <Menu mnemonicParsing="false" text="Меню">
                         <items>
-                              <MenuItem mnemonicParsing="false" text="Главная" />
-                          <MenuItem mnemonicParsing="false" text="Клиенты" />
+                              <MenuItem mnemonicParsing="false" onAction="#onMain" text="Главная" />
+                          <MenuItem mnemonicParsing="false" onAction="#onClirnt" text="Клиенты" />
                               <MenuItem mnemonicParsing="false" text="Склад" />
-                              <MenuItem mnemonicParsing="false" text="Заказы" />
+                              <MenuItem mnemonicParsing="false" onAction="#onOreder" text="Заказы" />
                               <MenuItem mnemonicParsing="false" text="Справочники" />
-                              <MenuItem mnemonicParsing="false" text="Отчеты" />
+                              <MenuItem mnemonicParsing="false" onAction="#onReprt" text="Отчеты" />
                         </items>
                       </Menu>
                     </menus>
                   </MenuBar>
-                  <TextField layoutY="140.0" AnchorPane.bottomAnchor="230.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="140.0" />
+                  <TextField layoutY="140.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="140.0" />
                   <Button layoutX="1.0" layoutY="168.0" mnemonicParsing="false" text="Найти" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="168.0" />
                   <Button layoutX="1.0" layoutY="36.0" mnemonicParsing="false" text="Добавить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="36.0" />
-                  <Button layoutX="17.0" layoutY="125.0" mnemonicParsing="false" text="Выход" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="370.0" />
+                  <Button layoutX="17.0" layoutY="125.0" mnemonicParsing="false" onAction="#onExit" text="Выход" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
                   <Button layoutX="1.0" layoutY="61.0" mnemonicParsing="false" text="Удалить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="61.0" />
                   <Button layoutX="1.0" layoutY="86.0" mnemonicParsing="false" text="Накладная" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
                </children>

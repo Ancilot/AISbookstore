@@ -11,8 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="515.0" prefWidth="1127.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="515.0" prefWidth="1127.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.an.bookstore.NewBookController">
    <children>
       <SplitPane dividerPositions="0.32711111111111113" prefHeight="515.0" prefWidth="1127.0">
          <items>
@@ -131,7 +130,7 @@
                               </SplitPane>
                            </children>
                         </AnchorPane>
-                        <Button mnemonicParsing="false" text="Вернуться" />
+                        <Button mnemonicParsing="false" onAction="#onExit" text="Вернуться" />
                     </items>
                   </SplitPane>
                </children>
