@@ -32,22 +32,22 @@
                       </Menu>
                     </menus>
                   </MenuBar>
-                  <TextField layoutY="140.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="140.0" />
-                  <Button layoutX="1.0" layoutY="168.0" mnemonicParsing="false" text="Найти" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="168.0" />
-                  <Button layoutX="1.0" layoutY="36.0" mnemonicParsing="false" text="Добавить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="36.0" />
+                  <TextField fx:id="tfFind" layoutY="140.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="140.0" />
+                  <Button layoutX="1.0" layoutY="168.0" mnemonicParsing="false" onAction="#onFind" text="Найти" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="168.0" />
+                  <Button layoutX="1.0" layoutY="36.0" mnemonicParsing="false" onAction="#onAdd" text="Добавить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="36.0" />
                   <Button layoutX="17.0" layoutY="125.0" mnemonicParsing="false" onAction="#onExit" text="Выход" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
-                  <Button layoutX="1.0" layoutY="61.0" mnemonicParsing="false" text="Удалить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="61.0" />
-                  <Button layoutX="1.0" layoutY="86.0" mnemonicParsing="false" text="Накладная" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
+                  <Button layoutX="1.0" layoutY="61.0" mnemonicParsing="false" onAction="#onDelete" text="Удалить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="61.0" />
+                  <Button layoutX="1.0" layoutY="86.0" mnemonicParsing="false" onAction="#onInvoice" text="Накладная" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <TableView layoutX="-29.0" prefHeight="398.0" prefWidth="445.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
+                  <TableView fx:id="tvWarehouse" layoutX="-29.0" prefHeight="398.0" prefWidth="445.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
                     <columns>
-                      <TableColumn prefWidth="105.0" text="Книга" />
-                        <TableColumn fx:id="lastNameColumn3" prefWidth="44.0" text="ISBN" />
-                        <TableColumn fx:id="lastNameColumn1" prefWidth="77.0" text="Количество" />
-                      <TableColumn prefWidth="98.0" text="Статус наличия" />
+                      <TableColumn fx:id="tcBook" prefWidth="105.0" text="Книга" />
+                        <TableColumn fx:id="tcISBN" prefWidth="44.0" text="ISBN" />
+                        <TableColumn fx:id="tcGuanity" prefWidth="77.0" text="Количество" />
+                      <TableColumn fx:id="tcStatus" prefWidth="98.0" text="Статус наличия" />
                     </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
