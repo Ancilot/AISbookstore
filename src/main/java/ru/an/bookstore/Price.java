@@ -7,23 +7,14 @@ public class Price {
     private Long idPrice;
     private BigDecimal price;
     private LocalDateTime dateTime;
+    private Long idBooks;
 
-    public BookCatalog getBookId() {
-        return bookId;
+    public Long getIdPrice() {
+        return idPrice;
     }
 
-    public void setBookId(BookCatalog bookId) {
-        this.bookId = bookId;
-    }
-
-    private BookCatalog bookId;
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
+    public void setIdPrice(Long idPrice) {
+        this.idPrice = idPrice;
     }
 
     public BigDecimal getPrice() {
@@ -34,11 +25,19 @@ public class Price {
         this.price = price;
     }
 
-    public Long getIdPrice() {
-        return idPrice;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setIdPrice(Long idPrice) {
-        this.idPrice = idPrice;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public Long getIdBooks() {
+        return idBooks;
+    }
+
+    public void setIdBooks(Long idBooks) {
+        this.idBooks = idBooks;
     }
 }

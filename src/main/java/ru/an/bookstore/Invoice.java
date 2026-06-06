@@ -7,6 +7,24 @@ public class Invoice {
     private Suppliers supplier;
     private Warehouse warehouse;
     private LocalDate dateInvoice;
+    private Integer quantity;
+    private Price price;
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setPrice(Price price) {
+        this.price = price;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public Price getPrice() {
+        return price;
+    }
 
     public Long getIdInvoice() {
         return idInvoice;

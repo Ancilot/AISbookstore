@@ -15,10 +15,12 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class MainController {
 
     private final BookCatalogDAO dao = new BookCatalogDAO();
+    public TextField tfFind;
 
     private ObservableList<BookCatalog> books =
             FXCollections.observableArrayList();
@@ -81,6 +83,12 @@ public class MainController {
     }
 
     public void onEdit(ActionEvent actionEvent) {
+        BookCatalog selected = tvBooks.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Предупреждение", "Выберите книгу для редактирования", Alert.AlertType.WARNING);
+            return;
+        }
+        shomDialog(selected);
     }
 
     private void shomDialog(BookCatalog book) {
@@ -105,6 +113,8 @@ public class MainController {
             stage.setScene(scene);
 
             stage.showAndWait();
+
+            refreshTable();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -191,4 +201,53 @@ public class MainController {
         }
     }
 
+    public void onDelete(ActionEvent actionEvent) {
+        BookCatalog selected = tvBooks.getSelectionModel().getSelectedItem();
+
+        if (selected == null) {
+            showAlert("Предупреждение", "Пожалуйста, выберите книгу для удаления", Alert.AlertType.WARNING);
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Подтверждение удаления");
+        confirm.setHeaderText(null);
+        confirm.setContentText("Вы уверены, что хотите удалить книгу \"" + selected.getNameBook() + "\"?");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                dao.delete(selected);
+                refreshTable();
+                showAlert("Успех", "Книга успешно удалена", Alert.AlertType.INFORMATION);
+            } catch (RuntimeException e) {
+                // Показываем пользователю сообщение от триггера
+                String errorMessage = e.getMessage();
+                if (errorMessage != null) {
+                    showAlert("Невозможно удалить книгу", errorMessage, Alert.AlertType.WARNING);
+                } else {
+                    showAlert("Ошибка", "Не удалось удалить книгу", Alert.AlertType.ERROR);
+                }
+            }
+        }
+    }
+
+    private void showAlert(String title, String content, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    public void onFind(ActionEvent actionEvent) {
+        String text = tfFind.getText();
+
+        if (text == null || text.trim().isEmpty()) {
+            refreshTable();
+            return;
+        }
+
+        tvBooks.getItems().setAll(dao.search(text));
+    }
 }

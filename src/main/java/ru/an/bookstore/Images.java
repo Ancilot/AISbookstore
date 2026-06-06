@@ -2,16 +2,8 @@ package ru.an.bookstore;
 
 public class Images {
     private Long idImage;
-    private String imagePath;
-    private BookCatalog bookId;
-
-    public BookCatalog getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(BookCatalog bookId) {
-        this.bookId = bookId;
-    }
+    private String imagePath;  // Путь к файлу изображения
+    private Long idBook;       // ID книги
 
     public Long getIdImage() {
         return idImage;
@@ -27,5 +19,13 @@ public class Images {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public Long getIdBook() {
+        return idBook;
+    }
+
+    public void setIdBook(Long idBook) {
+        this.idBook = idBook;
     }
 }

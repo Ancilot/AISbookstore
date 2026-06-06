@@ -5,18 +5,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class GenresDAO implements Dao<Genres, Long> {
+public class AdressDAO implements Dao<Adress, Long> {
 
-    private final static String FIND_ALL = "SELECT * FROM store.genres ORDER BY genr";
-    private final static String FIND_BY_ID = "SELECT * FROM store.genres WHERE id_genr = ?";
-    private final static String INSERT = "INSERT INTO store.genres (genr) VALUES (?) RETURNING id_genr";
-    private final static String UPDATE = "UPDATE store.genres SET genr = ? WHERE id_genr = ?";
-    private final static String DELETE = "DELETE FROM store.genres WHERE id_genr = ?";
-    private final static String SEARCH = "SELECT * FROM store.search_genres(?)";
+    private final static String FIND_ALL = "SELECT * FROM store.adress ORDER BY country, region, city";
+    private final static String FIND_BY_ID = "SELECT * FROM store.adress WHERE id_adress = ?";
+    private final static String INSERT = "INSERT INTO store.adress (country, region, city, street, house) VALUES (?, ?, ?, ?, ?) RETURNING id_adress";
+    private final static String UPDATE = "UPDATE store.adress SET country = ?, region = ?, city = ?, street = ?, house = ? WHERE id_adress = ?";
+    private final static String DELETE = "DELETE FROM store.adress WHERE id_adress = ?";
 
     @Override
-    public Genres findById(Long id) {
-        Genres genre = null;
+    public Adress findById(Long id) {
+        Adress adress = null;
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -26,19 +25,19 @@ public class GenresDAO implements Dao<Genres, Long> {
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
-                genre = mapRow(rs);
+                adress = mapRow(rs);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             closeResources(rs, ps, conn);
         }
-        return genre;
+        return adress;
     }
 
     @Override
-    public Collection<Genres> findAll() {
-        List<Genres> list = new ArrayList<>();
+    public Collection<Adress> findAll() {
+        List<Adress> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -58,18 +57,22 @@ public class GenresDAO implements Dao<Genres, Long> {
     }
 
     @Override
-    public Genres save(Genres entity) {
+    public Adress save(Adress entity) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
             ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, entity.getGenr());
+            ps.setString(1, entity.getCountry());
+            ps.setString(2, entity.getRegion());
+            ps.setString(3, entity.getCity());
+            ps.setString(4, entity.getStreet());
+            ps.setString(5, entity.getHouse());
             ps.executeUpdate();
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                entity.setIdGenr(rs.getLong(1));
+                entity.setIdAdress(rs.getLong(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -80,14 +83,18 @@ public class GenresDAO implements Dao<Genres, Long> {
     }
 
     @Override
-    public Genres update(Genres entity) {
+    public Adress update(Adress entity) {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
             ps = conn.prepareStatement(UPDATE);
-            ps.setString(1, entity.getGenr());
-            ps.setLong(2, entity.getIdGenr());
+            ps.setString(1, entity.getCountry());
+            ps.setString(2, entity.getRegion());
+            ps.setString(3, entity.getCity());
+            ps.setString(4, entity.getStreet());
+            ps.setString(5, entity.getHouse());
+            ps.setLong(6, entity.getIdAdress());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,8 +105,8 @@ public class GenresDAO implements Dao<Genres, Long> {
     }
 
     @Override
-    public void delete(Genres entity) {
-        deleteById(entity.getIdGenr());
+    public void delete(Adress entity) {
+        deleteById(entity.getIdAdress());
     }
 
     @Override
@@ -118,27 +125,6 @@ public class GenresDAO implements Dao<Genres, Long> {
         }
     }
 
-    public List<Genres> search(String searchText) {
-        List<Genres> list = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(SEARCH);
-            ps.setString(1, searchText);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                list.add(mapRow(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeResources(rs, ps, conn);
-        }
-        return list;
-    }
-
     private void closeResources(ResultSet rs, PreparedStatement ps, Connection conn) {
         try {
             if (rs != null) rs.close();
@@ -149,10 +135,14 @@ public class GenresDAO implements Dao<Genres, Long> {
         }
     }
 
-    private Genres mapRow(ResultSet rs) throws SQLException {
-        Genres genre = new Genres();
-        genre.setIdGenr(rs.getLong("id_genr"));
-        genre.setGenr(rs.getString("genr"));
-        return genre;
+    private Adress mapRow(ResultSet rs) throws SQLException {
+        Adress adress = new Adress();
+        adress.setIdAdress(rs.getLong("id_adress"));
+        adress.setCountry(rs.getString("country"));
+        adress.setRegion(rs.getString("region"));
+        adress.setCity(rs.getString("city"));
+        adress.setStreet(rs.getString("street"));
+        adress.setHouse(rs.getString("house"));
+        return adress;
     }
 }

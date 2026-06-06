@@ -18,23 +18,23 @@
             <AnchorPane prefHeight="515.0" prefWidth="303.0">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Название:" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="5.0" />
-                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="25.0" />
+                  <TextField fx:id="tfNameBook" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="25.0" />
                   <Text layoutX="10.0" layoutY="63.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Издательство:" />
-                  <ComboBox layoutX="14.0" layoutY="70.0" prefWidth="150.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+                  <ComboBox fx:id="cbPublisher" layoutX="14.0" layoutY="70.0" prefWidth="150.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
                   <Text layoutX="10.0" layoutY="108.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Год издания:" />
-                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="115.0" />
+                  <TextField fx:id="tfYearPublication" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="115.0" />
                   <Text layoutX="10.0" layoutY="153.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ISBN:" />
-                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="160.0" />
+                  <TextField fx:id="tfIsbn" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="160.0" />
                   <Text layoutX="10.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Количество страниц:" />
-                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="205.0" />
+                  <TextField fx:id="tfNumberPages" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="205.0" />
                   <Text layoutX="10.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Цена:" />
-                  <TextField AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="250.0" />
+                  <TextField fx:id="tfPrice" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="250.0" />
                   <Text layoutX="10.0" layoutY="288.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Аннотация" />
-                  <TextField prefHeight="92.0" prefWidth="283.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="295.0" />
+                  <TextField fx:id="tfAnnotation" prefHeight="92.0" prefWidth="283.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="295.0" />
                   <Text layoutX="10.0" layoutY="420.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Изображение:" />
-                  <ImageView fitHeight="92.0" fitWidth="114.0" layoutX="108.0" layoutY="407.0" pickOnBounds="true" preserveRatio="true" />
-                  <Button layoutX="14.0" layoutY="424.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="79.0" text="Выбрать" AnchorPane.bottomAnchor="66.0" AnchorPane.leftAnchor="10.0" />
-                  <Button layoutX="14.0" layoutY="476.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="79.0" text="Сохранить" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="10.0" />
+                  <ImageView fx:id="ivBookImage" fitHeight="92.0" fitWidth="114.0" layoutX="108.0" layoutY="407.0" pickOnBounds="true" preserveRatio="true" />
+                  <Button fx:id="btnSelectImage" layoutX="14.0" layoutY="424.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="79.0" text="Выбрать" AnchorPane.bottomAnchor="66.0" AnchorPane.leftAnchor="10.0" />
+                  <Button layoutX="14.0" layoutY="476.0" mnemonicParsing="false" onAction="#onSave" prefHeight="25.0" prefWidth="79.0" text="Сохранить" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="10.0" />
                   <Text layoutX="239.0" layoutY="409.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Примечание: чтобы добавить жанр или автора в книгу, необходимо сохранить основную информацию" wrappingWidth="114.80859375" />
                </children>
             </AnchorPane>
@@ -53,16 +53,16 @@
                                                 <Font size="16.0" />
                                              </font>
                                           </Text>
-                                          <TableView prefHeight="175.0" prefWidth="370.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                                          <TableView fx:id="tvAvailableAuthors" prefHeight="175.0" prefWidth="370.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
                                             <columns>
-                                              <TableColumn prefWidth="129.0" text="Фамилия" />
-                                              <TableColumn prefWidth="93.0" text="Имя" />
-                                                <TableColumn prefWidth="147.0" text="Отчество" />
+                                              <TableColumn fx:id="colAvailableSurname" prefWidth="129.0" text="Фамилия" />
+                                              <TableColumn fx:id="colAvailableName" prefWidth="93.0" text="Имя" />
+                                                <TableColumn fx:id="colAvailablePatronymic" prefWidth="147.0" text="Отчество" />
                                             </columns>
                                           </TableView>
-                                          <Button layoutX="287.0" layoutY="197.0" mnemonicParsing="false" text="Добавить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
-                                          <TextField layoutX="14.0" layoutY="209.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
-                                          <Button layoutX="160.0" layoutY="209.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
+                                          <Button fx:id="btnAddAuthor" layoutX="287.0" layoutY="197.0" mnemonicParsing="false" text="Добавить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
+                                          <TextField fx:id="tfAuthorSearch" layoutX="14.0" layoutY="209.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                                          <Button fx:id="btnAuthorSearch" layoutX="160.0" layoutY="209.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
                                        </children>
                                     </AnchorPane>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="237.0" prefWidth="398.0">
@@ -72,16 +72,16 @@
                                                 <Font size="16.0" />
                                              </font>
                                           </Text>
-                                          <TableView prefHeight="175.0" prefWidth="374.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                                          <TableView fx:id="tvBookAuthors" prefHeight="175.0" prefWidth="374.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
                                              <columns>
-                                                <TableColumn prefWidth="129.0" text="Фамилия" />
-                                                <TableColumn prefWidth="103.0" text="Имя" />
-                                                <TableColumn prefWidth="141.0" text="Отчество" />
+                                                <TableColumn fx:id="colBookSurname" prefWidth="129.0" text="Фамилия" />
+                                                <TableColumn fx:id="colBookName" prefWidth="103.0" text="Имя" />
+                                                <TableColumn fx:id="colBookPatronymic" prefWidth="141.0" text="Отчество" />
                                              </columns>
                                           </TableView>
-                                          <Button mnemonicParsing="false" text="Удалить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
-                                          <TextField layoutX="14.0" layoutY="207.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
-                                          <Button layoutX="162.0" layoutY="209.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
+                                          <Button fx:id="btnRemoveAuthor" mnemonicParsing="false" text="Удалить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
+                                          <TextField fx:id="tfBookAuthorSearch" layoutX="14.0" layoutY="207.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                                          <Button fx:id="btnBookAuthorSearch" layoutX="162.0" layoutY="209.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
                                        </children>
                                     </AnchorPane>
                                  </items>
@@ -99,14 +99,14 @@
                                                 <Font size="16.0" />
                                              </font>
                                           </Text>
-                                          <TableView prefHeight="139.0" prefWidth="372.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                                          <TableView fx:id="tvAvailableGenres" prefHeight="139.0" prefWidth="372.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
                                              <columns>
-                                                <TableColumn prefWidth="371.0" text="Жанр" />
+                                                <TableColumn fx:id="colAvailableGenre" prefWidth="371.0" text="Жанр" />
                                              </columns>
                                           </TableView>
-                                          <Button mnemonicParsing="false" text="Добавить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
-                                          <TextField layoutX="14.0" layoutY="164.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
-                                          <Button layoutX="161.0" layoutY="170.0" mnemonicParsing="false" text="Найти" />
+                                          <Button fx:id="btnAddGenre" mnemonicParsing="false" text="Добавить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
+                                          <TextField fx:id="tfGenreSearch" layoutX="14.0" layoutY="164.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                                          <Button fx:id="btnGenreSearch" layoutX="161.0" layoutY="170.0" mnemonicParsing="false" text="Найти" />
                                        </children>
                                     </AnchorPane>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
@@ -116,14 +116,14 @@
                                                 <Font size="16.0" />
                                              </font>
                                           </Text>
-                                          <TableView prefHeight="139.0" prefWidth="372.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+                                          <TableView fx:id="tvBookGenres" prefHeight="139.0" prefWidth="372.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
                                              <columns>
-                                                <TableColumn prefWidth="371.0" text="Жанр" />
+                                                <TableColumn fx:id="colBookGenre" prefWidth="371.0" text="Жанр" />
                                              </columns>
                                           </TableView>
-                                          <Button mnemonicParsing="false" text="Удалить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
-                                          <TextField layoutX="9.0" layoutY="170.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
-                                          <Button layoutX="161.0" layoutY="172.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
+                                          <Button fx:id="btnRemoveGenre" mnemonicParsing="false" text="Удалить" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="10.0" />
+                                          <TextField fx:id="tfBookGenreSearch" layoutX="9.0" layoutY="170.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                                          <Button fx:id="btnBookGenreSearch" layoutX="161.0" layoutY="172.0" mnemonicParsing="false" text="Найти" AnchorPane.bottomAnchor="3.0" />
                                        </children>
                                     </AnchorPane>
                                  </items>

@@ -3,6 +3,7 @@ module ru.an.bookstore {
     requires javafx.fxml;
     requires java.sql;
     requires javafx.graphics;
+    requires org.postgresql.jdbc;
 
 
     opens ru.an.bookstore to javafx.fxml;

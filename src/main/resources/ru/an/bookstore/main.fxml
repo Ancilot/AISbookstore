@@ -32,12 +32,12 @@
                       </Menu>
                     </menus>
                   </MenuBar>
-                  <TextField layoutY="133.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="133.0" />
-                  <Button layoutY="161.0" mnemonicParsing="false" text="Найти" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="161.0" />
+                  <TextField fx:id="tfFind" layoutY="133.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="133.0" />
+                  <Button layoutY="161.0" mnemonicParsing="false" onAction="#onFind" text="Найти" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="161.0" />
                   <Button layoutX="1.0" layoutY="32.0" mnemonicParsing="false" onAction="#onAdd" text="Добавить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="32.0" />
                   <Button layoutX="17.0" layoutY="125.0" mnemonicParsing="false" onAction="#onExit" text="Выход" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
                   <Button layoutX="1.0" layoutY="57.0" mnemonicParsing="false" onAction="#onEdit" text="Редактировать" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="57.0" />
-                  <Button layoutX="1.0" layoutY="82.0" mnemonicParsing="false" text="Удалить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="82.0" />
+                  <Button layoutX="1.0" layoutY="82.0" mnemonicParsing="false" onAction="#onDelete" text="Удалить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="82.0" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
