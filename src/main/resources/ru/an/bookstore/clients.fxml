@@ -39,9 +39,9 @@
                   <Button layoutX="1.0" layoutY="57.0" mnemonicParsing="false" onAction="#onEdit" text="Редактировать" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="57.0" />
                   <Button layoutX="1.0" layoutY="82.0" mnemonicParsing="false" onAction="#onDelete" text="Удалить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="82.0" />
                   <Button layoutX="6.0" layoutY="107.0" mnemonicParsing="false" onAction="#onLoyaltyBase" text="База лояльности" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
-                  <Button layoutX="15.0" layoutY="132.0" mnemonicParsing="false" text="Уведомления" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
-                  <Button layoutX="22.0" layoutY="157.0" mnemonicParsing="false" text="Чеки и возврат" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
-                  <Button layoutX="1.0" layoutY="182.0" mnemonicParsing="false" text="Оформление покупки и заказов" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
+                  <Button layoutX="15.0" layoutY="132.0" mnemonicParsing="false" onAction="#onNotifications" text="Уведомления" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
+                  <Button layoutX="22.0" layoutY="157.0" mnemonicParsing="false" onAction="#onChecks" text="Чеки и возврат" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
+                  <Button layoutX="1.0" layoutY="182.0" mnemonicParsing="false" onAction="#onMaking" text="Оформление покупки и заказов" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">

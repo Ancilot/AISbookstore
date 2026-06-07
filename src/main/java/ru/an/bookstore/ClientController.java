@@ -234,4 +234,98 @@ public class ClientController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+    @FXML
+    public void onNotifications(ActionEvent actionEvent) {
+        Clients selected = tvClients.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Предупреждение", "Выберите клиента");
+            return;
+        }
+        showNotificationsDialog(selected);
+    }
+
+
+    @FXML
+    public void onChecks(ActionEvent actionEvent) {
+        Clients selected = tvClients.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Предупреждение", "Выберите клиента");
+            return;
+        }
+        showRefundDialog(selected);
+    }
+
+    private void showRefundDialog(Clients client) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    ClientController.class.getResource("refund.fxml"));
+            Scene scene = new Scene(loader.load(), 935, 400);
+
+            RefundController controller = loader.getController();
+            Stage stage = new Stage();
+
+            controller.setStage(stage);
+            controller.setClient(client);
+
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle("Возврат товаров - " + client.getSurname() + " " + client.getNameClient());
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void onMaking(ActionEvent actionEvent) {
+        Clients selected = tvClients.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Предупреждение", "Выберите клиента");
+            return;
+        }
+        showMakingDialog(selected);
+    }
+
+    private void showNotificationsDialog(Clients client) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    ClientController.class.getResource("notifications.fxml"));
+            Scene scene = new Scene(loader.load(), 935, 400);
+
+            NotificationsController controller = loader.getController();
+            Stage stage = new Stage();
+
+            controller.setStage(stage);
+            controller.setClient(client);
+
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle("Уведомления");
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showMakingDialog(Clients client) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    ClientController.class.getResource("making-a-purchase.fxml"));
+            Scene scene = new Scene(loader.load(), 860, 342);
+
+            MakingController controller = loader.getController();
+            Stage stage = new Stage();
+
+            controller.setStage(stage);
+            controller.setClient(client);
+
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setTitle("Оформление покупки");
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

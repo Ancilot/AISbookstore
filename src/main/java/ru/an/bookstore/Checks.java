@@ -10,6 +10,14 @@ public class Checks {
     private BigDecimal sumCheck;
     private String status;
 
+    public Clients getClient() {
+        return client;
+    }
+
+    public void setClient(Clients client) {
+        this.client = client;
+    }
+
     public Long getIdCheck() {
         return idCheck;
     }

@@ -8,6 +8,24 @@ public class Orders {
     private LocalDate dateOrder;
     private String status;
     private String textOrder;
+    private BookCatalog book;
+    private Integer quantity;
+
+    public BookCatalog getBook() {
+        return book;
+    }
+
+    public void setBook(BookCatalog book) {
+        this.book = book;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
 
     public Long getIdOrder() {
         return idOrder;

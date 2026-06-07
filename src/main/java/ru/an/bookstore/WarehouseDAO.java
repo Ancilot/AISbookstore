@@ -17,6 +17,9 @@ public class WarehouseDAO {
                     "WHERE w.archiv IS NOT TRUE " +
                     "ORDER BY b.name_book";
 
+    // Для поиска книг на складе
+    private final static String SEARCH_WAREHOUSE = "SELECT * FROM store.search_warehouse(?)";
+
     // Получить все книги в архиве
     private final static String FIND_ALL_ARCHIVE =
             "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
@@ -170,7 +173,7 @@ public class WarehouseDAO {
         int result = 0;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall("{ ? = call store.delete_book(?) }");
+            cs = conn.prepareCall(DELETE_BOOK);
             cs.registerOutParameter(1, Types.INTEGER);
             cs.setInt(2, bookId);
             cs.execute();
@@ -245,6 +248,41 @@ public class WarehouseDAO {
 
         return warehouse;
     }
+    // WarehouseDAO.java
+    public List<BookCatalog> findBooksForSale(String searchText) {
+        List<BookCatalog> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            String sql = "SELECT * FROM store.search_warehouse(?)";
+            ps = conn.prepareStatement(sql);
+            if (searchText == null || searchText.trim().isEmpty()) {
+                ps.setNull(1, Types.VARCHAR);
+            } else {
+                ps.setString(1, searchText);
+            }
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                BookCatalog book = new BookCatalog();
+                book.setIdBook(rs.getLong("book"));  // теперь поле "book" существует
+                book.setNameBook(rs.getString("book_name"));
+                book.setAuthors(rs.getString("authors"));
+                book.setGenres(rs.getString("genres"));
+                book.setQuantity(rs.getInt("quantity"));
+                book.setStatus(rs.getString("status"));
+                book.setPrice(rs.getBigDecimal("sale_price"));
+                list.add(book);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
+        }
+        return list;
+    }
+
 
     private void closeResources(ResultSet rs, PreparedStatement ps, Connection conn) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}

@@ -71,7 +71,7 @@ public class WarehouseController {
                     WarehouseController.class.getResource("adding-to-the-warehouse.fxml"));
             Scene scene = new Scene(loader.load(), 1000, 600);
 
-            addingWarehouseController controller = loader.getController();
+            AddingWarehouseController controller = loader.getController();
             Stage stage = new Stage();
 
             controller.setStage(stage);
@@ -132,6 +132,8 @@ public class WarehouseController {
         }
     }
 
+
+
     public void onInvoice(ActionEvent actionEvent) {
         Warehouse selected = tvWarehouse.getSelectionModel().getSelectedItem();
         if (selected == null) {
@@ -179,11 +181,6 @@ public class WarehouseController {
 
     public void onExit(ActionEvent actionEvent) {
         Platform.exit();
-    }
-
-    public void onShowArchive(ActionEvent actionEvent) {
-        showArchive = !showArchive;
-        refreshTable();
     }
 
     private void navigateTo(ActionEvent actionEvent, String fxml, String title) {

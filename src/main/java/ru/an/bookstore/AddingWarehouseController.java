@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-public class addingWarehouseController {
+public class AddingWarehouseController {
 
     @FXML private TextField tfName;
     @FXML private TextField tfCount;
