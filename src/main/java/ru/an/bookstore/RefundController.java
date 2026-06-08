@@ -128,7 +128,7 @@ public class RefundController {
                 loadClientChecks();
                 tfReturnQuantity.clear();
             } catch (RuntimeException e) {
-                showAlert("Ошибка", e.getMessage());
+                showAlert("Ошибка","Произошла ошибка");
             }
         }
     }

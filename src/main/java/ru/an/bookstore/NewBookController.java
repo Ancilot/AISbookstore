@@ -302,6 +302,11 @@ public class NewBookController {
             showAlert("Ошибка", "Введите ISBN");
             return false;
         }
+
+        if (!tfIsbn.getText().matches("\\d{13}")) {
+            showAlert("Ошибка", "ISBN должен содержать ровно 13 цифр (только цифры 0-9)");
+            return false;
+        }
         try {
             int pages = Integer.parseInt(tfNumberPages.getText());
             if (pages <= 0 || pages > 1500) {

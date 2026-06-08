@@ -6,13 +6,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class newClientController {
+public class NewClientController {
 
     @FXML private TextField tfSurname;
     @FXML private TextField tfName;
     @FXML private TextField tfPatronomic;
     @FXML private TextField tfNumber;
     @FXML private TextField tfEmail;
+
+    private static final String NAME_REGEX = "^[\\p{L} -]+$";
 
     private Stage stage;
     private Clients client;
@@ -45,32 +47,90 @@ public class newClientController {
         if (client == null) {
             client = new Clients();
         }
+
         client.setSurname(tfSurname.getText().trim());
         client.setNameClient(tfName.getText().trim());
-        client.setPatrontmic(tfPatronomic.getText().trim());
+
+        String patronymic = tfPatronomic.getText();
+        client.setPatrontmic(
+                patronymic == null || patronymic.trim().isEmpty()
+                        ? null
+                        : patronymic.trim()
+        );
+
         client.setNumberClient(tfNumber.getText().trim());
-        client.setEmail(tfEmail.getText().trim());
+
+        String email = tfEmail.getText();
+        client.setEmail(
+                email == null || email.trim().isEmpty()
+                        ? null
+                        : email.trim()
+        );
     }
 
     private boolean validateFields() {
-        if (tfSurname.getText() == null || tfSurname.getText().trim().isEmpty()) {
+
+        // Фамилия
+        String surname = tfSurname.getText();
+        if (surname == null || surname.trim().isEmpty()) {
             showAlert("Ошибка", "Введите фамилию");
             return false;
         }
-        if (tfName.getText() == null || tfName.getText().trim().isEmpty()) {
+        surname = surname.trim();
+
+        if (!surname.matches(NAME_REGEX)) {
+            showAlert("Ошибка", "Фамилия содержит недопустимые символы");
+            return false;
+        }
+
+        // Имя
+        String name = tfName.getText();
+        if (name == null || name.trim().isEmpty()) {
             showAlert("Ошибка", "Введите имя");
             return false;
         }
-        String phone = tfNumber.getText().trim();
-        if (phone.isEmpty()) {
+        name = name.trim();
+
+        if (!name.matches(NAME_REGEX)) {
+            showAlert("Ошибка", "Имя содержит недопустимые символы");
+            return false;
+        }
+
+        // Отчество (необязательное)
+        String patronymic = tfPatronomic.getText();
+        if (patronymic != null && !patronymic.trim().isEmpty()) {
+            patronymic = patronymic.trim();
+
+            if (!patronymic.matches(NAME_REGEX)) {
+                showAlert("Ошибка", "Отчество содержит недопустимые символы");
+                return false;
+            }
+        }
+
+        // Телефон
+        String phone = tfNumber.getText();
+        if (phone == null || phone.trim().isEmpty()) {
             showAlert("Ошибка", "Введите номер телефона");
             return false;
         }
-        // Простая проверка телефона (можно расширить)
+        phone = phone.trim();
+
         if (!phone.matches("^(\\+[0-9]{11}|[0-9]{11})$")) {
-            showAlert("Ошибка", "Номер телефона должен быть в формате: 11 цифр или +7XXXXXXXXXX");
+            showAlert("Ошибка", "Номер телефона должен содержать 11 цифр и может начинаться с '+'");
             return false;
         }
+
+        // Email (необязательный)
+        String email = tfEmail.getText();
+        if (email != null && !email.trim().isEmpty()) {
+            email = email.trim();
+
+            if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                showAlert("Ошибка", "Некорректный email");
+                return false;
+            }
+        }
+
         return true;
     }
 

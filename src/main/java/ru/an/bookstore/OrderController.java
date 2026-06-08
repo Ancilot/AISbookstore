@@ -75,7 +75,7 @@ public class OrderController {
                 showAlert("Успех", "Заказ выполнен, клиент уведомлен");
                 refreshTable();
             } catch (RuntimeException e) {
-                showAlert("Ошибка", e.getMessage());
+                showAlert("Ошибка", "Недостаточно книг на складе");
             }
         }
     }
@@ -83,6 +83,7 @@ public class OrderController {
     @FXML
     public void onDelete(ActionEvent actionEvent) {
         Orders selected = tvOrders.getSelectionModel().getSelectedItem();
+
         if (selected == null) {
             showAlert("Предупреждение", "Выберите заказ для удаления");
             return;
@@ -91,17 +92,32 @@ public class OrderController {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Подтверждение");
         confirm.setHeaderText(null);
-        confirm.setContentText("Удалить заказ №" + selected.getIdOrder() + "?");
+        confirm.setContentText(
+                "Архивировать заказ №" + selected.getIdOrder() + "?"
+        );
 
         Optional<ButtonType> result = confirm.showAndWait();
+
         if (result.isPresent() && result.get() == ButtonType.OK) {
+
             try {
-                int deleteResult = ordersDAO.deleteOrderToArchive(selected.getIdOrder());
-                String message = deleteResult == 1 ? "Заказ архивирован" : "Заказ удален";
-                showAlert("Результат", message);
+
+                ordersDAO.deleteOrderToArchive(selected.getIdOrder());
+
+                showAlert(
+                        "Успех",
+                        "Заказ успешно архивирован"
+                );
+
                 refreshTable();
+
             } catch (RuntimeException e) {
-                showAlert("Ошибка", e.getMessage());
+
+                showAlert(
+                        "Ошибка",
+                        "Не удалось архивировать заказ. Заказ должен иметь статус 'Выполнено'."
+                );
+
             }
         }
     }

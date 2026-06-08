@@ -137,7 +137,7 @@ public class ClientController {
                     ClientController.class.getResource("add-edit-clients.fxml"));
             Scene scene = new Scene(loader.load(), 300, 285);
 
-            newClientController controller = loader.getController();
+            NewClientController controller = loader.getController();
             Stage stage = new Stage();
 
             controller.setStage(stage);

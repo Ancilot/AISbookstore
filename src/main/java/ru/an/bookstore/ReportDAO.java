@@ -1,0 +1,249 @@
+package ru.an.bookstore;
+
+import java.math.BigDecimal;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ReportDAO {
+
+    // Продажи
+    private final static String REPORT_SALES = "SELECT * FROM store.report_sales(?)";
+
+    // Остатки товаров (VIEW)
+    private final static String REPORT_STOCK = "SELECT * FROM store.report_stock";
+
+    // Популярность по авторам
+    private final static String REPORT_AUTHOR_POPULARITY = "SELECT * FROM store.report_author_popularity(?)";
+
+    // Популярность по жанрам
+    private final static String REPORT_GENRE_POPULARITY = "SELECT * FROM store.report_genre_popularity(?)";
+
+    // Популярность по книгам
+    private final static String REPORT_BOOK_POPULARITY = "SELECT * FROM store.report_book_popularity(?)";
+
+    // Класс для хранения данных о продажах
+    public static class SalesReport {
+        public long checksCount;
+        public long booksCount;
+        public BigDecimal totalAmount;
+
+        public SalesReport(long checksCount, long booksCount, BigDecimal totalAmount) {
+            this.checksCount = checksCount;
+            this.booksCount = booksCount;
+            this.totalAmount = totalAmount;
+        }
+
+        public long getChecksCount() {
+            return checksCount;
+        }
+
+        public long getBooksCount() {
+            return booksCount;
+        }
+
+        public BigDecimal getTotalAmount() {
+            return totalAmount;
+        }
+    }
+
+    // Класс для остатков товаров
+    public static class StockReport {
+        public long idBook;
+        public String nameBook;
+        public int quantity;
+        public BigDecimal currentPrice;
+        public BigDecimal stockAmount;
+
+        public StockReport(long idBook, String nameBook, int quantity,
+                           BigDecimal currentPrice, BigDecimal stockAmount) {
+            this.idBook = idBook;
+            this.nameBook = nameBook;
+            this.quantity = quantity;
+            this.currentPrice = currentPrice;
+            this.stockAmount = stockAmount;
+        }
+
+        public long getIdBook() {
+            return idBook;
+        }
+
+        public String getNameBook() {
+            return nameBook;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public BigDecimal getCurrentPrice() {
+            return currentPrice;
+        }
+
+        public BigDecimal getStockAmount() {
+            return stockAmount;
+        }
+
+    }
+
+    // Класс для популярности
+    public static class PopularityReport {
+        public String name;
+        public long soldQuantity;
+        public BigDecimal totalAmount;
+        public Long place; // для книг
+
+        public PopularityReport(String name, long soldQuantity, BigDecimal totalAmount) {
+            this.name = name;
+            this.soldQuantity = soldQuantity;
+            this.totalAmount = totalAmount;
+        }
+
+        public PopularityReport(Long place, String name, long soldQuantity, BigDecimal totalAmount) {
+            this.place = place;
+            this.name = name;
+            this.soldQuantity = soldQuantity;
+            this.totalAmount = totalAmount;
+        }
+
+        // Геттеры
+        public String getName() { return name; }
+        public long getSoldQuantity() { return soldQuantity; }
+        public BigDecimal getTotalAmount() { return totalAmount; }
+        public Long getPlace() { return place; }
+    }
+
+
+    public SalesReport getSalesReport(String period) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        SalesReport report = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(REPORT_SALES);
+            ps.setString(1, period);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                report = new SalesReport(
+                        rs.getLong("checks_count"),
+                        rs.getLong("books_count"),
+                        rs.getBigDecimal("total_amount")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
+        }
+        return report;
+    }
+
+    public List<StockReport> getStockReport() {
+        List<StockReport> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(REPORT_STOCK);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new StockReport(
+                        rs.getLong("id_book"),
+                        rs.getString("name_book"),
+                        rs.getInt("quantity"),
+                        rs.getBigDecimal("current_price"),
+                        rs.getBigDecimal("stock_amount")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
+        }
+        return list;
+    }
+
+    public List<PopularityReport> getAuthorPopularity(String period) {
+        List<PopularityReport> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(REPORT_AUTHOR_POPULARITY);
+            ps.setString(1, period);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new PopularityReport(
+                        rs.getString("author_name"),
+                        rs.getLong("sold_quantity"),
+                        rs.getBigDecimal("total_amount")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
+        }
+        return list;
+    }
+
+    public List<PopularityReport> getGenrePopularity(String period) {
+        List<PopularityReport> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(REPORT_GENRE_POPULARITY);
+            ps.setString(1, period);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new PopularityReport(
+                        rs.getString("genre"),
+                        rs.getLong("sold_quantity"),
+                        rs.getBigDecimal("total_amount")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
+        }
+        return list;
+    }
+
+    public List<PopularityReport> getBookPopularity(String period) {
+        List<PopularityReport> list = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(REPORT_BOOK_POPULARITY);
+            ps.setString(1, period);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new PopularityReport(
+                        rs.getLong("place"),
+                        rs.getString("book_name"),
+                        rs.getLong("sold_quantity"),
+                        rs.getBigDecimal("total_amount")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
+        }
+        return list;
+    }
+
+    private void closeResources(ResultSet rs, Statement st, Connection conn) {
+        try { if (rs != null) rs.close(); } catch (SQLException e) {}
+        try { if (st != null) st.close(); } catch (SQLException e) {}
+        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
+    }
+}

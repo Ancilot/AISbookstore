@@ -1,4 +1,3 @@
-
 package ru.an.bookstore;
 
 import org.postgresql.util.PSQLException;
@@ -75,10 +74,14 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
     @Override
     public BookCatalog findById(Long id) {
         BookCatalog book = null;
-        try (Connection conn = DBHelper.getConnection();
-             PreparedStatement ps = conn.prepareStatement(FIND_BY_ID)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(FIND_BY_ID);
             ps.setLong(1, id);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             if (rs.next()) {
                 book = mapSimpleRow(rs);
 
@@ -130,6 +133,8 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
         }
         return book;
     }
@@ -137,9 +142,13 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
     @Override
     public Collection<BookCatalog> findAll() {
         List<BookCatalog> books = new ArrayList<>();
-        try (Connection conn = DBHelper.getConnection();
-             PreparedStatement ps = conn.prepareStatement(FIND_ALL);
-             ResultSet rs = ps.executeQuery()) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(FIND_ALL);
+            rs = ps.executeQuery();
             while (rs.next()) {
                 BookCatalog book = new BookCatalog();
                 book.setIdBook(rs.getLong("id_book"));
@@ -149,7 +158,6 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                 book.setAuthors(rs.getString("authors"));
                 book.setPublishingName(rs.getString("name_publishing"));
 
-                // Безопасное получение года издания
                 int year = rs.getInt("year_publication");
                 if (!rs.wasNull() && year > 0) {
                     book.setYearPublication(LocalDate.of(year, 1, 1));
@@ -161,36 +169,37 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
         }
         return books;
     }
 
     @Override
     public BookCatalog save(BookCatalog entity) {
-        try (Connection conn = DBHelper.getConnection();
-             PreparedStatement ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
-
-            // Устанавливаем параметры
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getNameBook());
             ps.setObject(2, entity.getPublishingHouses() != null ? entity.getPublishingHouses().getIdPub() : null, Types.BIGINT);
             ps.setInt(3, entity.getYearPublication() != null ? entity.getYearPublication().getYear() : 0);
             ps.setString(4, entity.getIsbn());
             ps.setInt(5, entity.getNumberPages());
             ps.setString(6, entity.getAnnotation());
-
             ps.executeUpdate();
 
-            ResultSet rs = ps.getGeneratedKeys();
+            rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 Long newId = rs.getLong(1);
                 entity.setIdBook(newId);
 
-                // Сохраняем цену
                 if (entity.getPrice() != null) {
                     priceDAO.save(newId, entity.getPrice());
                 }
 
-                // Сохраняем связи с авторами
                 if (entity.getAuthorsBook() != null) {
                     for (AuthorsBook ab : entity.getAuthorsBook()) {
                         if (ab.getAuthor() != null && ab.getAuthor().getIdAuthors() != null) {
@@ -199,7 +208,6 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                     }
                 }
 
-                // Сохраняем связи с жанрами
                 if (entity.getGenresBooks() != null) {
                     for (GenresBook gb : entity.getGenresBooks()) {
                         if (gb.getGenr() != null && gb.getGenr().getIdGenr() != null) {
@@ -208,7 +216,6 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                     }
                 }
 
-                // Сохраняем изображения
                 if (entity.getImages() != null) {
                     for (Images img : entity.getImages()) {
                         if (img.getImagePath() != null && !img.getImagePath().isEmpty()) {
@@ -219,15 +226,19 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
         }
         return entity;
     }
 
     @Override
     public BookCatalog update(BookCatalog entity) {
-        try (Connection conn = DBHelper.getConnection();
-             PreparedStatement ps = conn.prepareStatement(UPDATE)) {
-
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(UPDATE);
             ps.setString(1, entity.getNameBook());
             ps.setObject(2, entity.getPublishingHouses() != null ? entity.getPublishingHouses().getIdPub() : null, Types.BIGINT);
             ps.setInt(3, entity.getYearPublication() != null ? entity.getYearPublication().getYear() : 0);
@@ -235,15 +246,12 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
             ps.setInt(5, entity.getNumberPages());
             ps.setString(6, entity.getAnnotation());
             ps.setLong(7, entity.getIdBook());
-
             ps.executeUpdate();
 
-            // Обновляем цену (добавляем новую запись)
             if (entity.getPrice() != null) {
                 priceDAO.save(entity.getIdBook(), entity.getPrice());
             }
 
-            // Обновляем связи с авторами
             authorsBookDAO.deleteByBook(entity.getIdBook());
             if (entity.getAuthorsBook() != null) {
                 for (AuthorsBook ab : entity.getAuthorsBook()) {
@@ -253,7 +261,6 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                 }
             }
 
-            // Обновляем связи с жанрами
             genresBookDAO.deleteByBook(entity.getIdBook());
             if (entity.getGenresBooks() != null) {
                 for (GenresBook gb : entity.getGenresBooks()) {
@@ -263,7 +270,6 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                 }
             }
 
-            // Добавляем новые изображения
             if (entity.getImages() != null && !entity.getImages().isEmpty()) {
                 for (Images img : entity.getImages()) {
                     if (img.getIdImage() == null && img.getImagePath() != null && !img.getImagePath().isEmpty()) {
@@ -274,6 +280,8 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResources(null, ps, conn);
         }
         return entity;
     }
@@ -285,68 +293,60 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
     @Override
     public void deleteById(Long id) {
-        try (Connection conn = DBHelper.getConnection();
-             PreparedStatement ps = conn.prepareStatement(DELETE)) {
-
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(DELETE);
             ps.setLong(1, id);
             ps.executeUpdate();
-
         } catch (SQLException e) {
-            // Получаем сообщение от триггера
             if (e instanceof PSQLException pgEx && pgEx.getServerErrorMessage() != null) {
-                // Бросаем исключение с текстом из триггера
                 throw new RuntimeException(pgEx.getServerErrorMessage().getMessage());
             }
             throw new RuntimeException(e.getMessage());
+        } finally {
+            closeResources(null, ps, conn);
         }
     }
 
-    // Методы поиска
-
     public List<BookCatalog> search(String text) {
-
         String sql = "SELECT * FROM store.search_books(?)";
-
         List<BookCatalog> books = new ArrayList<>();
-
-        try (Connection conn = DBHelper.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(sql);
             if (text == null || text.trim().isEmpty()) {
                 ps.setNull(1, Types.VARCHAR);
             } else {
                 ps.setString(1, text.trim());
             }
-
-            ResultSet rs = ps.executeQuery();
-
+            rs = ps.executeQuery();
             while (rs.next()) {
                 BookCatalog book = new BookCatalog();
-
                 book.setIdBook(rs.getLong("id_book"));
                 book.setNameBook(rs.getString("name_book"));
                 book.setIsbn(rs.getString("isbn"));
-
                 int year = rs.getInt("year_publication");
                 if (!rs.wasNull()) {
                     book.setYearPublication(LocalDate.of(year, 1, 1));
                 }
-
                 book.setNumberPages(rs.getInt("number_pages"));
-
                 book.setGenres(rs.getString("genres"));
                 book.setAuthors(rs.getString("authors"));
                 book.setPrice(rs.getBigDecimal("price"));
                 book.setQuantity(rs.getInt("quantity"));
                 book.setPublishingName(rs.getString("publishing_name"));
-
                 books.add(book);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
         }
-
         return books;
     }
 
@@ -374,32 +374,44 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
     public boolean bookHasGenre(Long bookId, String genre) {
         String sql = "SELECT store.book_has_genre(?, ?)";
-        try (Connection conn = DBHelper.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(sql);
             ps.setLong(1, bookId);
             ps.setString(2, genre);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getBoolean(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
         }
         return false;
     }
 
     public boolean bookHasAuthor(Long bookId, String author) {
         String sql = "SELECT store.book_has_author(?, ?)";
-        try (Connection conn = DBHelper.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DBHelper.getConnection();
+            ps = conn.prepareStatement(sql);
             ps.setLong(1, bookId);
             ps.setString(2, author);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getBoolean(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeResources(rs, ps, conn);
         }
         return false;
     }
@@ -423,5 +435,23 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
         book.setPublishingHouses(pub);
 
         return book;
+    }
+
+    private void closeResources(ResultSet rs, PreparedStatement ps, Connection conn) {
+        try {
+            if (rs != null) rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (ps != null) ps.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (conn != null) DBHelper.close(conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

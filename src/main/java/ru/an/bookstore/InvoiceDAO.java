@@ -36,7 +36,7 @@ public class InvoiceDAO {
                 invoice.setIdInvoice(rs.getLong(1));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         } finally {
             closeResources(rs, ps, conn);
         }

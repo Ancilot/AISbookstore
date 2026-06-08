@@ -221,13 +221,9 @@ public class MainController {
                 refreshTable();
                 showAlert("Успех", "Книга успешно удалена", Alert.AlertType.INFORMATION);
             } catch (RuntimeException e) {
-                // Показываем пользователю сообщение от триггера
-                String errorMessage = e.getMessage();
-                if (errorMessage != null) {
-                    showAlert("Невозможно удалить книгу", errorMessage, Alert.AlertType.WARNING);
-                } else {
+
                     showAlert("Ошибка", "Не удалось удалить книгу", Alert.AlertType.ERROR);
-                }
+
             }
         }
     }

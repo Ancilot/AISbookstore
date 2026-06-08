@@ -26,8 +26,6 @@ public class OrdersDAO {
 
     private final static String COMPLETE_ORDER = "{ call store.complete_order(?) }";
     private final static String DELETE_ORDER = "{ ? = call store.delete_order(?) }";
-    private final static String UPDATE_ORDER =
-            "UPDATE store.orders SET status = ?, text_order = ? WHERE id_order = ?";
 
     private final static String SAVE = "INSERT INTO store.orders (client, book, quanity, text_order) VALUES (?, ?, ?, ?) RETURNING id_order";
 
@@ -95,37 +93,22 @@ public class OrdersDAO {
     public int deleteOrderToArchive(Long orderId) {
         Connection conn = null;
         CallableStatement cs = null;
-        int result = 0;
+
         try {
             conn = DBHelper.getConnection();
+
             cs = conn.prepareCall(DELETE_ORDER);
             cs.registerOutParameter(1, Types.INTEGER);
             cs.setInt(2, orderId.intValue());
+
             cs.execute();
-            result = cs.getInt(1);
+
+            return cs.getInt(1);
+
         } catch (SQLException e) {
-            e.printStackTrace();
-            result = 0;
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             closeResources(null, cs, conn);
-        }
-        return result;
-    }
-
-    public void updateOrder(Orders order) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(UPDATE_ORDER);
-            ps.setString(1, order.getStatus());
-            ps.setString(2, order.getTextOrder());
-            ps.setLong(3, order.getIdOrder());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeResources(null, ps, conn);
         }
     }
 
