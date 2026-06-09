@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 
 public class MainApplication extends Application {
 
+
     private static final Logger logger = LoggerFactory.getLogger(MainApplication.class);
     private static Stage primaryStage;
     private static ResourceBundle bundle;
@@ -43,42 +44,45 @@ public class MainApplication extends Application {
         bundle = ResourceBundle.getBundle("ru.an.bookstore.messages", Locale.getDefault());
         logger.info("Загружены ресурсы для локали: " + Locale.getDefault());
 
-        // Цикл аутентификации
-        LoginDialog loginDialog = new LoginDialog();
 
-        while (true) {
-            Optional<LoginDialog.LoginResult> result = loginDialog.showAndWait();
 
-            if (result.isEmpty()) {
-                logger.info("Пользователь отменил вход, выход из приложения");
-                Platform.exit();
-                return;
-            }
 
-            String username = result.get().getUsername();
-            String password = result.get().getPassword();
-
-            try {
-                DBHelper.initConnection(username, password);
-                logger.info("Успешная аутентификация для пользователя: {}", username);
-                break;
-            } catch (SQLException ex) {
-                logger.error("Ошибка аутентификации для пользователя {}: {}", username, ex.getMessage());
-
-                String userMessage;
-                    userMessage =
-                            "Проверьте:\n" +
-                            "- Логин\n" +
-                            "- Пароль\n" +
-                            "- Доступность сервера";
-
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Ошибка подключения");
-                alert.setHeaderText("Не удалось подключиться к базе данных");
-                alert.setContentText(userMessage);
-                alert.showAndWait();
-            }
-        }
+//        // Цикл аутентификации
+//        LoginDialog loginDialog = new LoginDialog();
+//
+//        while (true) {
+//            Optional<LoginDialog.LoginResult> result = loginDialog.showAndWait();
+//
+//            if (result.isEmpty()) {
+//                logger.info("Пользователь отменил вход, выход из приложения");
+//                Platform.exit();
+//                return;
+//            }
+//
+//            String username = result.get().getUsername();
+//            String password = result.get().getPassword();
+//
+//            try {
+//                DBHelper.initConnection(username, password);
+//                logger.info("Успешная аутентификация для пользователя: {}", username);
+//                break;
+//            } catch (SQLException ex) {
+//                logger.error("Ошибка аутентификации для пользователя {}: {}", username, ex.getMessage());
+//
+//                String userMessage;
+//                    userMessage =
+//                            "Проверьте:\n" +
+//                            "- Логин\n" +
+//                            "- Пароль\n" +
+//                            "- Доступность сервера";
+//
+//                Alert alert = new Alert(Alert.AlertType.ERROR);
+//                alert.setTitle("Ошибка подключения");
+//                alert.setHeaderText("Не удалось подключиться к базе данных");
+//                alert.setContentText(userMessage);
+//                alert.showAndWait();
+//            }
+//        }
 
         // Загрузка главного окна
         try {
