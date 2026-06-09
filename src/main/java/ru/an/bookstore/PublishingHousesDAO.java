@@ -8,8 +8,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(PublishingHousesDAO.class);
 
     private static Properties property = new Properties();
 
@@ -18,8 +23,9 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для PublishingHousesDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -37,6 +43,7 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
 
     @Override
     public PublishingHouses findById(Long id) {
+        logger.debug("Поиск издательства id={}", id);
         PublishingHouses publisher = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -48,9 +55,10 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
             rs = ps.executeQuery();
             if (rs.next()) {
                 publisher = mapRow(rs);
+                logger.debug("Издательство id={} найдено", id);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска издательства id={}", id, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -59,6 +67,7 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
 
     @Override
     public Collection<PublishingHouses> findAll() {
+        logger.debug("Получение списка издательств");
         List<PublishingHouses> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -80,8 +89,9 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
                 }
                 list.add(publisher);
             }
+            logger.debug("Получено {} издательств", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения списка издательств", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -90,6 +100,10 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
 
     @Override
     public PublishingHouses save(PublishingHouses entity) {
+        logger.debug(
+                "Добавление издательства '{}'",
+                entity.getNamePublishing()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -116,9 +130,17 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 entity.setIdPub(rs.getLong(1));
+                logger.info(
+                        "Добавлено издательство id={}",
+                        entity.getIdPub()
+                );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка добавления издательства '{}'",
+                    entity.getNamePublishing(),
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -127,6 +149,10 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
 
     @Override
     public PublishingHouses update(PublishingHouses entity) {
+        logger.debug(
+                "Обновление издательства id={}",
+                entity.getIdPub()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -153,8 +179,16 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
             ps.setString(4, entity.getEmail());
             ps.setLong(5, entity.getIdPub());
             ps.executeUpdate();
+            logger.info(
+                    "Издательство id={} обновлено",
+                    entity.getIdPub()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка обновления издательства id={}",
+                    entity.getIdPub(),
+                    e
+            );
         } finally {
             closeResources(null, ps);
         }
@@ -168,6 +202,10 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
 
     @Override
     public void deleteById(Long id) {
+        logger.debug(
+                "Удаление издательства id={}",
+                id
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -175,19 +213,28 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
             ps = conn.prepareStatement(property.getProperty("publishing_houses.delete"));
             ps.setLong(1, id);
             ps.executeUpdate();
+            logger.info(
+                    "Издательство id={} удалено",
+                    id
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка удаления издательства id={}",
+                    id,
+                    e
+            );
         } finally {
             closeResources(null, ps);
         }
     }
 
     private void closeResources(ResultSet rs, PreparedStatement ps) {
+
         try {
             if (rs != null) rs.close();
             if (ps != null) ps.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка закрытия ресурсов в PublishingHousesDAO", e);
         }
     }
 

@@ -8,8 +8,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportDAO {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ReportDAO.class);
 
     private static Properties property = new Properties();
 
@@ -18,8 +23,9 @@ public class ReportDAO {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для ReportDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -131,6 +137,7 @@ public class ReportDAO {
 
 
     public SalesReport getSalesReport(String period) {
+        logger.debug("Формирование отчёта по продажам, период={}", period);
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -146,9 +153,19 @@ public class ReportDAO {
                         rs.getLong("books_count"),
                         rs.getBigDecimal("total_amount")
                 );
+                logger.debug(
+                        "Отчёт по продажам сформирован: чеков={}, книг={}, сумма={}",
+                        report.getChecksCount(),
+                        report.getBooksCount(),
+                        report.getTotalAmount()
+                );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка формирования отчёта по продажам, период={}",
+                    period,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -156,6 +173,7 @@ public class ReportDAO {
     }
 
     public List<StockReport> getStockReport() {
+        logger.debug("Формирование отчёта по остаткам");
         List<StockReport> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -173,8 +191,12 @@ public class ReportDAO {
                         rs.getBigDecimal("stock_amount")
                 ));
             }
+            logger.debug(
+                    "Отчёт по остаткам сформирован, записей={}",
+                    list.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка формирования отчёта по остаткам", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -182,6 +204,10 @@ public class ReportDAO {
     }
 
     public List<PopularityReport> getAuthorPopularity(String period) {
+        logger.debug(
+                "Формирование отчёта популярности авторов, период={}",
+                period
+        );
         List<PopularityReport> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -198,8 +224,16 @@ public class ReportDAO {
                         rs.getBigDecimal("total_amount")
                 ));
             }
+            logger.debug(
+                    "Получено {} записей популярности авторов",
+                    list.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка формирования отчёта популярности авторов, период={}",
+                    period,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -207,6 +241,10 @@ public class ReportDAO {
     }
 
     public List<PopularityReport> getGenrePopularity(String period) {
+        logger.debug(
+                "Формирование отчёта популярности жанров, период={}",
+                period
+        );
         List<PopularityReport> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -223,8 +261,16 @@ public class ReportDAO {
                         rs.getBigDecimal("total_amount")
                 ));
             }
+            logger.debug(
+                    "Получено {} записей популярности жанров",
+                    list.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка формирования отчёта популярности жанров, период={}",
+                    period,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -232,6 +278,10 @@ public class ReportDAO {
     }
 
     public List<PopularityReport> getBookPopularity(String period) {
+        logger.debug(
+                "Формирование отчёта популярности книг, период={}",
+                period
+        );
         List<PopularityReport> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -249,8 +299,16 @@ public class ReportDAO {
                         rs.getBigDecimal("total_amount")
                 ));
             }
+            logger.debug(
+                    "Получено {} записей популярности книг",
+                    list.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка формирования отчёта популярности книг, период={}",
+                    period,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -258,7 +316,7 @@ public class ReportDAO {
     }
 
     private void closeResources(ResultSet rs, Statement st) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (st != null) st.close(); } catch (SQLException e) {}
+        try { if (rs != null) rs.close(); } catch (SQLException e) {logger.error("Ошибка закрытия ResultSet", e);}
+        try { if (st != null) st.close(); } catch (SQLException e) {logger.error("Ошибка закрытия Statement", e);}
     }
 }

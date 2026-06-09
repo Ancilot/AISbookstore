@@ -8,8 +8,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthorsDAO implements Dao<Authors, Long> {
+    private static final Logger logger =
+            LoggerFactory.getLogger(AuthorsDAO.class);
 
     private static Properties property = new Properties();
 
@@ -18,8 +22,9 @@ public class AuthorsDAO implements Dao<Authors, Long> {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для AuthorsDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -32,6 +37,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
 
     @Override
     public Authors findById(Long id) {
+        logger.debug("Поиск автора по id={}", id);
         Authors author = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -43,9 +49,10 @@ public class AuthorsDAO implements Dao<Authors, Long> {
             rs = ps.executeQuery();
             if (rs.next()) {
                 author = mapRow(rs);
+                logger.debug("Автор найден: id={}", id);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска автора по id={}", id, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -54,6 +61,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
 
     @Override
     public Collection<Authors> findAll() {
+        logger.debug("Получение списка авторов");
         List<Authors> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -65,8 +73,9 @@ public class AuthorsDAO implements Dao<Authors, Long> {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Получено {} авторов", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения списка авторов", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -75,6 +84,11 @@ public class AuthorsDAO implements Dao<Authors, Long> {
 
     @Override
     public Authors save(Authors entity) {
+        logger.debug(
+                "Добавление автора: {} {}",
+                entity.getSurname(),
+                entity.getNameAuthor()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -89,8 +103,17 @@ public class AuthorsDAO implements Dao<Authors, Long> {
             if (rs.next()) {
                 entity.setIdAuthors(rs.getLong(1));
             }
+            logger.info(
+                    "Добавлен автор id={}",
+                    entity.getIdAuthors()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка добавления автора {} {}",
+                    entity.getSurname(),
+                    entity.getNameAuthor(),
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -99,6 +122,10 @@ public class AuthorsDAO implements Dao<Authors, Long> {
 
     @Override
     public Authors update(Authors entity) {
+        logger.debug(
+                "Обновление автора id={}",
+                entity.getIdAuthors()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -109,8 +136,16 @@ public class AuthorsDAO implements Dao<Authors, Long> {
             ps.setString(3, entity.getPatronymic());
             ps.setLong(4, entity.getIdAuthors());
             ps.executeUpdate();
+            logger.info(
+                    "Автор id={} обновлён",
+                    entity.getIdAuthors()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка обновления автора id={}",
+                    entity.getIdAuthors(),
+                    e
+            );
         } finally {
             closeResources(null, ps);
         }
@@ -124,6 +159,10 @@ public class AuthorsDAO implements Dao<Authors, Long> {
 
     @Override
     public void deleteById(Long id) {
+        logger.debug(
+                "Удаление автора id={}",
+                id
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -131,14 +170,26 @@ public class AuthorsDAO implements Dao<Authors, Long> {
             ps = conn.prepareStatement(property.getProperty("authors.delete"));
             ps.setLong(1, id);
             ps.executeUpdate();
+            logger.info(
+                    "Автор id={} удалён",
+                    id
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка удаления автора id={}",
+                    id,
+                    e
+            );
         } finally {
             closeResources(null, ps);
         }
     }
 
     public List<Authors> search(String searchText) {
+        logger.debug(
+                "Поиск авторов по строке '{}'",
+                searchText
+        );
         List<Authors> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -151,8 +202,17 @@ public class AuthorsDAO implements Dao<Authors, Long> {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug(
+                    "По запросу '{}' найдено {} авторов",
+                    searchText,
+                    list.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка поиска авторов по строке '{}'",
+                    searchText,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -163,12 +223,12 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         try {
             if (rs != null) rs.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка закрытия ResultSet", e);
         }
         try {
             if (ps != null) ps.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка закрытия PreparedStatement", e);
         }
     }
 

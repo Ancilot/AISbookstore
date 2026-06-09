@@ -8,8 +8,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AdressDAO implements Dao<Adress, Long> {
+    private static final Logger logger =
+            LoggerFactory.getLogger(AdressDAO.class);
+
     private static Properties property = new Properties();
 
     public AdressDAO() {
@@ -17,8 +22,9 @@ public class AdressDAO implements Dao<Adress, Long> {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для AdressDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -30,6 +36,7 @@ public class AdressDAO implements Dao<Adress, Long> {
 
     @Override
     public Adress findById(Long id) {
+        logger.debug("Поиск адреса по id={}", id);
         Adress adress = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -41,9 +48,10 @@ public class AdressDAO implements Dao<Adress, Long> {
             rs = ps.executeQuery();
             if (rs.next()) {
                 adress = mapRow(rs);
+                logger.debug("Адрес найден: id={}", id);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска адреса по id={}", id, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -52,6 +60,7 @@ public class AdressDAO implements Dao<Adress, Long> {
 
     @Override
     public Collection<Adress> findAll() {
+        logger.debug("Получение списка всех адресов");
         List<Adress> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -63,8 +72,9 @@ public class AdressDAO implements Dao<Adress, Long> {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Получено {} адресов", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения списка адресов", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -73,6 +83,10 @@ public class AdressDAO implements Dao<Adress, Long> {
 
     @Override
     public Adress save(Adress entity) {
+        logger.debug("Добавление адреса: {}, {}, {}",
+                entity.getCountry(),
+                entity.getCity(),
+                entity.getStreet());
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -88,9 +102,10 @@ public class AdressDAO implements Dao<Adress, Long> {
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 entity.setIdAdress(rs.getLong(1));
+                logger.info("Добавлен адрес с id={}", entity.getIdAdress());
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка добавления адреса", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -99,6 +114,7 @@ public class AdressDAO implements Dao<Adress, Long> {
 
     @Override
     public Adress update(Adress entity) {
+        logger.debug("Обновление адреса id={}", entity.getIdAdress());
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -111,8 +127,11 @@ public class AdressDAO implements Dao<Adress, Long> {
             ps.setString(5, entity.getHouse());
             ps.setLong(6, entity.getIdAdress());
             ps.executeUpdate();
+            logger.info("Адрес id={} успешно обновлён",
+                    entity.getIdAdress());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка обновления адреса id={}",
+                    entity.getIdAdress(), e);
         } finally {
             closeResources(null, ps);
         }
@@ -126,6 +145,7 @@ public class AdressDAO implements Dao<Adress, Long> {
 
     @Override
     public void deleteById(Long id) {
+        logger.debug("Удаление адреса id={}", id);
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -133,8 +153,9 @@ public class AdressDAO implements Dao<Adress, Long> {
             ps = conn.prepareStatement(property.getProperty("adress.delete"));
             ps.setLong(1, id);
             ps.executeUpdate();
+            logger.info("Адрес id={} удалён", id);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка удаления адреса id={}", id, e);
         } finally {
             closeResources(null, ps);
         }
@@ -145,7 +166,7 @@ public class AdressDAO implements Dao<Adress, Long> {
             if (rs != null) rs.close();
             if (ps != null) ps.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка закрытия JDBC ресурсов", e);
         }
     }
 

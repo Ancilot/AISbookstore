@@ -7,8 +7,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrdersDAO {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(OrdersDAO.class);
 
     private static Properties property = new Properties();
 
@@ -17,8 +22,9 @@ public class OrdersDAO {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для OrdersDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -46,6 +52,7 @@ public class OrdersDAO {
 //    private final static String SAVE = "INSERT INTO store.orders (client, book, quanity, text_order) VALUES (?, ?, ?, ?) RETURNING id_order";
 
     public List<Orders> findAllActive() {
+        logger.debug("Получение активных заказов");
         List<Orders> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -57,8 +64,9 @@ public class OrdersDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Найдено {} активных заказов", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения активных заказов", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -66,6 +74,7 @@ public class OrdersDAO {
     }
 
     public List<Orders> search(String searchText) {
+        logger.debug("Поиск заказов по тексту: {}", searchText);
         List<Orders> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -82,8 +91,9 @@ public class OrdersDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("По запросу '{}' найдено {} заказов", searchText, list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска заказов: {}", searchText, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -91,6 +101,8 @@ public class OrdersDAO {
     }
 
     public void completeOrder(Long orderId) {
+        logger.debug("Завершение заказа id={}", orderId);
+
         Connection conn = null;
         CallableStatement cs = null;
         try {
@@ -98,15 +110,17 @@ public class OrdersDAO {
             cs = conn.prepareCall(property.getProperty("orders.complete"));
             cs.setInt(1, orderId.intValue());
             cs.execute();
+            logger.info("Заказ id={} успешно завершён", orderId);
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Ошибка при выполнении заказа: " + e.getMessage(), e);
+            logger.error("Ошибка завершения заказа id={}", orderId, e);
+            throw new RuntimeException("Ошибка при завершении заказа: " + e.getMessage(), e);
         } finally {
             closeResources(null, cs);
         }
     }
 
     public int deleteOrderToArchive(Long orderId) {
+        logger.debug("Удаление заказа в архив id={}", orderId);
         Connection conn = null;
         CallableStatement cs = null;
 
@@ -118,10 +132,11 @@ public class OrdersDAO {
             cs.setInt(2, orderId.intValue());
 
             cs.execute();
-
+            logger.info("Заказ id={} перемещён в архив", orderId);
             return cs.getInt(1);
 
         } catch (SQLException e) {
+            logger.error("Ошибка архивирования заказа id={}", orderId, e);
             throw new RuntimeException(e.getMessage(), e);
         } finally {
             closeResources(null, cs);
@@ -153,6 +168,12 @@ public class OrdersDAO {
     }
 
     public Orders save(Orders order) {
+        logger.debug(
+                "Создание заказа: clientId={}, bookId={}, qty={}",
+                order.getClient().getIdClient(),
+                order.getBook().getIdBook(),
+                order.getQuantity()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -168,9 +189,15 @@ public class OrdersDAO {
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 order.setIdOrder(rs.getLong(1));
+                logger.info("Заказ создан id={}", order.getIdOrder());
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка создания заказа clientId={}, bookId={}",
+                    order.getClient().getIdClient(),
+                    order.getBook().getIdBook(),
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -178,7 +205,7 @@ public class OrdersDAO {
     }
 
     private void closeResources(ResultSet rs, Statement st) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (st != null) st.close(); } catch (SQLException e) {}
+        try { if (rs != null) rs.close(); } catch (SQLException e) {logger.error("Ошибка закрытия ResultSet", e);}
+        try { if (st != null) st.close(); } catch (SQLException e) {logger.error("Ошибка закрытия Statement", e);}
     }
 }

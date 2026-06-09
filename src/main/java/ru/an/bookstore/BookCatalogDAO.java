@@ -12,8 +12,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BookCatalogDAO implements Dao<BookCatalog, Long> {
+    private static final Logger logger =
+            LoggerFactory.getLogger(BookCatalogDAO.class);
 
     private static Properties property = new Properties();
 
@@ -22,8 +26,9 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для BookCatalogDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
     private final AuthorsDAO authorsDAO = new AuthorsDAO();
@@ -88,6 +93,7 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
     @Override
     public BookCatalog findById(Long id) {
+        logger.debug("Поиск книги по id={}", id);
         BookCatalog book = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -145,9 +151,11 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                     genresStr.append(g.getGenr());
                 }
                 book.setGenres(genresStr.toString());
+
+                logger.debug("Книга id={} успешно загружена", id);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска книги id={}", id, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -156,6 +164,7 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
     @Override
     public Collection<BookCatalog> findAll() {
+        logger.debug("Получение списка книг");
         List<BookCatalog> books = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -182,8 +191,9 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                 book.setQuantity(rs.getInt("quantity"));
                 books.add(book);
             }
+            logger.debug("Получено {} книг", books.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения списка книг", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -192,6 +202,10 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
     @Override
     public BookCatalog save(BookCatalog entity) {
+        logger.debug(
+                "Добавление книги '{}'",
+                entity.getNameBook()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -239,8 +253,17 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                     }
                 }
             }
+            logger.info(
+                    "Добавлена книга id={}, название='{}'",
+                    entity.getIdBook(),
+                    entity.getNameBook()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка добавления книги '{}'",
+                    entity.getNameBook(),
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -249,6 +272,10 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
     @Override
     public BookCatalog update(BookCatalog entity) {
+        logger.debug(
+                "Обновление книги id={}",
+                entity.getIdBook()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -292,9 +319,17 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                     }
                 }
             }
+            logger.info(
+                    "Книга id={} успешно обновлена",
+                    entity.getIdBook()
+            );
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка обновления книги id={}",
+                    entity.getIdBook(),
+                    e
+            );
         } finally {
             closeResources(null, ps);
         }
@@ -308,6 +343,10 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
     @Override
     public void deleteById(Long id) {
+        logger.debug(
+                "Удаление книги id={}",
+                id
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -315,17 +354,38 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
             ps = conn.prepareStatement(property.getProperty("book_catalog.delete"));
             ps.setLong(1, id);
             ps.executeUpdate();
+            logger.info(
+                    "Книга id={} удалена",
+                    id
+            );
         } catch (SQLException e) {
-            if (e instanceof PSQLException pgEx && pgEx.getServerErrorMessage() != null) {
-                throw new RuntimeException(pgEx.getServerErrorMessage().getMessage());
+            logger.error(
+                    "Ошибка удаления книги id={}, sqlState={}, message={}",
+                    id,
+                    e.getSQLState(),
+                    e.getMessage(),
+                    e
+            );
+
+            if (e instanceof PSQLException pgEx &&
+                    pgEx.getServerErrorMessage() != null) {
+
+                throw new RuntimeException(
+                        pgEx.getServerErrorMessage().getMessage()
+                );
             }
-            throw new RuntimeException(e.getMessage());
+
+            throw new RuntimeException(e.getMessage(), e);
         } finally {
             closeResources(null, ps);
         }
     }
 
     public List<BookCatalog> search(String text) {
+        logger.debug(
+                "Поиск книг по строке '{}'",
+                text
+        );
         List<BookCatalog> books = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -356,8 +416,17 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
                 book.setPublishingName(rs.getString("publishing_name"));
                 books.add(book);
             }
+            logger.debug(
+                    "По запросу '{}' найдено {} книг",
+                    text,
+                    books.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка поиска книг по строке '{}'",
+                    text,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -397,12 +466,12 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
         try {
             if (rs != null) rs.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка закрытия ResultSet", e);
         }
         try {
             if (ps != null) ps.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка закрытия PreparedStatement", e);
         }
     }
 }

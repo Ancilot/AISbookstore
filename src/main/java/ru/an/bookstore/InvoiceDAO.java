@@ -8,8 +8,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InvoiceDAO {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(InvoiceDAO.class);
 
     private static Properties property = new Properties();
 
@@ -35,6 +40,12 @@ public class InvoiceDAO {
 //                    "ORDER BY i.date_invoice DESC";
 
     public Invoice save(Invoice invoice) {
+        logger.debug(
+                "Создание накладной supplierId={}, warehouseId={}, quantity={}",
+                invoice.getSupplier().getIdSupplier(),
+                invoice.getWarehouse().getIdWarehouse(),
+                invoice.getQuantity()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -50,9 +61,19 @@ public class InvoiceDAO {
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 invoice.setIdInvoice(rs.getLong(1));
+                logger.info(
+                        "Накладная создана id={}",
+                        invoice.getIdInvoice()
+                );
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            logger.error(
+                    "Ошибка создания накладной supplierId={}, warehouseId={}",
+                    invoice.getSupplier().getIdSupplier(),
+                    invoice.getWarehouse().getIdWarehouse(),
+                    e
+            );
+            throw new RuntimeException(e);
         } finally {
             closeResources(rs, ps);
         }
@@ -60,6 +81,7 @@ public class InvoiceDAO {
     }
 
     public List<Invoice> findAll() {
+        logger.debug("Получение всех накладных");
         List<Invoice> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -71,8 +93,9 @@ public class InvoiceDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Найдено {} накладных", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения списка накладных", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -102,7 +125,7 @@ public class InvoiceDAO {
     }
 
     private void closeResources(ResultSet rs, PreparedStatement ps) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (rs != null) rs.close(); } catch (SQLException e) {logger.error("Ошибка закрытия ресурса InvoiceDAO", e);}
+        try { if (ps != null) ps.close(); } catch (SQLException e) {logger.error("Ошибка закрытия ресурса InvoiceDAO", e);}
     }
 }

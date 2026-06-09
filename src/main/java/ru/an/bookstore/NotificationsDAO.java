@@ -8,8 +8,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NotificationsDAO {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(NotificationsDAO.class);
 
     private static Properties property = new Properties();
 
@@ -18,8 +23,9 @@ public class NotificationsDAO {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для NotificationsDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -33,6 +39,7 @@ public class NotificationsDAO {
 //            "DELETE FROM store.notifications WHERE id_notification = ?";
 
     public List<Notifications> findAll() {
+        logger.debug("Получение всех уведомлений");
         List<Notifications> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -44,8 +51,9 @@ public class NotificationsDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Загружено {} уведомлений", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения уведомлений", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -53,6 +61,7 @@ public class NotificationsDAO {
     }
 
     public void deleteById(Long id) {
+        logger.debug("Удаление уведомления id={}", id);
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -60,8 +69,9 @@ public class NotificationsDAO {
             ps = conn.prepareStatement(property.getProperty("notifications.delete_by_id"));
             ps.setLong(1, id);
             ps.executeUpdate();
+            logger.info("Уведомление id={} удалено", id);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка удаления уведомления id={}", id, e);
         } finally {
             closeResources(null, ps);
         }
@@ -84,6 +94,7 @@ public class NotificationsDAO {
     }
 
     public List<Notifications> findByClient(Long clientId) {
+        logger.debug("Поиск уведомлений клиента id={}", clientId);
         List<Notifications> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -96,15 +107,16 @@ public class NotificationsDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Найдено {} уведомлений для clientId={}", list.size(), clientId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска уведомлений clientId={}", clientId, e);
         } finally {
             closeResources(rs, ps);
         }
         return list;
     }
     private void closeResources(ResultSet rs, Statement st) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (st != null) st.close(); } catch (SQLException e) {}
+        try { if (rs != null) rs.close(); } catch (SQLException e) { logger.error("Ошибка закрытия ResultSet", e);}
+        try { if (st != null) st.close(); } catch (SQLException e) { logger.error("Ошибка закрытия Statement", e);}
     }
 }

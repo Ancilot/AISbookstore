@@ -8,8 +8,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientsDAO implements Dao<Clients, Long> {
+    private static final Logger logger =
+            LoggerFactory.getLogger(ClientsDAO.class);
 
     private static Properties property = new Properties();
 
@@ -18,8 +22,9 @@ public class ClientsDAO implements Dao<Clients, Long> {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для ClientsDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -50,6 +55,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
 
     @Override
     public Clients findById(Long id) {
+        logger.debug("Поиск клиента id={}", id);
         Clients client = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -61,9 +67,10 @@ public class ClientsDAO implements Dao<Clients, Long> {
             rs = ps.executeQuery();
             if (rs.next()) {
                 client = mapRow(rs);
+                logger.debug("Клиент id={} найден", id);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска клиента id={}", id, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -72,6 +79,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
 
     @Override
     public Collection<Clients> findAll() {
+        logger.debug("Получение активных клиентов");
         List<Clients> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -83,8 +91,9 @@ public class ClientsDAO implements Dao<Clients, Long> {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Получено {} активных клиентов", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения активных клиентов", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -92,6 +101,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
     }
 
     public Collection<Clients> findAllArchive() {
+        logger.debug("Получение архивных клиентов");
         List<Clients> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -103,8 +113,9 @@ public class ClientsDAO implements Dao<Clients, Long> {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Получено {} архивных клиентов", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения архивных клиентов", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -113,6 +124,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
 
     @Override
     public Clients save(Clients entity) {
+        logger.debug("Добавление клиента {} {}", entity.getSurname(), entity.getNameClient());
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -128,9 +140,15 @@ public class ClientsDAO implements Dao<Clients, Long> {
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 entity.setIdClient(rs.getLong(1));
+                logger.info("Добавлен клиент id={}", entity.getIdClient());
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка добавления клиента {} {}",
+                    entity.getSurname(),
+                    entity.getNameClient(),
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -139,6 +157,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
 
     @Override
     public Clients update(Clients entity) {
+        logger.debug("Обновление клиента id={}", entity.getIdClient());
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -151,8 +170,9 @@ public class ClientsDAO implements Dao<Clients, Long> {
             ps.setString(5, entity.getEmail());
             ps.setLong(6, entity.getIdClient());
             ps.executeUpdate();
+            logger.info("Клиент id={} обновлён", entity.getIdClient());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка обновления клиента id={}", entity.getIdClient(), e);
         } finally {
             closeResources(null, ps);
         }
@@ -166,6 +186,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
 
     @Override
     public void deleteById(Long id) {
+        logger.debug("Удаление клиента id={}", id);
         Connection conn = null;
         CallableStatement cs = null;
         try {
@@ -174,14 +195,16 @@ public class ClientsDAO implements Dao<Clients, Long> {
             cs.registerOutParameter(1, Types.INTEGER);
             cs.setInt(2, id.intValue());
             cs.execute();
+            logger.info("Клиент id={} удалён", id);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка удаления клиента id={}", id, e);
         } finally {
             closeResources(null, cs);
         }
     }
 
     public int deleteClientToArchive(Long clientId) {
+        logger.debug("Перенос клиента id={} в архив", clientId);
         Connection conn = null;
         CallableStatement cs = null;
         int result = 0;
@@ -192,8 +215,9 @@ public class ClientsDAO implements Dao<Clients, Long> {
             cs.setInt(2, clientId.intValue());
             cs.execute();
             result = cs.getInt(1);
+            logger.info("Клиент id={} отправлен в архив, результат={}", clientId, result);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка архивации клиента id={}", clientId, e);
         } finally {
             closeResources(null, cs);
         }
@@ -201,6 +225,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
     }
 
     public List<Clients> search(String searchText) {
+        logger.debug("Поиск клиентов по тексту '{}'", searchText);
         List<Clients> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -216,8 +241,9 @@ public class ClientsDAO implements Dao<Clients, Long> {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("По запросу '{}' найдено {} клиентов", searchText, list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска клиентов по '{}'", searchText, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -236,7 +262,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
     }
 
     private void closeResources(ResultSet rs, Statement st) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (st != null) st.close(); } catch (SQLException e) {}
+        try { if (rs != null) rs.close(); } catch (SQLException e) {logger.error("Ошибка закрытия ResultSet", e);}
+        try { if (st != null) st.close(); } catch (SQLException e) {logger.error("Ошибка закрытия Statement", e);}
     }
 }

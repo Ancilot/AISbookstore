@@ -8,8 +8,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChecksDAO {
+    private static final Logger logger =
+            LoggerFactory.getLogger(ChecksDAO.class);
     private static Properties property = new Properties();
 
     public ChecksDAO() {
@@ -17,8 +21,9 @@ public class ChecksDAO {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для ChecksDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -34,6 +39,7 @@ public class ChecksDAO {
 //            "DELETE FROM store.checks WHERE id_check = ?";
 
     public Checks createCheck(Long clientId) {
+        logger.debug("Создание чека для клиента id={}", clientId);
         Checks check = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -47,9 +53,19 @@ public class ChecksDAO {
             if (rs.next()) {
                 Long checkId = rs.getLong(1);
                 check = findById(checkId);
+                logger.info(
+                        "Создан чек id={} для клиента id={}",
+                        checkId,
+                        clientId
+                );
             }
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка создания чека для клиента id={}",
+                    clientId,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -57,6 +73,7 @@ public class ChecksDAO {
     }
 
     public Checks findById(Long id) {
+        logger.debug("Поиск чека id={}", id);
         Checks check = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -68,17 +85,19 @@ public class ChecksDAO {
             rs = ps.executeQuery();
             if (rs.next()) {
                 check = mapRow(rs);
+                logger.debug("Чек id={} найден", id);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска чека id={}", id, e);
         } finally {
             closeResources(rs, ps);
         }
         return check;
     }
 
-    // Заменяем payCheck на completeCheck
+    // completeCheck
     public void completeCheck(Long checkId) {
+        logger.debug("Завершение чека id={}", checkId);
         Connection conn = null;
         CallableStatement cs = null;
         try {
@@ -86,14 +105,16 @@ public class ChecksDAO {
             cs = conn.prepareCall(property.getProperty("checks.complete"));
             cs.setInt(1, checkId.intValue());
             cs.execute();
+            logger.info("Чек id={} успешно завершён", checkId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка завершения чека id={}", checkId, e);
         } finally {
             closeResources(null, cs);
         }
     }
 
     public void deleteCheck(Long checkId) {
+        logger.debug("Удаление чека id={}", checkId);
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -101,8 +122,9 @@ public class ChecksDAO {
             ps = conn.prepareStatement(property.getProperty("checks.delete"));
             ps.setLong(1, checkId);
             ps.executeUpdate();
+            logger.info("Чек id={} удалён", checkId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка удаления чека id={}", checkId, e);
         } finally {
             closeResources(null, ps);
         }
@@ -123,7 +145,7 @@ public class ChecksDAO {
     }
 
     private void closeResources(ResultSet rs, Statement st) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (st != null) st.close(); } catch (SQLException e) {}
+        try { if (rs != null) rs.close(); } catch (SQLException e) {logger.error("Ошибка закрытия ResultSet", e);}
+        try { if (st != null) st.close(); } catch (SQLException e) {logger.error("Ошибка закрытия Statement", e);}
     }
 }

@@ -7,8 +7,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WarehouseDAO {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(WarehouseDAO.class);
+
     private static Properties property = new Properties();
 
     public WarehouseDAO() {
@@ -16,8 +22,9 @@ public class WarehouseDAO {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для WarehouseDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -91,6 +98,7 @@ public class WarehouseDAO {
 //                    "ORDER BY b.name_book";
 
     public List<Warehouse> findAllActive() {
+        logger.debug("Получение списка книг на складе");
         List<Warehouse> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -102,8 +110,9 @@ public class WarehouseDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Получено {} записей склада", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения списка книг на складе", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -111,6 +120,7 @@ public class WarehouseDAO {
     }
 
     public List<Warehouse> findAllArchive() {
+        logger.debug("Получение архивных записей склада");
         List<Warehouse> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -122,8 +132,9 @@ public class WarehouseDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Получено {} архивных записей склада", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения архивных записей склада", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -131,6 +142,7 @@ public class WarehouseDAO {
     }
 
     public List<BookCatalog> findBooksNotInWarehouse() {
+        logger.debug("Получение книг, отсутствующих на складе");
         List<BookCatalog> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -152,8 +164,9 @@ public class WarehouseDAO {
                 book.setAuthors(rs.getString("authors"));
                 list.add(book);
             }
+            logger.debug("Найдено {} книг, отсутствующих на складе", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения списка книг вне склада", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -161,6 +174,11 @@ public class WarehouseDAO {
     }
 
     public Warehouse save(Warehouse warehouse) {
+        logger.debug(
+                "Добавление книги id={} на склад, количество={}",
+                warehouse.getBook().getIdBook(),
+                warehouse.getQuantity()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -173,9 +191,18 @@ public class WarehouseDAO {
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 warehouse.setIdWarehouse(rs.getLong(1));
+                logger.info(
+                        "Создана запись склада id={} для книги id={}",
+                        warehouse.getIdWarehouse(),
+                        warehouse.getBook().getIdBook()
+                );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка добавления книги id={} на склад",
+                    warehouse.getBook().getIdBook(),
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -183,6 +210,7 @@ public class WarehouseDAO {
     }
 
     public int deleteBookToArchive(int bookId) {
+        logger.debug("Архивация книги id={}", bookId);
         Connection conn = null;
         CallableStatement cs = null;
         int result = 0;
@@ -193,8 +221,17 @@ public class WarehouseDAO {
             cs.setInt(2, bookId);
             cs.execute();
             result = cs.getInt(1);
+            logger.info(
+                    "Архивация книги id={} завершена, результат={}",
+                    bookId,
+                    result
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка архивации книги id={}",
+                    bookId,
+                    e
+            );
             result = 0;
         } finally {
             closeResources(null, cs);
@@ -203,6 +240,10 @@ public class WarehouseDAO {
     }
 
     public List<Warehouse> searchActive(String searchText) {
+        logger.debug(
+                "Поиск книг на складе по запросу '{}'",
+                searchText
+        );
         List<Warehouse> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -215,8 +256,17 @@ public class WarehouseDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug(
+                    "По запросу '{}' найдено {} книг на складе",
+                    searchText,
+                    list.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка поиска книг на складе по запросу '{}'",
+                    searchText,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -224,6 +274,10 @@ public class WarehouseDAO {
     }
 
     public List<Warehouse> searchArchive(String searchText) {
+        logger.debug(
+                "Поиск архивных книг по запросу '{}'",
+                searchText
+        );
         List<Warehouse> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -236,8 +290,17 @@ public class WarehouseDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug(
+                    "По запросу '{}' найдено {} архивных книг",
+                    searchText,
+                    list.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка поиска архивных книг по запросу '{}'",
+                    searchText,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -265,6 +328,10 @@ public class WarehouseDAO {
     }
     // WarehouseDAO.java
     public List<BookCatalog> findBooksForSale(String searchText) {
+        logger.debug(
+                "Поиск книг для продажи, запрос='{}'",
+                searchText
+        );
         List<BookCatalog> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -289,8 +356,16 @@ public class WarehouseDAO {
                 book.setPrice(rs.getBigDecimal("sale_price"));
                 list.add(book);
             }
+            logger.debug(
+                    "Для продажи найдено {} книг",
+                    list.size()
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка поиска книг для продажи, запрос='{}'",
+                    searchText,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -299,7 +374,8 @@ public class WarehouseDAO {
 
 
     private void closeResources(ResultSet rs, PreparedStatement ps) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (rs != null) rs.close(); } catch (SQLException e) {logger.error("Ошибка закрытия ResultSet", e);}
+        try { if (ps != null) ps.close(); } catch (SQLException e) {logger.error("Ошибка закрытия PreparedStatement", e);
+        }
     }
 }

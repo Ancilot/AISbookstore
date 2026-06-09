@@ -8,8 +8,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CompositionCheckDAO {
+    private static final Logger logger =
+            LoggerFactory.getLogger(CompositionCheckDAO.class);
 
     private static Properties property = new Properties();
 
@@ -18,8 +22,9 @@ public class CompositionCheckDAO {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("statements.properties успешно загружен");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -72,6 +77,7 @@ public class CompositionCheckDAO {
 //                    "ORDER BY c.date_time DESC";
 
     public void reserveBookStock(Long bookId, int quantity) {
+        logger.debug("Резерв книги id={}, quantity={}", bookId, quantity);
         Connection conn = null;
         CallableStatement cs = null;
         try {
@@ -80,15 +86,18 @@ public class CompositionCheckDAO {
             cs.setInt(1, bookId.intValue());
             cs.setInt(2, quantity);
             cs.execute();
+            logger.info("Резерв выполнен: bookId={}, quantity={}", bookId, quantity);
+
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Ошибка при резервировании книги: " + e.getMessage(), e);
+            logger.error("Ошибка резервирования книги id={}", bookId, e);
+            throw new RuntimeException("Ошибка резервирования книги id=" + bookId, e);
         } finally {
             closeResources(null, cs);
         }
     }
 
     public void returnBookStock(Long bookId, int quantity) {
+        logger.debug("Возврат книги на склад id={}, quantity={}", bookId, quantity);
         Connection conn = null;
         CallableStatement cs = null;
         try {
@@ -97,8 +106,9 @@ public class CompositionCheckDAO {
             cs.setInt(1, bookId.intValue());
             cs.setInt(2, quantity);
             cs.execute();
+            logger.info("Возврат выполнен: bookId={}, quantity={}", bookId, quantity);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка возврата книги id={}", bookId, e);
             throw new RuntimeException("Ошибка при возврате книги на склад: " + e.getMessage(), e);
         } finally {
             closeResources(null, cs);
@@ -106,6 +116,10 @@ public class CompositionCheckDAO {
     }
 
     public void updateReservedStock(Long bookId, int oldQuantity, int newQuantity) {
+        logger.debug(
+                "Обновление резерва: bookId={}, oldQty={}, newQty={}",
+                bookId, oldQuantity, newQuantity
+        );
         Connection conn = null;
         CallableStatement cs = null;
         try {
@@ -115,8 +129,9 @@ public class CompositionCheckDAO {
             cs.setInt(2, oldQuantity);
             cs.setInt(3, newQuantity);
             cs.execute();
+            logger.info("Резерв обновлён: bookId={}", bookId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка обновления резерва bookId={}", bookId, e);
             throw new RuntimeException("Ошибка при обновлении резерва: " + e.getMessage(), e);
         } finally {
             closeResources(null, cs);
@@ -124,6 +139,12 @@ public class CompositionCheckDAO {
     }
 
     public CompositionCheck save(CompositionCheck composition) {
+        logger.debug(
+                "Добавление позиции чека: checkId={}, bookId={}, qty={}",
+                composition.getChecks().getIdCheck(),
+                composition.getBook().getIdBook(),
+                composition.getQuantity()
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -142,8 +163,20 @@ public class CompositionCheckDAO {
             // Резервируем книги на складе
             reserveBookStock(composition.getBook().getIdBook(), composition.getQuantity());
 
+            logger.info(
+                    "Позиция добавлена id={}, checkId={}, bookId={}",
+                    composition.getIdComposition(),
+                    composition.getChecks().getIdCheck(),
+                    composition.getBook().getIdBook()
+            );
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка добавления позиции: checkId={}, bookId={}",
+                    composition.getChecks().getIdCheck(),
+                    composition.getBook().getIdBook(),
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -151,6 +184,7 @@ public class CompositionCheckDAO {
     }
 
     public void deleteById(Long id) {
+        logger.debug("Удаление позиции id={}", id);
         // Сначала получаем информацию о книге и количестве
         CompositionCheck cc = findById(id);
         if (cc != null) {
@@ -164,8 +198,9 @@ public class CompositionCheckDAO {
                 ps = conn.prepareStatement(property.getProperty("composition_check.delete_by_id"));
                 ps.setLong(1, id);
                 ps.executeUpdate();
+                logger.info("Позиция удалена id={}", id);
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.error("Ошибка удаления позиции id={}", id, e);
             } finally {
                 closeResources(null, ps);
             }
@@ -173,6 +208,7 @@ public class CompositionCheckDAO {
     }
 
     public void deleteByCheckAndBook(Long checkId, Long bookId) {
+        logger.debug("Удаление книги из чека checkId={}, bookId={}", checkId, bookId);
         // Сначала получаем информацию о количестве
         CompositionCheck cc = findByCheckAndBook(checkId, bookId);
         if (cc != null) {
@@ -187,8 +223,9 @@ public class CompositionCheckDAO {
                 ps.setLong(1, checkId);
                 ps.setLong(2, bookId);
                 ps.executeUpdate();
+                logger.info("Удалено из чека checkId={}, bookId={}", checkId, bookId);
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.error("Ошибка удаления из чека checkId={}, bookId={}", checkId, bookId, e);
             } finally {
                 closeResources(null, ps);
             }
@@ -196,6 +233,7 @@ public class CompositionCheckDAO {
     }
 
     public void deleteByCheck(Long checkId) {
+        logger.debug("Удаление всех позиций чека id={}", checkId);
         // Получаем все позиции чека
         List<CompositionCheck> items = findByCheck(checkId);
         // Возвращаем все книги на склад
@@ -210,40 +248,17 @@ public class CompositionCheckDAO {
             ps = conn.prepareStatement(property.getProperty("composition_check.delete_by_check"));
             ps.setLong(1, checkId);
             ps.executeUpdate();
+            logger.info("Удалено {} позиций из чека id={}", items.size(), checkId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка удаления чека id={}", checkId, e);
         } finally {
             closeResources(null, ps);
         }
     }
 
-    public void updateQuantity(Long compositionId, int newQuantity) {
-        // Получаем старую информацию
-        CompositionCheck cc = findById(compositionId);
-        if (cc != null && !cc.getQuantity().equals(newQuantity)) {
-            int oldQuantity = cc.getQuantity();
-
-            Connection conn = null;
-            PreparedStatement ps = null;
-            try {
-                conn = DBHelper.getConnection();
-                ps = conn.prepareStatement(property.getProperty("composition_check.update_quantity"));
-                ps.setInt(1, newQuantity);
-                ps.setLong(2, compositionId);
-                ps.executeUpdate();
-
-                // Обновляем резерв на складе
-                updateReservedStock(cc.getBook().getIdBook(), oldQuantity, newQuantity);
-
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                closeResources(null, ps);
-            }
-        }
-    }
 
     public List<CompositionCheck> findByClient(Long clientId) {
+        logger.debug("Поиск позиций: clientId={}", clientId);
         List<CompositionCheck> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -256,8 +271,9 @@ public class CompositionCheckDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Найдено {} позиций для clientId={}", list.size(), clientId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска позиций по '{}'", clientId, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -265,6 +281,7 @@ public class CompositionCheckDAO {
     }
 
     public List<CompositionCheck> findByCheck(Long checkId) {
+        logger.debug("Поиск позиций: checkId={}", checkId);
         List<CompositionCheck> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -277,8 +294,9 @@ public class CompositionCheckDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Найдено {} позиций для checkId={}", list.size(), checkId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска позиций по '{}'", checkId, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -286,6 +304,7 @@ public class CompositionCheckDAO {
     }
 
     public List<CompositionCheck> searchCheckDetails(Long checkId, String searchText) {
+        logger.debug("Поиск деталей чека: checkId={}, searchText={}", checkId, searchText);
         List<CompositionCheck> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -311,8 +330,9 @@ public class CompositionCheckDAO {
                 cc.setQuantity(rs.getInt("quantity"));
                 list.add(cc);
             }
+            logger.debug("Найдено {} позиций для checkId={}", list.size(), checkId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска деталей чека checkId={}, searchText={}", checkId, searchText, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -320,6 +340,7 @@ public class CompositionCheckDAO {
     }
 
     public CompositionCheck findById(Long id) {
+        logger.debug("Поиск CompositionCheck по id={}", id);
         CompositionCheck cc = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -344,7 +365,7 @@ public class CompositionCheckDAO {
                 cc.setBook(book);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска CompositionCheck id={}", id, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -373,7 +394,7 @@ public class CompositionCheckDAO {
                 cc.setBook(book);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска checkId={}, bookId={}", checkId, bookId, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -411,8 +432,16 @@ public class CompositionCheckDAO {
             cs.setInt(2, returnQuantity);
             cs.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Ошибка при возврате товара: " + e.getMessage(), e);
+            logger.error(
+                    "Ошибка возврата товара compositionId={}, qty={}",
+                    compositionId,
+                    returnQuantity,
+                    e
+            );
+            throw new RuntimeException(
+                    "Ошибка при возврате товара compositionId=" + compositionId,
+                    e
+            );
         } finally {
             closeResources(null, cs);
         }

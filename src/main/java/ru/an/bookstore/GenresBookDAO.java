@@ -7,8 +7,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GenresBookDAO {
+    private static final Logger logger =
+            LoggerFactory.getLogger(GenresBookDAO.class);
     private static Properties property = new Properties();
 
     public GenresBookDAO() {
@@ -16,8 +20,9 @@ public class GenresBookDAO {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL для GenresBookDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -31,6 +36,7 @@ public class GenresBookDAO {
 //            "ORDER BY g.genr";
 
     public void save(Long bookId, Long genreId) {
+        logger.debug("Добавление жанра к книге: bookId={}, genreId={}", bookId, genreId);
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -39,14 +45,21 @@ public class GenresBookDAO {
             ps.setLong(1, genreId);
             ps.setLong(2, bookId);
             ps.executeUpdate();
+            logger.info("Жанр добавлен к книге: bookId={}, genreId={}", bookId, genreId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка добавления жанра к книге: bookId={}, genreId={}",
+                    bookId,
+                    genreId,
+                    e
+            );
         } finally {
             closeResources(null, ps);
         }
     }
 
     public void deleteByBook(Long bookId) {
+        logger.debug("Удаление всех жанров книги id={}", bookId);
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -54,14 +67,16 @@ public class GenresBookDAO {
             ps = conn.prepareStatement(property.getProperty("genres_book.delete_by_book"));
             ps.setLong(1, bookId);
             ps.executeUpdate();
+            logger.info("Жанры удалены у книги id={}", bookId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка удаления жанров книги id={}", bookId, e);
         } finally {
             closeResources(null, ps);
         }
     }
 
     public void delete(Long bookId, Long genreId) {
+        logger.debug("Удаление жанра из книги: bookId={}, genreId={}", bookId, genreId);
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -70,14 +85,21 @@ public class GenresBookDAO {
             ps.setLong(1, bookId);
             ps.setLong(2, genreId);
             ps.executeUpdate();
+            logger.info("Жанр удалён: bookId={}, genreId={}", bookId, genreId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка удаления жанра: bookId={}, genreId={}",
+                    bookId,
+                    genreId,
+                    e
+            );
         } finally {
             closeResources(null, ps);
         }
     }
 
     public List<Genres> findByBook(Long bookId) {
+        logger.debug("Получение жанров книги id={}", bookId);
         List<Genres> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -93,8 +115,9 @@ public class GenresBookDAO {
                 genre.setGenr(rs.getString("genr"));
                 list.add(genre);
             }
+            logger.debug("Найдено {} жанров для книги id={}", list.size(), bookId);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения жанров книги id={}", bookId, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -105,36 +128,12 @@ public class GenresBookDAO {
         return findByBook(bookId);
     }
 
-    public List<Genres> findGenresNotInBook(Long bookId) {
-        List<Genres> list = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(property.getProperty("genres_book.find_genres_not_in_book"));
-            ps.setLong(1, bookId);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                Genres genre = new Genres();
-                genre.setIdGenr(rs.getLong("id_genr"));
-                genre.setGenr(rs.getString("genr"));
-                list.add(genre);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeResources(rs, ps);
-        }
-        return list;
-    }
-
     private void closeResources(ResultSet rs, PreparedStatement ps) {
         try {
             if (rs != null) rs.close();
             if (ps != null) ps.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка закрытия JDBC ресурса", e);
         }
     }
 }

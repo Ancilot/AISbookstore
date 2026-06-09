@@ -8,8 +8,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SuppliersDAO implements Dao<Suppliers, Long> {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(SuppliersDAO.class);
+
     private static Properties property = new Properties();
 
     public SuppliersDAO() {
@@ -17,8 +23,9 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для SuppliersDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -27,6 +34,7 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
 
     @Override
     public Suppliers findById(Long id) {
+        logger.debug("Поиск поставщика id={}", id);
         Suppliers supplier = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -38,9 +46,10 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
             rs = ps.executeQuery();
             if (rs.next()) {
                 supplier = mapRow(rs);
+                logger.debug("Поставщик id={} найден", id);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка поиска поставщика id={}", id, e);
         } finally {
             closeResources(rs, ps);
         }
@@ -49,6 +58,7 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
 
     @Override
     public Collection<Suppliers> findAll() {
+        logger.debug("Получение списка поставщиков");
         List<Suppliers> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -60,8 +70,9 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug("Получено {} поставщиков", list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка получения списка поставщиков", e);
         } finally {
             closeResources(rs, ps);
         }
@@ -90,7 +101,7 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
     }
 
     private void closeResources(ResultSet rs, PreparedStatement ps) {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (ps != null) ps.close(); } catch (SQLException e) {}
+        try { if (rs != null) rs.close(); } catch (SQLException e) { logger.error("Ошибка закрытия ResultSet", e);}
+        try { if (ps != null) ps.close(); } catch (SQLException e) {logger.error("Ошибка закрытия PreparedStatement", e);}
     }
 }

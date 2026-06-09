@@ -9,8 +9,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PriceDAO {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(PriceDAO.class);
 
     private static Properties property = new Properties();
 
@@ -19,8 +24,9 @@ public class PriceDAO {
             URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
             FileInputStream fis = new FileInputStream(url.getFile());
             property.load(fis);
+            logger.debug("SQL-запросы для PriceDAO загружены");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Ошибка загрузки statements.properties", e);
         }
     }
 
@@ -30,6 +36,11 @@ public class PriceDAO {
 //    private final static String DELETE_BY_BOOK = "DELETE FROM store.price WHERE id_books = ?";
 
     public Price save(Long bookId, BigDecimal priceValue) {
+        logger.debug(
+                "Добавление цены для книги id={}, price={}",
+                bookId,
+                priceValue
+        );
         Price price = new Price();
         price.setPrice(priceValue);
         price.setIdBooks(bookId);
@@ -46,9 +57,20 @@ public class PriceDAO {
             rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 price.setIdPrice(rs.getLong(1));
+                logger.info(
+                        "Цена сохранена id={}, bookId={}, price={}",
+                        price.getIdPrice(),
+                        bookId,
+                        priceValue
+                );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка сохранения цены для книги id={}",
+                    bookId,
+                    e
+            );
+            throw new RuntimeException(e);
         } finally {
             closeResources(rs, ps);
         }
@@ -56,6 +78,10 @@ public class PriceDAO {
     }
 
     public Price findCurrentByBook(Long bookId) {
+        logger.debug(
+                "Получение текущей цены книги id={}",
+                bookId
+        );
         Price price = null;
         Connection conn = null;
         PreparedStatement ps = null;
@@ -67,9 +93,17 @@ public class PriceDAO {
             rs = ps.executeQuery();
             if (rs.next()) {
                 price = mapRow(rs);
+                logger.debug(
+                        "Текущая цена книги id={} найдена",
+                        bookId
+                );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка получения текущей цены книги id={}",
+                    bookId,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -77,6 +111,10 @@ public class PriceDAO {
     }
 
     public List<Price> findHistoryByBook(Long bookId) {
+        logger.debug(
+                "Получение истории цен книги id={}",
+                bookId
+        );
         List<Price> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
@@ -89,8 +127,17 @@ public class PriceDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
+            logger.debug(
+                    "Найдено {} записей истории цен для книги id={}",
+                    list.size(),
+                    bookId
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка получения истории цен книги id={}",
+                    bookId,
+                    e
+            );
         } finally {
             closeResources(rs, ps);
         }
@@ -98,6 +145,10 @@ public class PriceDAO {
     }
 
     public void deleteByBook(Long bookId) {
+        logger.debug(
+                "Удаление истории цен книги id={}",
+                bookId
+        );
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -105,8 +156,16 @@ public class PriceDAO {
             ps = conn.prepareStatement(property.getProperty("price.delete_by_book"));
             ps.setLong(1, bookId);
             ps.executeUpdate();
+            logger.info(
+                    "История цен книги id={} удалена",
+                    bookId
+            );
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error(
+                    "Ошибка удаления истории цен книги id={}",
+                    bookId,
+                    e
+            );
         } finally {
             closeResources(null, ps);
         }
@@ -117,7 +176,7 @@ public class PriceDAO {
             if (rs != null) rs.close();
             if (ps != null) ps.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Ошибка закрытия ресурсов в PriceDAO", e);
         }
     }
 
