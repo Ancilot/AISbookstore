@@ -16,53 +16,47 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class MainController {
+    @FXML
+    private ResourceBundle resources;
 
     private final BookCatalogDAO dao = new BookCatalogDAO();
+
+    @FXML
     public TextField tfFind;
 
-    private ObservableList<BookCatalog> books =
-            FXCollections.observableArrayList();
+    private ObservableList<BookCatalog> books = FXCollections.observableArrayList();
 
     @FXML
     private TableView<BookCatalog> tvBooks;
     @FXML
     private TableColumn<BookCatalog, LocalDate> yesrColumn;
-
     @FXML
     private TableColumn<BookCatalog, BigDecimal> priceColumn;
-
     @FXML
     private TableColumn<BookCatalog, Integer> quantityColumn;
     @FXML
     private TableColumn<BookCatalog, String> nameColumn;
-
     @FXML
     private TableColumn<BookCatalog, String> genresColumn;
-
     @FXML
     private TableColumn<BookCatalog, String> athorColumn;
-
     @FXML
     private TableColumn<BookCatalog, String> publisherColumn;
-
-
     @FXML
     private TableColumn<BookCatalog, String> isbnColumn;
 
-
     @FXML
     void initialize() {
-
+        // Установка заголовков столбцов из ResourceBundle
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("nameBook"));
         isbnColumn.setCellValueFactory(new PropertyValueFactory<>("isbn"));
         genresColumn.setCellValueFactory(new PropertyValueFactory<>("genres"));
         publisherColumn.setCellValueFactory(new PropertyValueFactory<>("publishingName"));
         athorColumn.setCellValueFactory(new PropertyValueFactory<>("authors"));
-
         yesrColumn.setCellValueFactory(new PropertyValueFactory<>("yearPublication"));
-
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
 
@@ -74,44 +68,42 @@ public class MainController {
     }
 
     public void onExit(ActionEvent actionEvent) {
-            Platform.exit();
-
+        Platform.exit();
     }
 
     public void onAdd(ActionEvent actionEvent) {
-        shomDialog(null);
+        showDialog(null);
     }
 
     public void onEdit(ActionEvent actionEvent) {
         BookCatalog selected = tvBooks.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите книгу для редактирования", Alert.AlertType.WARNING);
+            showAlert(resources.getString("main.alert.warning.select_book"),
+                    Alert.AlertType.WARNING);
             return;
         }
-        shomDialog(selected);
+        showDialog(selected);
     }
 
-    private void shomDialog(BookCatalog book) {
+    private void showDialog(BookCatalog book) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("adding-and-editing.fxml"));
-
+                    MainController.class.getResource("adding-and-editing.fxml"),
+                    resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
 
-            // Получаем контроллер
             NewBookController controller = loader.getController();
-
-            // Создаём окно
             Stage stage = new Stage();
 
-            // Передаём данные контроллеру
             controller.setBook(book);
             controller.setStage(stage);
+            controller.setResources(resources);
 
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Книга");
+            stage.setTitle(book == null ?
+                    resources.getString("app.title.add_book") :
+                    resources.getString("app.title.edit_book"));
             stage.setScene(scene);
-
             stage.showAndWait();
 
             refreshTable();
@@ -121,19 +113,17 @@ public class MainController {
         }
     }
 
-
     public void onClient(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("clients.fxml"));
+                    MainController.class.getResource("clients.fxml"), resources);
 
             Scene scene = new Scene(loader.load(), 1200, 600);
 
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
-                    .getParentPopup()
-                    .getOwnerWindow();
+                    .getParentPopup().getOwnerWindow();
 
-            stage.setTitle("Клиенты");
+            stage.setTitle(resources.getString("app.title.clients"));
             stage.setScene(scene);
 
         } catch (IOException e) {
@@ -144,15 +134,13 @@ public class MainController {
     public void onWarehouse(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("warehouse.fxml"));
-
+                    MainController.class.getResource("warehouse.fxml"), resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
 
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
-                    .getParentPopup()
-                    .getOwnerWindow();
+                    .getParentPopup().getOwnerWindow();
 
-            stage.setTitle("Склад");
+            stage.setTitle(resources.getString("app.title.warehouse"));
             stage.setScene(scene);
 
         } catch (IOException e) {
@@ -163,15 +151,13 @@ public class MainController {
     public void onOrder(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("orders.fxml"));
-
+                    MainController.class.getResource("orders.fxml"), resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
 
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
-                    .getParentPopup()
-                    .getOwnerWindow();
+                    .getParentPopup().getOwnerWindow();
 
-            stage.setTitle("Заказы");
+            stage.setTitle(resources.getString("app.title.orders"));
             stage.setScene(scene);
 
         } catch (IOException e) {
@@ -182,18 +168,13 @@ public class MainController {
     public void OnReport(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("report.fxml"));
-
+                    MainController.class.getResource("report.fxml"), resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
 
-            // Получаем контроллер
-            ReportController controller = loader.getController();
-
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
-                    .getParentPopup()
-                    .getOwnerWindow();
+                    .getParentPopup().getOwnerWindow();
 
-            stage.setTitle("Отчеты");
+            stage.setTitle(resources.getString("app.title.reports"));
             stage.setScene(scene);
 
         } catch (IOException e) {
@@ -205,31 +186,43 @@ public class MainController {
         BookCatalog selected = tvBooks.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert("Предупреждение", "Пожалуйста, выберите книгу для удаления", Alert.AlertType.WARNING);
+            showAlert(resources.getString("main.alert.warning.select_book_delete"),
+                    Alert.AlertType.WARNING);
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Подтверждение удаления");
+        confirm.setTitle(resources.getString("main.alert.confirm.delete_title"));
         confirm.setHeaderText(null);
-        confirm.setContentText("Вы уверены, что хотите удалить книгу \"" + selected.getNameBook() + "\"?");
+        confirm.setContentText(java.text.MessageFormat.format(
+                resources.getString("main.alert.confirm.delete_text"),
+                selected.getNameBook()));
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 dao.delete(selected);
                 refreshTable();
-                showAlert("Успех", "Книга успешно удалена", Alert.AlertType.INFORMATION);
+                showAlert(resources.getString("main.alert.success.delete"),
+                        Alert.AlertType.INFORMATION);
             } catch (RuntimeException e) {
-
-                    showAlert("Ошибка", "Не удалось удалить книгу", Alert.AlertType.ERROR);
-
+                showAlert(resources.getString("main.alert.error.delete"),
+                        Alert.AlertType.ERROR);
             }
         }
     }
-
-    private void showAlert(String title, String content, Alert.AlertType type) {
+    private void showAlert(String content, Alert.AlertType type) {
         Alert alert = new Alert(type);
+
+        String title;
+        if (type == Alert.AlertType.ERROR) {
+            title = resources.getString("alert.title.error");
+        } else if (type == Alert.AlertType.WARNING) {
+            title = resources.getString("alert.title.warning");
+        } else {
+            title = resources.getString("alert.title.information");
+        }
+
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);

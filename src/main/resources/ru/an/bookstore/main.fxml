@@ -17,40 +17,40 @@
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="195.0">
                <children>
-                  <Text layoutX="5.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Введите название книги:" AnchorPane.topAnchor="116.0" />
+                  <Text layoutX="5.0" layoutY="129.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%main.label.enter_book_name" AnchorPane.topAnchor="116.0" />
                   <MenuBar>
                     <menus>
-                      <Menu mnemonicParsing="false" text="Меню">
+                      <Menu mnemonicParsing="false" text="%menu.menu">
                         <items>
-                              <MenuItem mnemonicParsing="false" text="Главная" />
-                          <MenuItem mnemonicParsing="false" onAction="#onClient" text="Клиенты" />
-                              <MenuItem mnemonicParsing="false" onAction="#onWarehouse" text="Склад" />
-                              <MenuItem mnemonicParsing="false" onAction="#onOrder" text="Заказы" />
-                              <MenuItem mnemonicParsing="false" onAction="#OnReport" text="Отчеты" />
+                              <MenuItem mnemonicParsing="false" text="%menu.main" />
+                          <MenuItem mnemonicParsing="false" onAction="#onClient" text="%menu.clients" />
+                              <MenuItem mnemonicParsing="false" onAction="#onWarehouse" text="%menu.warehouse" />
+                              <MenuItem mnemonicParsing="false" onAction="#onOrder" text="%menu.orders" />
+                              <MenuItem mnemonicParsing="false" onAction="#OnReport" text="%menu.reports" />
                         </items>
                       </Menu>
                     </menus>
                   </MenuBar>
                   <TextField fx:id="tfFind" layoutY="133.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="133.0" />
-                  <Button layoutY="161.0" mnemonicParsing="false" onAction="#onFind" text="Найти" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="161.0" />
-                  <Button layoutX="1.0" layoutY="32.0" mnemonicParsing="false" onAction="#onAdd" text="Добавить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="32.0" />
-                  <Button layoutX="17.0" layoutY="125.0" mnemonicParsing="false" onAction="#onExit" text="Выход" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
-                  <Button layoutX="1.0" layoutY="57.0" mnemonicParsing="false" onAction="#onEdit" text="Редактировать" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="57.0" />
-                  <Button layoutX="1.0" layoutY="82.0" mnemonicParsing="false" onAction="#onDelete" text="Удалить" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="82.0" />
+                  <Button layoutY="161.0" mnemonicParsing="false" onAction="#onFind" text="%main.button.find" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="161.0" />
+                  <Button layoutX="1.0" layoutY="32.0" mnemonicParsing="false" onAction="#onAdd" text="%main.button.add" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="32.0" />
+                  <Button layoutX="17.0" layoutY="125.0" mnemonicParsing="false" onAction="#onExit" text="%main.button.exit" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
+                  <Button layoutX="1.0" layoutY="57.0" mnemonicParsing="false" onAction="#onEdit" text="%main.button.edit" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="57.0" />
+                  <Button layoutX="1.0" layoutY="82.0" mnemonicParsing="false" onAction="#onDelete" text="%main.button.delete" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="82.0" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
                <children>
                   <TableView fx:id="tvBooks" layoutX="-29.0" prefHeight="398.0" prefWidth="624.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
                     <columns>
-                      <TableColumn fx:id="nameColumn" prefWidth="105.0" text="Название" />
-                        <TableColumn fx:id="genresColumn" prefWidth="44.0" text="Жанр" />
-                        <TableColumn fx:id="athorColumn" prefWidth="77.0" text="Автор" />
-                      <TableColumn fx:id="publisherColumn" prefWidth="98.0" text="Издательство" />
-                        <TableColumn fx:id="yesrColumn" prefWidth="93.0" text="Год издания" />
-                        <TableColumn fx:id="isbnColumn" prefWidth="71.0" text="ISBN" />
-                        <TableColumn fx:id="priceColumn" prefWidth="96.0" text="Цена продажи" />
-                        <TableColumn fx:id="quantityColumn" prefWidth="96.0" text="Количество" />
+                      <TableColumn fx:id="nameColumn" prefWidth="105.0" text="%main.column.name" />
+                        <TableColumn fx:id="genresColumn" prefWidth="44.0" text="%main.column.genre" />
+                        <TableColumn fx:id="athorColumn" prefWidth="77.0" text="%main.column.author" />
+                      <TableColumn fx:id="publisherColumn" prefWidth="98.0" text="%main.column.publisher" />
+                        <TableColumn fx:id="yesrColumn" prefWidth="93.0" text="%main.column.year" />
+                        <TableColumn fx:id="isbnColumn" prefWidth="71.0" text="%main.column.isbn" />
+                        <TableColumn fx:id="priceColumn" prefWidth="96.0" text="%main.column.price" />
+                        <TableColumn fx:id="quantityColumn" prefWidth="96.0" text="%main.column.quantity" />
                     </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

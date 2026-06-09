@@ -19,73 +19,73 @@
                <children>
                   <MenuBar>
                      <menus>
-                        <Menu mnemonicParsing="false" text="Меню">
+                        <Menu mnemonicParsing="false" text="%report.menu.menu">
                            <items>
-                              <MenuItem mnemonicParsing="false" onAction="#onMain" text="Главная" />
-                              <MenuItem mnemonicParsing="false" onAction="#onClient" text="Клиенты" />
-                              <MenuItem mnemonicParsing="false" onAction="#onWarehouse" text="Склад" />
-                              <MenuItem mnemonicParsing="false" onAction="#onOreder" text="Заказы" />
-                              <MenuItem mnemonicParsing="false" text="Отчеты" />
+                              <MenuItem mnemonicParsing="false" onAction="#onMain" text="%report.menu.main" />
+                              <MenuItem mnemonicParsing="false" onAction="#onClient" text="%report.menu.clients" />
+                              <MenuItem mnemonicParsing="false" onAction="#onWarehouse" text="%report.menu.warehouse" />
+                              <MenuItem mnemonicParsing="false" onAction="#onOreder" text="%report.menu.orders" />
+                              <MenuItem mnemonicParsing="false" text="%report.menu.reports" />
                            </items>
                         </Menu>
                      </menus>
                   </MenuBar>
-                  <Button layoutX="1.0" layoutY="372.0" mnemonicParsing="false" onAction="#onExit" text="Выход" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
+                  <Button layoutX="1.0" layoutY="372.0" mnemonicParsing="false" onAction="#onExit" text="%report.button.exit" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
                   <ComboBox fx:id="tfPeriod" layoutX="11.0" layoutY="35.0" prefHeight="25.0" prefWidth="92.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
-                  <Button layoutX="32.0" layoutY="68.0" mnemonicParsing="false" onAction="#onPeriod" text="Вывести" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="68.0" />
+                  <Button layoutX="32.0" layoutY="68.0" mnemonicParsing="false" onAction="#onPeriod" text="%report.button.display" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="68.0" />
                </children>
             </AnchorPane>
             <AnchorPane prefHeight="398.0" prefWidth="269.0">
                <children>
                   <TableView fx:id="tvSales" layoutX="3.0" layoutY="14.0" prefHeight="200.0" prefWidth="205.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="20.0">
                     <columns>
-                      <TableColumn fx:id="colChecksCount" prefWidth="120.0" text="Количество чеков" />
-                      <TableColumn fx:id="colBooksCount" prefWidth="120.0" text="Количество книг" />
-                        <TableColumn fx:id="colTotalAmount" prefWidth="84.0" text="Общая сумма" />
+                      <TableColumn fx:id="colChecksCount" prefWidth="120.0" text="%report.column.checks_count" />
+                      <TableColumn fx:id="colBooksCount" prefWidth="120.0" text="%report.column.books_count" />
+                        <TableColumn fx:id="colTotalAmount" prefWidth="84.0" text="%report.column.total_amount" />
                     </columns>
                   </TableView>
                   <TableView fx:id="tvStock" layoutX="20.0" layoutY="236.0" prefHeight="200.0" prefWidth="205.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="247.0">
                      <columns>
-                        <TableColumn fx:id="colStockName" prefWidth="53.0" text="Книга" />
-                        <TableColumn fx:id="colStockQuantity" prefWidth="88.0" text="Остаток" />
-                        <TableColumn fx:id="colStockPrice" prefWidth="81.0" text="Цена" />
-                        <TableColumn fx:id="colStockAmount" prefWidth="102.0" text="Сумма" />
+                        <TableColumn fx:id="colStockName" prefWidth="53.0" text="%report.column.book" />
+                        <TableColumn fx:id="colStockQuantity" prefWidth="88.0" text="%report.column.stock_remainder" />
+                        <TableColumn fx:id="colStockPrice" prefWidth="81.0" text="%report.column.price" />
+                        <TableColumn fx:id="colStockAmount" prefWidth="102.0" text="%report.column.stock_amount" />
                      </columns>
                   </TableView>
-                  <Text layoutX="14.0" layoutY="13.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Отчёт по продажам (количество и сумма)" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="3.0" />
-                  <Text layoutX="14.0" layoutY="238.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Отчёт по остаткам товара" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="225.0" />
+                  <Text layoutX="14.0" layoutY="13.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%report.section.sales" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="3.0" />
+                  <Text layoutX="14.0" layoutY="238.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%report.section.stock" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="225.0" />
                </children></AnchorPane>
             <AnchorPane prefHeight="200.0" prefWidth="200.0">
                <children>
                   <TableView fx:id="tvAuthorPopularity" layoutX="20.0" prefHeight="200.0" prefWidth="205.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="20.0">
                      <columns>
-                        <TableColumn fx:id="colAuthorName" prefWidth="99.0" text="Автор" />
-                        <TableColumn fx:id="colAuthorSold" prefWidth="116.0" text="Продано, шт" />
-                        <TableColumn fx:id="colAuthorAmount" prefWidth="138.0" text="Сумма" />
+                        <TableColumn fx:id="colAuthorName" prefWidth="99.0" text="%report.column.author_name" />
+                        <TableColumn fx:id="colAuthorSold" prefWidth="116.0" text="%report.column.sold_quantity" />
+                        <TableColumn fx:id="colAuthorAmount" prefWidth="138.0" text="%report.column.stock_amount" />
                      </columns>
                   </TableView>
                   <TableView fx:id="tvGenrePopularity" layoutX="31.0" layoutY="236.0" prefHeight="200.0" prefWidth="205.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="247.0">
                      <columns>
-                        <TableColumn fx:id="colGenreName" prefWidth="75.0" text="Жанр" />
-                        <TableColumn fx:id="colGenreSold" prefWidth="159.0" text="Продано, шт" />
-                        <TableColumn fx:id="colGenreAmount" prefWidth="119.0" text="Сумма" />
+                        <TableColumn fx:id="colGenreName" prefWidth="75.0" text="%report.column.genre_name" />
+                        <TableColumn fx:id="colGenreSold" prefWidth="159.0" text="%report.column.sold_quantity" />
+                        <TableColumn fx:id="colGenreAmount" prefWidth="119.0" text="%report.column.stock_amount" />
                      </columns>
                   </TableView>
-                  <Text layoutX="11.0" layoutY="17.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Популярность книг по авторам" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="3.0" />
-                  <Text layoutX="3.0" layoutY="238.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Популярность книг по жанрам" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="225.0" />
+                  <Text layoutX="11.0" layoutY="17.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%report.section.author_popularity" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="3.0" />
+                  <Text layoutX="3.0" layoutY="238.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%report.section.genre_popularity" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="225.0" />
                </children>
             </AnchorPane>
             <AnchorPane prefHeight="450.0" prefWidth="384.0">
                <children>
                   <TableView fx:id="tvBookPopularity" layoutX="5.0" prefHeight="200.0" prefWidth="205.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="20.0">
                      <columns>
-                        <TableColumn fx:id="colBookPlace" prefWidth="75.0" text="Место" />
-                        <TableColumn fx:id="colBookName" prefWidth="114.0" text="Название книги" />
-                        <TableColumn fx:id="colBookSold" prefWidth="76.0" text="Продано" />
-                        <TableColumn fx:id="colBookAmount" prefWidth="94.0" text="Выручка" />
+                        <TableColumn fx:id="colBookPlace" prefWidth="75.0" text="%report.column.book_place" />
+                        <TableColumn fx:id="colBookName" prefWidth="114.0" text="%report.column.book_title" />
+                        <TableColumn fx:id="colBookSold" prefWidth="76.0" text="%report.column.sold_quantity" />
+                        <TableColumn fx:id="colBookAmount" prefWidth="94.0" text="%report.column.revenue" />
                      </columns>
                   </TableView>
-                  <Text layoutX="16.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Топ книг" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="3.0" />
+                  <Text layoutX="16.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%report.section.top_books" AnchorPane.leftAnchor="3.0" AnchorPane.topAnchor="3.0" />
                </children>
             </AnchorPane>
          </items>

@@ -9,15 +9,15 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="215.0" prefWidth="267.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.an.bookstore.InvoiceController">
    <children>
-      <Button mnemonicParsing="false" onAction="#onSave" text="Сохранить" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
-      <Button mnemonicParsing="false" onAction="#onExit" text="Отмена" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="3.0" />
+      <Button mnemonicParsing="false" onAction="#onSave" text="%invoice.button.save" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+      <Button mnemonicParsing="false" onAction="#onExit" text="%invoice.button.cancel" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="3.0" />
       <TextField fx:id="tfCount" layoutX="3.0" layoutY="23.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
       <TextField fx:id="tfPrice" layoutX="3.0" layoutY="65.0" prefHeight="25.0" prefWidth="261.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
-      <Text layoutX="5.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Цена закупки:" />
-      <Text layoutX="7.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Количество:" />
+      <Text layoutX="5.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%invoice.label.purchase_price" />
+      <Text layoutX="7.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%invoice.label.quantity" />
       <DatePicker fx:id="dpDate" layoutX="3.0" layoutY="107.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
-      <Text layoutX="5.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Дата поступления:" />
+      <Text layoutX="5.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%invoice.label.receipt_date" />
       <ComboBox fx:id="cbSupplier" layoutX="3.0" layoutY="150.0" prefWidth="150.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
-      <Text layoutX="5.0" layoutY="147.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Поставщик:" />
+      <Text layoutX="5.0" layoutY="147.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%invoice.label.supplier" />
    </children>
 </AnchorPane>

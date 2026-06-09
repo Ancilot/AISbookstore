@@ -7,11 +7,11 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="285.0" prefWidth="267.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.an.bookstore.CreatOrderController">
    <children>
-      <Button mnemonicParsing="false" onAction="#onSave" text="Сохранить" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
-      <Button mnemonicParsing="false" onAction="#onExit" text="Отмена" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="3.0" />
+      <Button mnemonicParsing="false" onAction="#onSave" text="%create_order.button.save" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+      <Button mnemonicParsing="false" onAction="#onExit" text="%create_order.button.cancel" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="3.0" />
       <TextField fx:id="tfQuantity" layoutX="3.0" layoutY="23.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
       <TextField fx:id="tfComment" layoutX="3.0" layoutY="65.0" prefHeight="182.0" prefWidth="261.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
-      <Text layoutX="5.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Коментарий:" />
-      <Text layoutX="7.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Количество:" />
+      <Text layoutX="5.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%create_order.label.comment" />
+      <Text layoutX="7.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%create_order.label.quantity" />
    </children>
 </AnchorPane>

@@ -7,17 +7,17 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="285.0" prefWidth="267.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.an.bookstore.NewClientController">
    <children>
-      <Button mnemonicParsing="false" onAction="#onSave" text="Сохранить" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
-      <Button mnemonicParsing="false" onAction="#onExit" text="Отмена" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="3.0" />
+      <Button mnemonicParsing="false" onAction="#onSave" text="%client.button.save" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+      <Button mnemonicParsing="false" onAction="#onExit" text="%client.button.cancel" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="3.0" />
       <TextField fx:id="tfSurname" layoutX="3.0" layoutY="23.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
       <TextField fx:id="tfName" layoutX="3.0" layoutY="65.0" prefHeight="17.0" prefWidth="261.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
-      <Text layoutX="5.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Имя:" AnchorPane.leftAnchor="7.0" />
-      <Text layoutX="7.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Фамилия:" AnchorPane.leftAnchor="7.0" />
-      <Text layoutX="5.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Отчество:" AnchorPane.leftAnchor="7.0" />
+      <Text layoutX="5.0" layoutY="61.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%client.label.first_name" AnchorPane.leftAnchor="7.0" />
+      <Text layoutX="7.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%client.label.last_name" AnchorPane.leftAnchor="7.0" />
+      <Text layoutX="5.0" layoutY="103.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%client.label.patronymic" AnchorPane.leftAnchor="7.0" />
       <TextField fx:id="tfPatronomic" layoutX="3.0" layoutY="106.0" prefHeight="17.0" prefWidth="261.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
-      <Text layoutX="5.0" layoutY="147.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Номер телефона:" AnchorPane.leftAnchor="7.0" />
+      <Text layoutX="5.0" layoutY="147.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%client.label.phone_number" AnchorPane.leftAnchor="7.0" />
       <TextField fx:id="tfNumber" layoutX="3.0" layoutY="150.0" prefHeight="17.0" prefWidth="261.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
-      <Text layoutX="5.0" layoutY="188.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Почта:" AnchorPane.leftAnchor="7.0" />
+      <Text layoutX="5.0" layoutY="188.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%client.label.email" AnchorPane.leftAnchor="7.0" />
       <TextField fx:id="tfEmail" layoutX="3.0" layoutY="191.0" prefHeight="17.0" prefWidth="261.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" />
    </children>
 </AnchorPane>

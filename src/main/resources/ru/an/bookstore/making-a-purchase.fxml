@@ -15,23 +15,23 @@
             <AnchorPane prefHeight="340.0" prefWidth="426.0">
                <children>
                   <TextField fx:id="tfAvailableSearch" layoutX="7.0" layoutY="215.0" prefHeight="25.0" prefWidth="149.0" AnchorPane.leftAnchor="7.0" />
-                  <Text layoutX="7.0" layoutY="212.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Поиск:" wrappingWidth="38.09375" AnchorPane.leftAnchor="7.0" />
+                  <Text layoutX="7.0" layoutY="212.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%making.label.search" wrappingWidth="116.0" AnchorPane.leftAnchor="7.0" />
                   <TableView fx:id="tvAvailableBooks" layoutY="26.0" prefHeight="174.0" prefWidth="472.0">
                     <columns>
-                      <TableColumn fx:id="colAvailableName" prefWidth="75.0" text="Название" />
-                      <TableColumn fx:id="colAvailableAuthor" prefWidth="75.0" text="Автор" />
-                        <TableColumn fx:id="colAvailableGenre" prefWidth="75.0" text="Жанр" />
-                        <TableColumn fx:id="colAvailablePrice" prefWidth="65.0" text="Цена" />
-                        <TableColumn fx:id="colAvailableQuantity" prefWidth="83.0" text="Количество" />
-                        <TableColumn fx:id="colAvailableStatus" prefWidth="98.0" text="Наличие" />
+                      <TableColumn fx:id="colAvailableName" prefWidth="75.0" text="%making.column.name" />
+                      <TableColumn fx:id="colAvailableAuthor" prefWidth="75.0" text="%making.column.author" />
+                        <TableColumn fx:id="colAvailableGenre" prefWidth="75.0" text="%making.column.genre" />
+                        <TableColumn fx:id="colAvailablePrice" prefWidth="65.0" text="%making.column.price" />
+                        <TableColumn fx:id="colAvailableQuantity" prefWidth="83.0" text="%making.column.quantity" />
+                        <TableColumn fx:id="colAvailableStatus" prefWidth="98.0" text="%making.column.status" />
                     </columns>
                   </TableView>
-                  <Button layoutX="162.0" layoutY="215.0" mnemonicParsing="false" onAction="#onFindAvailable" text="Найти" />
-                  <Button layoutX="389.0" layoutY="215.0" mnemonicParsing="false" onAction="#onAddToCheck" text="Добавить" />
-                  <Button layoutX="7.0" layoutY="287.0" mnemonicParsing="false" onAction="#onMakeOrderDirect" prefHeight="25.0" prefWidth="149.0" text="Сделать заказ" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="7.0" />
-                  <Text layoutX="152.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Книги на складе:" wrappingWidth="108.09375" />
-                  <Text layoutX="7.0" layoutY="266.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Если книги нет в наличии или не хватает количества:" wrappingWidth="205.0" />
-                  <Text layoutX="236.0" layoutY="212.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Количество" wrappingWidth="72.0" />
+                  <Button layoutX="162.0" layoutY="215.0" mnemonicParsing="false" onAction="#onFindAvailable" text="%making.button.find" />
+                  <Button layoutX="389.0" layoutY="215.0" mnemonicParsing="false" onAction="#onAddToCheck" text="%making.button.add_to_check" />
+                  <Button layoutX="7.0" layoutY="287.0" mnemonicParsing="false" onAction="#onMakeOrderDirect" prefHeight="25.0" prefWidth="149.0" text="%making.button.make_order" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="7.0" />
+                  <Text layoutX="154.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%making.label.books_in_stock" wrappingWidth="164.09375" />
+                  <Text layoutX="7.0" layoutY="266.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%making.label.if_book_not_available" wrappingWidth="205.0" />
+                  <Text layoutX="236.0" layoutY="212.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%making.label.quantity" wrappingWidth="72.0" />
                   <TextField fx:id="tfAvailableCount" layoutX="236.0" layoutY="215.0" prefHeight="25.0" prefWidth="149.0" />
                </children>
             </AnchorPane>
@@ -39,20 +39,20 @@
                <children>
                   <TableView fx:id="tvCheckItems" layoutY="26.0" prefHeight="174.0" prefWidth="481.0">
                      <columns>
-                        <TableColumn fx:id="colCheckName" prefWidth="139.0" text="Название" />
-                        <TableColumn fx:id="colCheckAuthor" minWidth="7.0" prefWidth="56.0" text="Автор" />
-                        <TableColumn fx:id="colCheckGenre" prefWidth="73.0" text="Жанр" />
-                        <TableColumn fx:id="colCheckPrice" prefWidth="105.0" text="Цена" />
-                        <TableColumn fx:id="colCheckQuantity" prefWidth="92.0" text="Кличество" />
+                        <TableColumn fx:id="colCheckName" prefWidth="139.0" text="%making.column.name" />
+                        <TableColumn fx:id="colCheckAuthor" minWidth="7.0" prefWidth="56.0" text="%key.unspecifiemaking.column.authord" />
+                        <TableColumn fx:id="colCheckGenre" prefWidth="73.0" text="%making.column.genre" />
+                        <TableColumn fx:id="colCheckPrice" prefWidth="105.0" text="%making.column.price" />
+                        <TableColumn fx:id="colCheckQuantity" prefWidth="92.0" text="%making.column.quantity" />
                      </columns>
                   </TableView>
-                  <Button layoutX="343.0" layoutY="372.0" mnemonicParsing="false" onAction="#onBack" text="Вернуться" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="3.0" />
+                  <Button layoutX="343.0" layoutY="372.0" mnemonicParsing="false" onAction="#onBack" text="%making.button.back" AnchorPane.bottomAnchor="3.0" AnchorPane.rightAnchor="3.0" />
                   <TextField fx:id="tfCheckSearch" layoutY="216.0" prefHeight="25.0" prefWidth="149.0" />
-                  <Text layoutY="213.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Поиск:" wrappingWidth="38.09375" />
-                  <Button layoutX="155.0" layoutY="216.0" mnemonicParsing="false" onAction="#onFindCheck" text="Найти" />
-                  <Button layoutX="412.0" layoutY="216.0" mnemonicParsing="false" onAction="#onRemoveFromCheck" text="Удалить" />
-                  <Text layoutX="127.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Книги добавленные в чек:" wrappingWidth="156.0" />
-                  <Button layoutX="14.0" layoutY="359.0" mnemonicParsing="false" onAction="#onPurchase" prefHeight="25.0" prefWidth="149.0" text="Оформить покупку" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
+                  <Text layoutX="3.0" layoutY="213.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%making.label.search" wrappingWidth="124.09375" />
+                  <Button layoutX="155.0" layoutY="216.0" mnemonicParsing="false" onAction="#onFindCheck" text="%making.button.find" />
+                  <Button layoutX="412.0" layoutY="216.0" mnemonicParsing="false" onAction="#onRemoveFromCheck" text="%making.button.remove" />
+                  <Text layoutX="135.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%making.label.books_added_to_check" wrappingWidth="212.0" />
+                  <Button layoutX="14.0" layoutY="359.0" mnemonicParsing="false" onAction="#onPurchase" prefHeight="25.0" prefWidth="149.0" text="%making.button.purchase" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" />
                </children>
             </AnchorPane>
             <AnchorPane prefHeight="200.0" prefWidth="200.0" />

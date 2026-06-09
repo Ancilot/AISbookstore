@@ -18,9 +18,14 @@ import java.time.Year;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class NewBookController {
+    private ResourceBundle resources;
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
 
     private BookCatalog book;
     private Stage stage;

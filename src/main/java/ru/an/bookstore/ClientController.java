@@ -14,8 +14,12 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class ClientController {
+
+    @FXML
+    private ResourceBundle resources;
 
     private final ClientsDAO clientsDAO = new ClientsDAO();
     private final LoyaltyBaseDAO loyaltyBaseDAO = new LoyaltyBaseDAO();

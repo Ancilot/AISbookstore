@@ -14,24 +14,24 @@
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="195.0">
                <children>
-                  <Text layoutX="2.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Выберите книгу и введите количество:" AnchorPane.topAnchor="14.05078125" />
+                  <Text layoutX="2.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%add_warehouse.label.select_book_and_quantity" AnchorPane.topAnchor="14.05078125" />
                   <TextField fx:id="tfName" layoutY="104.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="104.0" />
-                  <Button layoutY="132.0" mnemonicParsing="false" onAction="#onFind" text="Найти" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="132.0" />
-                  <Button layoutY="55.0" mnemonicParsing="false" onAction="#onAdd" text="Добавить" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="55.0" />
-                  <Button layoutX="17.0" layoutY="125.0" mnemonicParsing="false" onAction="#onExit" text="Вернуться" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
+                  <Button layoutY="132.0" mnemonicParsing="false" onAction="#onFind" text="%add_warehouse.button.find" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="132.0" />
+                  <Button layoutY="55.0" mnemonicParsing="false" onAction="#onAdd" text="%add_warehouse.button.add" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="55.0" />
+                  <Button layoutX="17.0" layoutY="125.0" mnemonicParsing="false" onAction="#onExit" text="%add_warehouse.button.back" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
                   <TextField fx:id="tfCount" layoutX="1.0" layoutY="30.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" />
-                  <Text layoutX="2.0" layoutY="100.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Введите название книги:" />
+                  <Text layoutX="2.0" layoutY="100.0" strokeType="OUTSIDE" strokeWidth="0.0" text="%add_warehouse.label.enter_book_name" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
                <children>
                   <TableView fx:id="tvAddWarehouse" layoutX="-29.0" prefHeight="398.0" prefWidth="624.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
                     <columns>
-                      <TableColumn fx:id="tcName" prefWidth="105.0" text="Название" />
-                        <TableColumn fx:id="tcAuther" prefWidth="77.0" text="Автор" />
-                      <TableColumn fx:id="tcPublishing" prefWidth="98.0" text="Издательство" />
-                        <TableColumn fx:id="tcYear" prefWidth="93.0" text="Год издания" />
-                        <TableColumn fx:id="tcISBN" prefWidth="71.0" text="ISBN" />
+                      <TableColumn fx:id="tcName" prefWidth="105.0" text="%add_warehouse.column.name" />
+                        <TableColumn fx:id="tcAuther" prefWidth="77.0" text="%add_warehouse.column.author" />
+                      <TableColumn fx:id="tcPublishing" prefWidth="98.0" text="%add_warehouse.column.publisher" />
+                        <TableColumn fx:id="tcYear" prefWidth="93.0" text="%add_warehouse.column.year" />
+                        <TableColumn fx:id="tcISBN" prefWidth="71.0" text="%add_warehouse.column.isbn" />
                     </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
