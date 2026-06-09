@@ -6,11 +6,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
 
 public class LoyaltyBaseController {
 
+    @FXML private ResourceBundle resources;
     @FXML private TextField tfCard;
     @FXML private TextField tfDate;
     @FXML private TextField tfNumeric;
@@ -20,6 +21,10 @@ public class LoyaltyBaseController {
     private Clients client;
     private LoyaltyBase loyalty;
     private LoyaltyBaseDAO loyaltyBaseDAO;
+
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -50,11 +55,11 @@ public class LoyaltyBaseController {
     private boolean validateFields() {
         String cardNumber = tfCard.getText().trim();
         if (cardNumber.isEmpty()) {
-            showAlert("Ошибка", "Введите номер карты");
+            showAlert(resources.getString("loyalty.alert.error.empty_card"));
             return false;
         }
         if (!cardNumber.matches("^[0-9]{16}$")) {
-            showAlert("Ошибка", "Номер карты должен содержать 16 цифр");
+            showAlert(resources.getString("loyalty.alert.error.invalid_card"));
             return false;
         }
         return true;
@@ -67,17 +72,15 @@ public class LoyaltyBaseController {
         }
 
         if (loyalty == null) {
-            // Создаем новую карту лояльности
             loyalty = new LoyaltyBase();
             loyalty.setClient(client);
             loyalty.setCardNumber(tfCard.getText().trim());
             loyaltyBaseDAO.save(loyalty);
-            showAlert("Успех", "Карта лояльности создана");
+            showAlert(resources.getString("loyalty.alert.success.create"));
         } else {
-            // Обновляем номер карты
             loyalty.setCardNumber(tfCard.getText().trim());
             loyaltyBaseDAO.update(loyalty);
-            showAlert("Успех", "Данные карты обновлены");
+            showAlert(resources.getString("loyalty.alert.success.update"));
         }
         stage.close();
     }
@@ -87,9 +90,9 @@ public class LoyaltyBaseController {
         stage.close();
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();

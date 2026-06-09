@@ -14,9 +14,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class MakingController {
 
+    @FXML private ResourceBundle resources;
     @FXML private TableView<BookCatalog> tvAvailableBooks;
     @FXML private TableColumn<BookCatalog, String> colAvailableName;
     @FXML private TableColumn<BookCatalog, String> colAvailableAuthor;
@@ -46,6 +48,10 @@ public class MakingController {
     private ObservableList<BookCatalog> availableBooks = FXCollections.observableArrayList();
     private ObservableList<CompositionCheck> checkItems = FXCollections.observableArrayList();
     private List<BookCatalog> allAvailableBooks;
+
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
 
     @FXML
     void initialize() {
@@ -88,7 +94,7 @@ public class MakingController {
         if (currentCheck != null) {
             refreshCheckItems();
         } else {
-            showAlert("Ошибка", "Не удалось создать чек");
+            showAlert(resources.getString("making.alert.error.check_not_created"));
         }
     }
 
@@ -106,19 +112,19 @@ public class MakingController {
     @FXML
     public void onAddToCheck(ActionEvent actionEvent) {
         if (currentCheck == null) {
-            showAlert("Ошибка", "Чек не создан. Попробуйте обновить страницу.");
+            showAlert(resources.getString("making.alert.error.check_not_created"));
             return;
         }
 
         BookCatalog selected = tvAvailableBooks.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Ошибка", "Выберите книгу");
+            showAlert(resources.getString("making.alert.error.select_book"));
             return;
         }
 
         String countText = tfAvailableCount.getText();
         if (countText == null || countText.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите количество");
+            showAlert(resources.getString("making.alert.error.enter_quantity"));
             return;
         }
 
@@ -126,16 +132,18 @@ public class MakingController {
         try {
             quantity = Integer.parseInt(countText);
         } catch (NumberFormatException e) {
-            showAlert("Ошибка", "Введите корректное количество");
+            showAlert(resources.getString("making.alert.error.invalid_quantity"));
             return;
         }
 
         if (quantity <= 0) {
-            showAlert("Ошибка", "Количество должно быть больше 0");
+            showAlert(resources.getString("making.alert.error.quantity_positive"));
             return;
         }
         if (quantity > selected.getQuantity()) {
-            showAlert("Ошибка", "Недостаточно книг на складе. Доступно: " + selected.getQuantity());
+            showAlert(java.text.MessageFormat.format(
+                    resources.getString("making.alert.error.insufficient_stock"),
+                    selected.getQuantity()));
             return;
         }
 
@@ -168,13 +176,13 @@ public class MakingController {
     @FXML
     public void onRemoveFromCheck(ActionEvent actionEvent) {
         if (currentCheck == null) {
-            showAlert("Ошибка", "Чек не найден");
+            showAlert(resources.getString("making.alert.error.check_not_found"));
             return;
         }
 
         CompositionCheck selected = tvCheckItems.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Ошибка", "Выберите книгу для удаления");
+            showAlert(resources.getString("making.alert.error.select_for_remove"));
             return;
         }
 
@@ -191,25 +199,23 @@ public class MakingController {
     @FXML
     public void onPurchase(ActionEvent actionEvent) {
         if (currentCheck == null) {
-            showAlert("Ошибка", "Чек не найден");
+            showAlert(resources.getString("making.alert.error.check_not_found"));
             return;
         }
         if (checkItems.isEmpty()) {
-            showAlert("Ошибка", "Добавьте книги перед оформлением.");
+            showAlert(resources.getString("making.alert.error.empty_check"));
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Оформление покупки");
+        confirm.setTitle(resources.getString("making.alert.confirm.purchase_title"));
         confirm.setHeaderText(null);
-        confirm.setContentText("Вы уверены, что хотите оформить покупку?");
+        confirm.setContentText(resources.getString("making.alert.confirm.purchase_text"));
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            // Только завершаем чек - товары уже зарезервированы при добавлении в чек
             checksDAO.completeCheck(currentCheck.getIdCheck());
-
-            showAlert("Успех", "Покупка оформлена! Книги списаны со склада.");
+            showAlert(resources.getString("making.alert.success.purchase"));
             stage.close();
         }
     }
@@ -218,7 +224,7 @@ public class MakingController {
     public void onMakeOrderDirect(ActionEvent actionEvent) {
         BookCatalog selected = tvAvailableBooks.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Ошибка", "Выберите книгу для заказа");
+            showAlert(resources.getString("making.alert.error.select_book"));
             return;
         }
 
@@ -228,7 +234,7 @@ public class MakingController {
     private void showCreateOrderDialog(BookCatalog selectedBook) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MakingController.class.getResource("creating-an-order.fxml"));
+                    MakingController.class.getResource("creating-an-order.fxml"), resources);
             Scene scene = new Scene(loader.load(), 267, 285);
 
             CreatOrderController controller = loader.getController();
@@ -237,15 +243,16 @@ public class MakingController {
             controller.setStage(orderStage);
             controller.setClient(client);
             controller.setBook(selectedBook);
+            controller.setResources(resources);
 
             orderStage.initModality(Modality.WINDOW_MODAL);
-            orderStage.setTitle("Создание заказа");
+            orderStage.setTitle(resources.getString("app.title.create_order"));
             orderStage.setScene(scene);
             orderStage.showAndWait();
 
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Ошибка", "Не удалось открыть форму заказа");
+            showAlert(resources.getString("making.alert.error.order_form"));
         }
     }
 
@@ -278,9 +285,9 @@ public class MakingController {
         }
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();

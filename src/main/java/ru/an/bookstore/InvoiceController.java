@@ -9,9 +9,12 @@ import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
 
 public class InvoiceController {
 
+    @FXML private ResourceBundle resources;
     @FXML private TextField tfCount;
     @FXML private TextField tfPrice;
     @FXML private DatePicker dpDate;
@@ -22,6 +25,10 @@ public class InvoiceController {
     private final InvoiceDAO invoiceDAO = new InvoiceDAO();
     private final SuppliersDAO suppliersDAO = new SuppliersDAO();
     private ObservableList<Suppliers> suppliers = FXCollections.observableArrayList();
+
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
 
     @FXML
     void initialize() {
@@ -62,46 +69,43 @@ public class InvoiceController {
         LocalDate date = dpDate.getValue();
 
         if (countText == null || countText.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите количество");
+            showAlert(resources.getString("invoice.alert.error.enter_quantity"));
             return;
         }
 
-        // Валидация цены
         if (priceText == null || priceText.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите цену");
+            showAlert(resources.getString("invoice.alert.error.enter_price"));
             return;
         }
 
-        // Валидация поставщика
         if (cbSupplier.getValue() == null) {
-            showAlert("Ошибка", "Выберите поставщика");
+            showAlert(resources.getString("invoice.alert.error.select_supplier"));
             return;
         }
 
-        // Валидация даты (здесь и должна быть!)
         if (date == null) {
-            showAlert("Ошибка", "Выберите дату");
+            showAlert(resources.getString("invoice.alert.error.select_date"));
             return;
         }
 
         if (date.isAfter(LocalDate.now())) {
-            showAlert("Ошибка",
-                    "Дата накладной не может быть позже сегодняшней даты!\n" +
-                            "Выбрана: " + date + "\n" +
-                            "Сегодня: " + LocalDate.now());
+            showAlert(java.text.MessageFormat.format(
+                    resources.getString("invoice.alert.error.date_not_future"),
+                    date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))));
             return;
         }
 
         try {
             int quantity = Integer.parseInt(countText);
             if (quantity <= 0) {
-                showAlert("Ошибка", "Количество должно быть больше 0");
+                showAlert(resources.getString("invoice.alert.error.quantity_positive"));
                 return;
             }
 
             BigDecimal priceValue = new BigDecimal(priceText);
             if (priceValue.compareTo(BigDecimal.ZERO) <= 0) {
-                showAlert("Ошибка", "Цена должна быть больше 0");
+                showAlert(resources.getString("invoice.alert.error.price_positive"));
                 return;
             }
 
@@ -117,10 +121,10 @@ public class InvoiceController {
 
             invoiceDAO.save(invoice);
 
-            showAlert("Успех", "Накладная сохранена. Количество на складе обновлено автоматически.");
+            showAlert(resources.getString("invoice.alert.success"));
             stage.close();
         } catch (NumberFormatException e) {
-            showAlert("Ошибка", "Введите корректные числовые значения");
+            showAlert(resources.getString("invoice.alert.error.invalid_number"));
         }
     }
 
@@ -128,9 +132,9 @@ public class InvoiceController {
         stage.close();
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();

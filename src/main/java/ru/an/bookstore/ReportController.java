@@ -13,8 +13,12 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ResourceBundle;
 
 public class ReportController {
+
+    @FXML
+    private ResourceBundle resources;
 
     private final ReportDAO reportDAO = new ReportDAO();
     private Stage stage;
@@ -59,10 +63,18 @@ public class ReportController {
     private ObservableList<ReportDAO.PopularityReport> genreList = FXCollections.observableArrayList();
     private ObservableList<ReportDAO.PopularityReport> bookList = FXCollections.observableArrayList();
 
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
+
     @FXML
     void initialize() {
-        tfPeriod.setItems(FXCollections.observableArrayList("день", "месяц", "год"));
-        tfPeriod.setValue("месяц");
+        tfPeriod.setItems(FXCollections.observableArrayList(
+                resources.getString("period.day"),
+                resources.getString("period.month"),
+                resources.getString("period.year")
+        ));
+        tfPeriod.setValue(resources.getString("period.month"));
 
         // Продажи
         colChecksCount.setCellValueFactory(new PropertyValueFactory<>("checksCount"));
@@ -109,7 +121,15 @@ public class ReportController {
     }
 
     private void refreshAllReports() {
-        String period = tfPeriod.getValue();
+        String periodValue = tfPeriod.getValue();
+        String period;
+        if (periodValue.equals(resources.getString("period.day"))) {
+            period = "день";
+        } else if (periodValue.equals(resources.getString("period.month"))) {
+            period = "месяц";
+        } else {
+            period = "год";
+        }
 
         ReportDAO.SalesReport sales = reportDAO.getSalesReport(period);
         if (sales != null) {
@@ -125,22 +145,22 @@ public class ReportController {
 
     @FXML
     public void onMain(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "main.fxml", "Главная");
+        navigateTo(actionEvent, "main.fxml", resources.getString("app.title"));
     }
 
     @FXML
     public void onClient(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "clients.fxml", "Клиенты");
+        navigateTo(actionEvent, "clients.fxml", resources.getString("app.title.clients"));
     }
 
     @FXML
     public void onWarehouse(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "warehouse.fxml", "Склад");
+        navigateTo(actionEvent, "warehouse.fxml", resources.getString("app.title.warehouse"));
     }
 
     @FXML
     public void onOreder(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "orders.fxml", "Заказы");
+        navigateTo(actionEvent, "orders.fxml", resources.getString("app.title.orders"));
     }
 
     @FXML
@@ -151,7 +171,7 @@ public class ReportController {
     private void navigateTo(ActionEvent actionEvent, String fxml, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource(fxml));
+                    MainController.class.getResource(fxml), resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
                     .getParentPopup().getOwnerWindow();

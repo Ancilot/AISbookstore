@@ -6,8 +6,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.util.ResourceBundle;
+
 public class NewClientController {
 
+    @FXML private ResourceBundle resources;
     @FXML private TextField tfSurname;
     @FXML private TextField tfName;
     @FXML private TextField tfPatronomic;
@@ -33,6 +36,10 @@ public class NewClientController {
 
     public void setClientsDAO(ClientsDAO clientsDAO) {
         this.clientsDAO = clientsDAO;
+    }
+
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
     }
 
     private void fillFormFromClient() {
@@ -69,64 +76,56 @@ public class NewClientController {
     }
 
     private boolean validateFields() {
-
-        // Фамилия
         String surname = tfSurname.getText();
         if (surname == null || surname.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите фамилию");
+            showAlert(resources.getString("client.alert.error.empty_surname"));
             return false;
         }
         surname = surname.trim();
 
         if (!surname.matches(NAME_REGEX)) {
-            showAlert("Ошибка", "Фамилия содержит недопустимые символы");
+            showAlert(resources.getString("client.alert.error.invalid_surname"));
             return false;
         }
 
-        // Имя
         String name = tfName.getText();
         if (name == null || name.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите имя");
+            showAlert(resources.getString("client.alert.error.empty_firstname"));
             return false;
         }
         name = name.trim();
 
         if (!name.matches(NAME_REGEX)) {
-            showAlert("Ошибка", "Имя содержит недопустимые символы");
+            showAlert(resources.getString("client.alert.error.invalid_firstname"));
             return false;
         }
 
-        // Отчество (необязательное)
         String patronymic = tfPatronomic.getText();
         if (patronymic != null && !patronymic.trim().isEmpty()) {
             patronymic = patronymic.trim();
-
             if (!patronymic.matches(NAME_REGEX)) {
-                showAlert("Ошибка", "Отчество содержит недопустимые символы");
+                showAlert(resources.getString("client.alert.error.invalid_patronymic"));
                 return false;
             }
         }
 
-        // Телефон
         String phone = tfNumber.getText();
         if (phone == null || phone.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите номер телефона");
+            showAlert(resources.getString("client.alert.error.empty_phone"));
             return false;
         }
         phone = phone.trim();
 
         if (!phone.matches("^(\\+[0-9]{11}|[0-9]{11})$")) {
-            showAlert("Ошибка", "Номер телефона должен содержать 11 цифр и может начинаться с '+'");
+            showAlert(resources.getString("client.alert.error.invalid_phone"));
             return false;
         }
 
-        // Email (необязательный)
         String email = tfEmail.getText();
         if (email != null && !email.trim().isEmpty()) {
             email = email.trim();
-
             if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-                showAlert("Ошибка", "Некорректный email");
+                showAlert(resources.getString("client.alert.error.invalid_email"));
                 return false;
             }
         }
@@ -144,10 +143,10 @@ public class NewClientController {
 
         if (client.getIdClient() == null) {
             clientsDAO.save(client);
-            showAlert("Успех", "Клиент добавлен");
+            showAlert(resources.getString("client.alert.success.add"));
         } else {
             clientsDAO.update(client);
-            showAlert("Успех", "Клиент обновлен");
+            showAlert(resources.getString("client.alert.success.update"));
         }
         stage.close();
     }
@@ -157,9 +156,9 @@ public class NewClientController {
         stage.close();
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();

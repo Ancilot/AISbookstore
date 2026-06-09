@@ -58,7 +58,7 @@ public class ClientController {
     public void onEdit(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите клиента для редактирования");
+            showAlert(resources.getString("clients.alert.warning.select_for_edit"), Alert.AlertType.WARNING);
             return;
         }
         showClientDialog(selected);
@@ -68,15 +68,16 @@ public class ClientController {
     public void onDelete(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите клиента для удаления");
+            showAlert(resources.getString("clients.alert.warning.select_for_delete"), Alert.AlertType.WARNING);
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Подтверждение");
+        confirm.setTitle(resources.getString("clients.alert.confirm.delete_title"));
         confirm.setHeaderText(null);
-        confirm.setContentText("Вы уверены, что хотите удалить клиента \"" +
-                selected.getSurname() + " " + selected.getNameClient() + "\"?");
+        confirm.setContentText(java.text.MessageFormat.format(
+                resources.getString("clients.alert.confirm.delete_text"),
+                selected.getSurname() + " " + selected.getNameClient()));
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -85,14 +86,14 @@ public class ClientController {
             Alert.AlertType alertType;
 
             if (deleteResult == 1) {
-                message = "Клиент архивирован (есть связанные данные)";
+                message = resources.getString("clients.alert.result.archived");
                 alertType = Alert.AlertType.WARNING;
             } else {
-                message = "Клиент полностью удален";
+                message = resources.getString("clients.alert.result.deleted");
                 alertType = Alert.AlertType.INFORMATION;
             }
 
-            showAlert("Результат", message, alertType);
+            showAlert(message, alertType);
             refreshTable();
         }
     }
@@ -112,25 +113,23 @@ public class ClientController {
     public void onLoyaltyBase(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите клиента");
+            showAlert(resources.getString("clients.alert.warning.select_client"), Alert.AlertType.WARNING);
             return;
         }
 
         LoyaltyBase existingLoyalty = loyaltyBaseDAO.findByClient(selected.getIdClient());
 
         if (existingLoyalty == null) {
-            // Предлагаем создать карту лояльности
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-            confirm.setTitle("Создание карты лояльности");
+            confirm.setTitle(resources.getString("loyalty.alert.confirm.create_title"));
             confirm.setHeaderText(null);
-            confirm.setContentText("У клиента нет карты лояльности. Создать?");
+            confirm.setContentText(resources.getString("loyalty.alert.confirm.create_text"));
 
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 showLoyaltyDialog(selected, null);
             }
         } else {
-            // Показываем существующую карту
             showLoyaltyDialog(selected, existingLoyalty);
         }
     }
@@ -138,7 +137,7 @@ public class ClientController {
     private void showClientDialog(Clients client) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    ClientController.class.getResource("add-edit-clients.fxml"));
+                    ClientController.class.getResource("add-edit-clients.fxml"), resources);
             Scene scene = new Scene(loader.load(), 300, 285);
 
             NewClientController controller = loader.getController();
@@ -147,9 +146,12 @@ public class ClientController {
             controller.setStage(stage);
             controller.setClient(client);
             controller.setClientsDAO(clientsDAO);
+            controller.setResources(resources);
 
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle(client == null ? "Добавление клиента" : "Редактирование клиента");
+            stage.setTitle(client == null ?
+                    resources.getString("app.title.add_client") :
+                    resources.getString("app.title.edit_client"));
             stage.setScene(scene);
             stage.showAndWait();
 
@@ -162,7 +164,7 @@ public class ClientController {
     private void showLoyaltyDialog(Clients client, LoyaltyBase loyalty) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    ClientController.class.getResource("loyality-base.fxml"));
+                    ClientController.class.getResource("loyality-base.fxml"), resources);
             Scene scene = new Scene(loader.load(), 300, 210);
 
             LoyaltyBaseController controller = loader.getController();
@@ -172,9 +174,10 @@ public class ClientController {
             controller.setClient(client);
             controller.setLoyalty(loyalty);
             controller.setLoyaltyBaseDAO(loyaltyBaseDAO);
+            controller.setResources(resources);
 
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Карта лояльности");
+            stage.setTitle(resources.getString("app.title.loyalty"));
             stage.setScene(scene);
             stage.showAndWait();
 
@@ -186,22 +189,22 @@ public class ClientController {
 
     @FXML
     public void onMain(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "main.fxml", "Главная");
+        navigateTo("main.fxml", resources.getString("app.title"), actionEvent);
     }
 
     @FXML
     public void onWarehouse(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "warehouse.fxml", "Склад");
+        navigateTo("warehouse.fxml", resources.getString("app.title.warehouse"), actionEvent);
     }
 
     @FXML
     public void onOrder(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "orders.fxml", "Заказы");
+        navigateTo("orders.fxml", resources.getString("app.title.orders"), actionEvent);
     }
 
     @FXML
     public void onReport(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "report.fxml", "Отчеты");
+        navigateTo("report.fxml", resources.getString("app.title.reports"), actionEvent);
     }
 
     @FXML
@@ -209,10 +212,10 @@ public class ClientController {
         Platform.exit();
     }
 
-    private void navigateTo(ActionEvent actionEvent, String fxml, String title) {
+    private void navigateTo(String fxml, String title, ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource(fxml));
+                    MainController.class.getResource(fxml), resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
                     .getParentPopup().getOwnerWindow();
@@ -223,16 +226,16 @@ public class ClientController {
         }
     }
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
-    private void showAlert(String title, String content, Alert.AlertType type) {
+    private void showAlert(String content, Alert.AlertType type) {
         Alert alert = new Alert(type);
+        String title;
+        if (type == Alert.AlertType.ERROR) {
+            title = resources.getString("alert.title.error");
+        } else if (type == Alert.AlertType.WARNING) {
+            title = resources.getString("alert.title.warning");
+        } else {
+            title = resources.getString("alert.title.information");
+        }
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
@@ -243,18 +246,17 @@ public class ClientController {
     public void onNotifications(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите клиента");
+            showAlert(resources.getString("clients.alert.warning.select_client"), Alert.AlertType.WARNING);
             return;
         }
         showNotificationsDialog(selected);
     }
 
-
     @FXML
     public void onChecks(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите клиента");
+            showAlert(resources.getString("clients.alert.warning.select_client"), Alert.AlertType.WARNING);
             return;
         }
         showRefundDialog(selected);
@@ -263,7 +265,7 @@ public class ClientController {
     private void showRefundDialog(Clients client) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    ClientController.class.getResource("refund.fxml"));
+                    ClientController.class.getResource("refund.fxml"), resources);
             Scene scene = new Scene(loader.load(), 935, 400);
 
             RefundController controller = loader.getController();
@@ -271,9 +273,10 @@ public class ClientController {
 
             controller.setStage(stage);
             controller.setClient(client);
+            controller.setResources(resources);
 
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Возврат товаров - " + client.getSurname() + " " + client.getNameClient());
+            stage.setTitle(resources.getString("app.title.refund") + " - " + client.getSurname() + " " + client.getNameClient());
             stage.setScene(scene);
             stage.showAndWait();
         } catch (IOException e) {
@@ -285,7 +288,7 @@ public class ClientController {
     public void onMaking(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите клиента");
+            showAlert(resources.getString("clients.alert.warning.select_client"), Alert.AlertType.WARNING);
             return;
         }
         showMakingDialog(selected);
@@ -294,7 +297,7 @@ public class ClientController {
     private void showNotificationsDialog(Clients client) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    ClientController.class.getResource("notifications.fxml"));
+                    ClientController.class.getResource("notifications.fxml"), resources);
             Scene scene = new Scene(loader.load(), 935, 400);
 
             NotificationsController controller = loader.getController();
@@ -302,9 +305,10 @@ public class ClientController {
 
             controller.setStage(stage);
             controller.setClient(client);
+            controller.setResources(resources);
 
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Уведомления");
+            stage.setTitle(resources.getString("app.title.notifications"));
             stage.setScene(scene);
             stage.showAndWait();
         } catch (IOException e) {
@@ -315,7 +319,7 @@ public class ClientController {
     private void showMakingDialog(Clients client) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    ClientController.class.getResource("making-a-purchase.fxml"));
+                    ClientController.class.getResource("making-a-purchase.fxml"), resources);
             Scene scene = new Scene(loader.load(), 860, 342);
 
             MakingController controller = loader.getController();
@@ -323,9 +327,10 @@ public class ClientController {
 
             controller.setStage(stage);
             controller.setClient(client);
+            controller.setResources(resources);
 
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Оформление покупки");
+            stage.setTitle(resources.getString("app.title.making_purchase"));
             stage.setScene(scene);
             stage.showAndWait();
         } catch (IOException e) {

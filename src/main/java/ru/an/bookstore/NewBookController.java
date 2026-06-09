@@ -22,7 +22,10 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class NewBookController {
+
+    @FXML
     private ResourceBundle resources;
+
     public void setResources(ResourceBundle resources) {
         this.resources = resources;
     }
@@ -133,21 +136,6 @@ public class NewBookController {
         publishers.setAll((Collection<PublishingHouses>) publisherDAO.findAll());
         cbPublisher.setItems(publishers);
 
-        // Настройка отображения названия издательства в ComboBox
-        cbPublisher.setCellFactory(lv -> new ListCell<PublishingHouses>() {
-            @Override
-            protected void updateItem(PublishingHouses item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getNamePublishing());
-            }
-        });
-        cbPublisher.setButtonCell(new ListCell<PublishingHouses>() {
-            @Override
-            protected void updateItem(PublishingHouses item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getNamePublishing());
-            }
-        });
     }
 
     private void searchAuthors() {
@@ -156,7 +144,6 @@ public class NewBookController {
             loadAvailableAuthors();
         } else {
             List<Authors> results = bookCatalogDAO.searchAuthors(searchText);
-            // Фильтруем уже добавленных авторов
             List<Long> bookAuthorIds = bookAuthors.stream()
                     .map(Authors::getIdAuthors)
                     .collect(Collectors.toList());
@@ -194,7 +181,6 @@ public class NewBookController {
         if (selected != null) {
             bookAuthors.add(selected);
             availableAuthors.remove(selected);
-            // Сортируем авторов в книге по фамилии
             bookAuthors.sort((a1, a2) -> a1.getSurname().compareTo(a2.getSurname()));
         }
     }
@@ -203,7 +189,6 @@ public class NewBookController {
         Authors selected = tvBookAuthors.getSelectionModel().getSelectedItem();
         if (selected != null) {
             bookAuthors.remove(selected);
-            // Возвращаем автора в список доступных, если он еще существует в БД
             Authors freshAuthor = authorsDAO.findById(selected.getIdAuthors());
             if (freshAuthor != null) {
                 availableAuthors.add(freshAuthor);
@@ -271,7 +256,7 @@ public class NewBookController {
 
     private void selectImage() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Выберите изображение");
+        fileChooser.setTitle(resources.getString("book.button.select_image"));
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
         );
@@ -285,59 +270,69 @@ public class NewBookController {
 
     private boolean validateFields() {
         if (tfNameBook.getText() == null || tfNameBook.getText().trim().isEmpty()) {
-            showAlert("Ошибка", "Введите название книги");
+            showAlert(resources.getString("book.alert.error.empty_title"));
             return false;
         }
         if (cbPublisher.getValue() == null) {
-            showAlert("Ошибка", "Выберите издательство");
+            showAlert(resources.getString("book.alert.error.select_publisher"));
             return false;
         }
         try {
             int year = Integer.parseInt(tfYearPublication.getText());
             int currentYear = Year.now().getValue();
             if (year < 1450 || year > currentYear) {
-                showAlert("Ошибка", "Год издания должен быть между 1450 и " + currentYear);
+                showAlert(java.text.MessageFormat.format(
+                        resources.getString("book.alert.error.year_range"),
+                        currentYear));
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Ошибка", "Введите корректный год издания");
+            showAlert(resources.getString("book.alert.error.invalid_year"));
             return false;
         }
         if (tfIsbn.getText() == null || tfIsbn.getText().trim().isEmpty()) {
-            showAlert("Ошибка", "Введите ISBN");
+            showAlert(resources.getString("book.alert.error.empty_isbn"));
             return false;
         }
 
         if (!tfIsbn.getText().matches("\\d{13}")) {
-            showAlert("Ошибка", "ISBN должен содержать ровно 13 цифр (только цифры 0-9)");
+            showAlert(resources.getString("book.alert.error.isbn_format"));
             return false;
         }
         try {
             int pages = Integer.parseInt(tfNumberPages.getText());
             if (pages <= 0 || pages > 1500) {
-                showAlert("Ошибка", "Количество страниц должно быть от 1 до 1500");
+                showAlert(resources.getString("book.alert.error.pages_range"));
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Ошибка", "Введите корректное количество страниц");
+            showAlert(resources.getString("book.alert.error.invalid_pages"));
             return false;
         }
         try {
             BigDecimal price = new BigDecimal(tfPrice.getText());
             if (price.compareTo(BigDecimal.ZERO) < 0) {
-                showAlert("Ошибка", "Цена не может быть отрицательной");
+                showAlert(resources.getString("book.alert.error.negative_price"));
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Ошибка", "Введите корректную цену");
+            showAlert(resources.getString("book.alert.error.invalid_price"));
             return false;
         }
         return true;
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.error"));
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showSuccessAlert(String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
@@ -358,21 +353,18 @@ public class NewBookController {
         }
         tfAnnotation.setText(book.getAnnotation());
 
-        // Загружаем авторов книги
         if (book.getAuthorsBook() != null) {
             bookAuthors.setAll(book.getAuthorsBook().stream()
                     .map(AuthorsBook::getAuthor)
                     .collect(Collectors.toList()));
         }
 
-        // Загружаем жанры книги
         if (book.getGenresBooks() != null) {
             bookGenres.setAll(book.getGenresBooks().stream()
                     .map(GenresBook::getGenr)
                     .collect(Collectors.toList()));
         }
 
-        // Загружаем изображение
         if (book.getImages() != null && !book.getImages().isEmpty()) {
             String imagePath = book.getImages().get(0).getImagePath();
             if (imagePath != null && new File(imagePath).exists()) {
@@ -396,7 +388,6 @@ public class NewBookController {
         book.setPrice(new BigDecimal(tfPrice.getText()));
         book.setAnnotation(tfAnnotation.getText());
 
-        // Устанавливаем авторов
         List<AuthorsBook> authorsBookList = new ArrayList<>();
         for (Authors author : bookAuthors) {
             AuthorsBook ab = new AuthorsBook();
@@ -406,7 +397,6 @@ public class NewBookController {
         }
         book.setAuthorsBook(authorsBookList);
 
-        // Устанавливаем жанры
         List<GenresBook> genresBookList = new ArrayList<>();
         for (Genres genre : bookGenres) {
             GenresBook gb = new GenresBook();
@@ -416,7 +406,6 @@ public class NewBookController {
         }
         book.setGenresBooks(genresBookList);
 
-        // Устанавливаем изображение
         if (selectedImagePath != null && !selectedImagePath.isEmpty()) {
             List<Images> imagesList = new ArrayList<>();
             Images image = new Images();
@@ -435,35 +424,24 @@ public class NewBookController {
         fillBookFromForm();
 
         if (book.getIdBook() == null) {
-            // Новая книга - сначала сохраняем основную информацию
             BookCatalog saved = bookCatalogDAO.save(book);
             if (saved != null && saved.getIdBook() != null) {
-                // После сохранения добавляем авторов и жанры
                 saved.setAuthorsBook(book.getAuthorsBook());
                 saved.setGenresBooks(book.getGenresBooks());
                 saved.setImages(book.getImages());
                 bookCatalogDAO.update(saved);
-                showSuccessAlert("Книга успешно добавлена!");
+                showSuccessAlert(resources.getString("book.alert.success.add"));
             } else {
-                showAlert("Ошибка", "Не удалось сохранить книгу");
+                showAlert(resources.getString("book.alert.error.save"));
             }
         } else {
-            // Обновление существующей книги
             BookCatalog updated = bookCatalogDAO.update(book);
             if (updated != null) {
-                showSuccessAlert("Книга успешно обновлена!");
+                showSuccessAlert(resources.getString("book.alert.success.update"));
             } else {
-                showAlert("Ошибка", "Не удалось обновить книгу");
+                showAlert(resources.getString("book.alert.error.update"));
             }
         }
-    }
-
-    private void showSuccessAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Успех");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 
     public void setStage(Stage stage) {
@@ -473,14 +451,12 @@ public class NewBookController {
     public void setBook(BookCatalog book) {
         this.book = book;
         if (book != null && book.getIdBook() != null) {
-            // Загружаем полную информацию о книге
             BookCatalog fullBook = bookCatalogDAO.findById(book.getIdBook());
             if (fullBook != null) {
                 this.book = fullBook;
                 fillFormFromBook();
             }
         }
-        // Загружаем доступных авторов и жанры
         loadAvailableAuthors();
         loadAvailableGenres();
     }

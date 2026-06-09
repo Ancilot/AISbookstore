@@ -14,8 +14,11 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class WarehouseController {
+
+    @FXML private ResourceBundle resources;
 
     private final WarehouseDAO warehouseDAO = new WarehouseDAO();
     private ObservableList<Warehouse> warehouseList = FXCollections.observableArrayList();
@@ -68,7 +71,7 @@ public class WarehouseController {
     public void onAdd(ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    WarehouseController.class.getResource("adding-to-the-warehouse.fxml"));
+                    WarehouseController.class.getResource("adding-to-the-warehouse.fxml"), resources);
             Scene scene = new Scene(loader.load(), 1000, 600);
 
             AddingWarehouseController controller = loader.getController();
@@ -76,9 +79,10 @@ public class WarehouseController {
 
             controller.setStage(stage);
             controller.setWarehouseDAO(warehouseDAO);
+            controller.setResources(resources);
 
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Добавление книги на склад");
+            stage.setTitle(resources.getString("app.title.add_warehouse"));
             stage.setScene(scene);
             stage.showAndWait();
 
@@ -91,16 +95,18 @@ public class WarehouseController {
     public void onDelete(ActionEvent actionEvent) {
         Warehouse selected = tvWarehouse.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите книгу для удаления", Alert.AlertType.WARNING);
+            showAlert(resources.getString("warehouse.alert.warning.select_book"), Alert.AlertType.WARNING);
             return;
         }
 
         String bookName = selected.getBook().getNameBook();
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Подтверждение удаления");
+        confirm.setTitle(resources.getString("warehouse.alert.confirm.delete_title"));
         confirm.setHeaderText(null);
-        confirm.setContentText("Вы уверены, что хотите удалить книгу \"" + bookName + "\"?");
+        confirm.setContentText(java.text.MessageFormat.format(
+                resources.getString("warehouse.alert.confirm.delete_text"),
+                bookName));
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -108,42 +114,45 @@ public class WarehouseController {
             int bookId = bookIdLong != null ? bookIdLong.intValue() : 0;
             int deleteResult = warehouseDAO.deleteBookToArchive(bookId);
 
-            // Формируем сообщение в зависимости от результата
             String message;
             Alert.AlertType alertType;
 
             switch (deleteResult) {
                 case 1:
-                    message = "Книга \"" + bookName + "\" перенесена в архив (были продажи или остатки на складе)";
+                    message = java.text.MessageFormat.format(
+                            resources.getString("warehouse.alert.result.archived"),
+                            bookName);
                     alertType = Alert.AlertType.WARNING;
                     break;
                 case 2:
-                    message = "Книга \"" + bookName + "\" полностью удалена из каталога";
+                    message = java.text.MessageFormat.format(
+                            resources.getString("warehouse.alert.result.deleted"),
+                            bookName);
                     alertType = Alert.AlertType.INFORMATION;
                     break;
                 default:
-                    message = "Ошибка при удалении книги \"" + bookName + "\"";
+                    message = java.text.MessageFormat.format(
+                            resources.getString("warehouse.alert.result.error"),
+                            bookName);
                     alertType = Alert.AlertType.ERROR;
                     break;
             }
 
-            showAlert("Результат", message, alertType);
+            showAlert(message, alertType);
             refreshTable();
         }
     }
 
-
-
     public void onInvoice(ActionEvent actionEvent) {
         Warehouse selected = tvWarehouse.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите книгу для создания накладной", Alert.AlertType.WARNING);
+            showAlert(resources.getString("warehouse.alert.warning.select_for_invoice"), Alert.AlertType.WARNING);
             return;
         }
 
         try {
             FXMLLoader loader = new FXMLLoader(
-                    WarehouseController.class.getResource("invoice.fxml"));
+                    WarehouseController.class.getResource("invoice.fxml"), resources);
             Scene scene = new Scene(loader.load(), 300, 250);
 
             InvoiceController controller = loader.getController();
@@ -151,9 +160,10 @@ public class WarehouseController {
 
             controller.setStage(stage);
             controller.setWarehouse(selected);
+            controller.setResources(resources);
 
             stage.initModality(Modality.WINDOW_MODAL);
-            stage.setTitle("Накладная");
+            stage.setTitle(resources.getString("app.title.invoice"));
             stage.setScene(scene);
             stage.showAndWait();
 
@@ -164,29 +174,29 @@ public class WarehouseController {
     }
 
     public void onMain(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "main.fxml", "Главная");
+        navigateTo("main.fxml", resources.getString("app.title"), actionEvent);
     }
 
     public void onClirnt(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "clients.fxml", "Клиенты");
+        navigateTo("clients.fxml", resources.getString("app.title.clients"), actionEvent);
     }
 
     public void onOreder(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "orders.fxml", "Заказы");
+        navigateTo("orders.fxml", resources.getString("app.title.orders"), actionEvent);
     }
 
     public void onReprt(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "report.fxml", "Отчеты");
+        navigateTo("report.fxml", resources.getString("app.title.reports"), actionEvent);
     }
 
     public void onExit(ActionEvent actionEvent) {
         Platform.exit();
     }
 
-    private void navigateTo(ActionEvent actionEvent, String fxml, String title) {
+    private void navigateTo(String fxml, String title, ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource(fxml));
+                    MainController.class.getResource(fxml), resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
                     .getParentPopup().getOwnerWindow();
@@ -197,8 +207,16 @@ public class WarehouseController {
         }
     }
 
-    private void showAlert(String title, String content, Alert.AlertType type) {
+    private void showAlert(String content, Alert.AlertType type) {
         Alert alert = new Alert(type);
+        String title;
+        if (type == Alert.AlertType.ERROR) {
+            title = resources.getString("alert.title.error");
+        } else if (type == Alert.AlertType.WARNING) {
+            title = resources.getString("alert.title.warning");
+        } else {
+            title = resources.getString("alert.title.information");
+        }
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);

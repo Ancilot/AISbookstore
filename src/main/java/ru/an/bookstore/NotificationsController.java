@@ -9,8 +9,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class NotificationsController {
+
+    @FXML private ResourceBundle resources;
 
     private final NotificationsDAO notificationsDAO = new NotificationsDAO();
     private ObservableList<Notifications> notificationsList = FXCollections.observableArrayList();
@@ -21,6 +24,10 @@ public class NotificationsController {
     @FXML private TableColumn<Notifications, String> colText;
     @FXML private TableColumn<Notifications, String> colDate;
     @FXML private TableColumn<Notifications, String> colStatus;
+
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -48,14 +55,14 @@ public class NotificationsController {
     public void onDelete(ActionEvent actionEvent) {
         Notifications selected = tvNotifications.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите уведомление для удаления");
+            showAlert(resources.getString("notifications.alert.warning.select"));
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Подтверждение");
+        confirm.setTitle(resources.getString("notifications.alert.confirm.delete_title"));
         confirm.setHeaderText(null);
-        confirm.setContentText("Удалить уведомление?");
+        confirm.setContentText(resources.getString("notifications.alert.confirm.delete_text"));
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -69,9 +76,9 @@ public class NotificationsController {
         stage.close();
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();

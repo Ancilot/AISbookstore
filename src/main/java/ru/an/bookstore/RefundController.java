@@ -10,9 +10,11 @@ import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class RefundController {
 
+    @FXML private ResourceBundle resources;
     @FXML private TableView<CompositionCheck> tvRefundItems;
     @FXML private TableColumn<CompositionCheck, String> colBookName;
     @FXML private TableColumn<CompositionCheck, String> colDateTime;
@@ -28,6 +30,10 @@ public class RefundController {
     private final CompositionCheckDAO compositionCheckDAO = new CompositionCheckDAO();
 
     private ObservableList<CompositionCheck> refundItems = FXCollections.observableArrayList();
+
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
 
     @FXML
     void initialize() {
@@ -58,10 +64,6 @@ public class RefundController {
     }
 
     private void loadClientChecks() {
-        // Загружаем все чеки клиента и их детали
-        // Для простоты - загружаем все composition_check для чеков клиента
-        // Нужно получить все checks клиента, затем все composition_check
-        // Здесь используем метод, который получит все товары из чеков клиента
         allCheckItems = compositionCheckDAO.findByClient(client.getIdClient());
         refundItems.setAll(allCheckItems);
     }
@@ -72,7 +74,6 @@ public class RefundController {
         if (searchText == null || searchText.trim().isEmpty()) {
             refundItems.setAll(allCheckItems);
         } else {
-            // Ищем среди загруженных товаров
             ObservableList<CompositionCheck> filtered = refundItems.filtered(item ->
                     item.getBook().getNameBook().toLowerCase().contains(searchText.toLowerCase()));
             refundItems.setAll(filtered);
@@ -83,13 +84,13 @@ public class RefundController {
     public void onRefund(ActionEvent actionEvent) {
         CompositionCheck selected = tvRefundItems.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Ошибка", "Выберите товар для возврата");
+            showAlert(resources.getString("refund.alert.error.select_book"));
             return;
         }
 
         String returnQtyText = tfReturnQuantity.getText();
         if (returnQtyText == null || returnQtyText.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите количество для возврата");
+            showAlert(resources.getString("refund.alert.error.enter_quantity"));
             return;
         }
 
@@ -97,38 +98,41 @@ public class RefundController {
         try {
             returnQuantity = Integer.parseInt(returnQtyText);
         } catch (NumberFormatException e) {
-            showAlert("Ошибка", "Введите корректное количество");
+            showAlert(resources.getString("refund.alert.error.invalid_quantity"));
             return;
         }
 
         if (returnQuantity <= 0) {
-            showAlert("Ошибка", "Количество должно быть больше 0");
+            showAlert(resources.getString("refund.alert.error.quantity_positive"));
             return;
         }
 
         if (returnQuantity > selected.getQuantity()) {
-            showAlert("Ошибка", "Нельзя вернуть больше, чем куплено. Доступно: " + selected.getQuantity());
+            showAlert(java.text.MessageFormat.format(
+                    resources.getString("refund.alert.error.too_many"),
+                    selected.getQuantity()));
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Подтверждение возврата");
+        confirm.setTitle(resources.getString("refund.alert.confirm.title"));
         confirm.setHeaderText(null);
-        confirm.setContentText("Вы уверены, что хотите вернуть " + returnQuantity + " шт.\n" +
-                "Книга: " + selected.getBook().getNameBook() + "\n" +
-                "Цена за шт.: " + selected.getPriceTime());
+        confirm.setContentText(java.text.MessageFormat.format(
+                resources.getString("refund.alert.confirm.text"),
+                returnQuantity,
+                selected.getBook().getNameBook(),
+                selected.getPriceTime()));
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 compositionCheckDAO.returnFromCheck(selected.getIdComposition(), returnQuantity);
-                showAlert("Успех", "Возврат оформлен успешно!");
+                showAlert(resources.getString("refund.alert.success"));
 
-                // Обновляем список
                 loadClientChecks();
                 tfReturnQuantity.clear();
             } catch (RuntimeException e) {
-                showAlert("Ошибка","Произошла ошибка");
+                showAlert(resources.getString("refund.alert.error.general"));
             }
         }
     }
@@ -138,9 +142,9 @@ public class RefundController {
         stage.close();
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();

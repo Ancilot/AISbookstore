@@ -9,9 +9,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.ResourceBundle;
 
 public class AddingWarehouseController {
 
+    @FXML private ResourceBundle resources;
     @FXML private TextField tfName;
     @FXML private TextField tfCount;
     @FXML private TableView<BookCatalog> tvAddWarehouse;
@@ -25,6 +27,10 @@ public class AddingWarehouseController {
     private WarehouseDAO warehouseDAO;
     private ObservableList<BookCatalog> availableBooks = FXCollections.observableArrayList();
     private List<BookCatalog> allAvailableBooks;
+
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
 
     @FXML
     void initialize() {
@@ -72,20 +78,20 @@ public class AddingWarehouseController {
     public void onAdd(ActionEvent actionEvent) {
         BookCatalog selected = tvAddWarehouse.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Ошибка", "Выберите книгу для добавления");
+            showAlert(resources.getString("add_warehouse.alert.error.select_book"));
             return;
         }
 
         String countText = tfCount.getText();
         if (countText == null || countText.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите количество");
+            showAlert(resources.getString("add_warehouse.alert.error.enter_quantity"));
             return;
         }
 
         try {
             int quantity = Integer.parseInt(countText);
             if (quantity <= 0) {
-                showAlert("Ошибка", "Количество должно быть больше 0");
+                showAlert(resources.getString("add_warehouse.alert.error.quantity_positive"));
                 return;
             }
 
@@ -94,10 +100,10 @@ public class AddingWarehouseController {
             warehouse.setQuantity(quantity);
             warehouseDAO.save(warehouse);
 
-            showAlert("Успех", "Книга успешно добавлена на склад");
+            showAlert(resources.getString("add_warehouse.alert.success"));
             stage.close();
         } catch (NumberFormatException e) {
-            showAlert("Ошибка", "Введите корректное количество");
+            showAlert(resources.getString("add_warehouse.alert.error.invalid_number"));
         }
     }
 
@@ -105,9 +111,9 @@ public class AddingWarehouseController {
         stage.close();
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();

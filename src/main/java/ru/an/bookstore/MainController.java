@@ -50,7 +50,6 @@ public class MainController {
 
     @FXML
     void initialize() {
-        // Установка заголовков столбцов из ResourceBundle
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("nameBook"));
         isbnColumn.setCellValueFactory(new PropertyValueFactory<>("isbn"));
         genresColumn.setCellValueFactory(new PropertyValueFactory<>("genres"));
@@ -114,67 +113,31 @@ public class MainController {
     }
 
     public void onClient(ActionEvent actionEvent) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("clients.fxml"), resources);
-
-            Scene scene = new Scene(loader.load(), 1200, 600);
-
-            Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
-                    .getParentPopup().getOwnerWindow();
-
-            stage.setTitle(resources.getString("app.title.clients"));
-            stage.setScene(scene);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateTo("clients.fxml", resources.getString("app.title.clients"), actionEvent);
     }
 
     public void onWarehouse(ActionEvent actionEvent) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("warehouse.fxml"), resources);
-            Scene scene = new Scene(loader.load(), 1200, 600);
-
-            Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
-                    .getParentPopup().getOwnerWindow();
-
-            stage.setTitle(resources.getString("app.title.warehouse"));
-            stage.setScene(scene);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateTo("warehouse.fxml", resources.getString("app.title.warehouse"), actionEvent);
     }
 
     public void onOrder(ActionEvent actionEvent) {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("orders.fxml"), resources);
-            Scene scene = new Scene(loader.load(), 1200, 600);
-
-            Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
-                    .getParentPopup().getOwnerWindow();
-
-            stage.setTitle(resources.getString("app.title.orders"));
-            stage.setScene(scene);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateTo("orders.fxml", resources.getString("app.title.orders"), actionEvent);
     }
 
     public void OnReport(ActionEvent actionEvent) {
+        navigateTo("report.fxml", resources.getString("app.title.reports"), actionEvent);
+    }
+
+    private void navigateTo(String fxml, String title, ActionEvent actionEvent) {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    MainController.class.getResource("report.fxml"), resources);
+                    MainController.class.getResource(fxml), resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
 
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource())
                     .getParentPopup().getOwnerWindow();
 
-            stage.setTitle(resources.getString("app.title.reports"));
+            stage.setTitle(title);
             stage.setScene(scene);
 
         } catch (IOException e) {
@@ -211,6 +174,7 @@ public class MainController {
             }
         }
     }
+
     private void showAlert(String content, Alert.AlertType type) {
         Alert alert = new Alert(type);
 

@@ -13,12 +13,14 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class OrderController {
 
+    @FXML private ResourceBundle resources;
+
     private final OrdersDAO ordersDAO = new OrdersDAO();
     private ObservableList<Orders> ordersList = FXCollections.observableArrayList();
-    private Stage stage;
 
     @FXML private TableView<Orders> tvOrders;
     @FXML private TableColumn<Orders, String> colClient;
@@ -28,10 +30,6 @@ public class OrderController {
     @FXML private TableColumn<Orders, String> colBook;
     @FXML private TableColumn<Orders, Integer> colQuantity;
     @FXML private TextField tfSearch;
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
 
     @FXML
     void initialize() {
@@ -59,23 +57,25 @@ public class OrderController {
     public void onComplete(ActionEvent actionEvent) {
         Orders selected = tvOrders.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите заказ для выполнения");
+            showAlert(resources.getString("orders.alert.warning.select_for_complete"), Alert.AlertType.WARNING);
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Подтверждение");
+        confirm.setTitle(resources.getString("orders.alert.confirm.complete_title"));
         confirm.setHeaderText(null);
-        confirm.setContentText("Отметить заказ №" + selected.getIdOrder() + " как выполненный?");
+        confirm.setContentText(java.text.MessageFormat.format(
+                resources.getString("orders.alert.confirm.complete_text"),
+                selected.getIdOrder()));
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 ordersDAO.completeOrder(selected.getIdOrder());
-                showAlert("Успех", "Заказ выполнен, клиент уведомлен");
+                showAlert(resources.getString("orders.alert.success.complete"), Alert.AlertType.INFORMATION);
                 refreshTable();
             } catch (RuntimeException e) {
-                showAlert("Ошибка", "Недостаточно книг на складе");
+                showAlert(resources.getString("orders.alert.error.insufficient_stock"), Alert.AlertType.ERROR);
             }
         }
     }
@@ -85,39 +85,26 @@ public class OrderController {
         Orders selected = tvOrders.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert("Предупреждение", "Выберите заказ для удаления");
+            showAlert(resources.getString("orders.alert.warning.select_for_delete"), Alert.AlertType.WARNING);
             return;
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Подтверждение");
+        confirm.setTitle(resources.getString("orders.alert.confirm.complete_title"));
         confirm.setHeaderText(null);
-        confirm.setContentText(
-                "Архивировать заказ №" + selected.getIdOrder() + "?"
-        );
+        confirm.setContentText(java.text.MessageFormat.format(
+                resources.getString("orders.alert.confirm.archive_text"),
+                selected.getIdOrder()));
 
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
-
             try {
-
                 ordersDAO.deleteOrderToArchive(selected.getIdOrder());
-
-                showAlert(
-                        "Успех",
-                        "Заказ успешно архивирован"
-                );
-
+                showAlert(resources.getString("orders.alert.success.archive"), Alert.AlertType.INFORMATION);
                 refreshTable();
-
             } catch (RuntimeException e) {
-
-                showAlert(
-                        "Ошибка",
-                        "Не удалось архивировать заказ. Заказ должен иметь статус 'Выполнено'."
-                );
-
+                showAlert(resources.getString("orders.alert.error.cannot_archive"), Alert.AlertType.ERROR);
             }
         }
     }
@@ -135,22 +122,22 @@ public class OrderController {
 
     @FXML
     public void onMain(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "main.fxml", "Главная");
+        navigateTo("main.fxml", resources.getString("app.title"), actionEvent);
     }
 
     @FXML
     public void onClient(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "clients.fxml", "Клиенты");
+        navigateTo("clients.fxml", resources.getString("app.title.clients"), actionEvent);
     }
 
     @FXML
     public void onWarehouse(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "warehouse.fxml", "Склад");
+        navigateTo("warehouse.fxml", resources.getString("app.title.warehouse"), actionEvent);
     }
 
     @FXML
     public void onReport(ActionEvent actionEvent) {
-        navigateTo(actionEvent, "report.fxml", "Отчеты");
+        navigateTo("report.fxml", resources.getString("app.title.reports"), actionEvent);
     }
 
     @FXML
@@ -158,9 +145,9 @@ public class OrderController {
         Platform.exit();
     }
 
-    private void navigateTo(ActionEvent actionEvent, String fxml, String title) {
+    private void navigateTo(String fxml, String title, ActionEvent actionEvent) {
         try {
-            FXMLLoader loader = new FXMLLoader(MainController.class.getResource(fxml));
+            FXMLLoader loader = new FXMLLoader(MainController.class.getResource(fxml), resources);
             Scene scene = new Scene(loader.load(), 1200, 600);
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource()).getParentPopup().getOwnerWindow();
             stage.setTitle(title);
@@ -170,8 +157,16 @@ public class OrderController {
         }
     }
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    private void showAlert(String content, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        String title;
+        if (type == Alert.AlertType.ERROR) {
+            title = resources.getString("alert.title.error");
+        } else if (type == Alert.AlertType.WARNING) {
+            title = resources.getString("alert.title.warning");
+        } else {
+            title = resources.getString("alert.title.information");
+        }
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);

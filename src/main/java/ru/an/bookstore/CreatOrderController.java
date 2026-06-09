@@ -6,8 +6,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.util.ResourceBundle;
+
 public class CreatOrderController {
 
+    @FXML private ResourceBundle resources;
     @FXML private TextField tfQuantity;
     @FXML private TextField tfComment;
 
@@ -15,6 +18,10 @@ public class CreatOrderController {
     private Clients client;
     private BookCatalog book;
     private final OrdersDAO ordersDAO = new OrdersDAO();
+
+    public void setResources(ResourceBundle resources) {
+        this.resources = resources;
+    }
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -37,14 +44,14 @@ public class CreatOrderController {
     public void onSave(ActionEvent actionEvent) {
         String quantityText = tfQuantity.getText();
         if (quantityText == null || quantityText.trim().isEmpty()) {
-            showAlert("Ошибка", "Введите количество");
+            showAlert(resources.getString("create_order.alert.error.enter_quantity"));
             return;
         }
 
         try {
             int quantity = Integer.parseInt(quantityText);
             if (quantity <= 0) {
-                showAlert("Ошибка", "Количество должно быть больше 0");
+                showAlert(resources.getString("create_order.alert.error.quantity_positive"));
                 return;
             }
 
@@ -55,10 +62,10 @@ public class CreatOrderController {
             order.setTextOrder(tfComment.getText());
             ordersDAO.save(order);
 
-            showAlert("Успех", "Заказ создан! Уведомление отправлено менеджеру.");
+            showAlert(resources.getString("create_order.alert.success"));
             stage.close();
         } catch (NumberFormatException e) {
-            showAlert("Ошибка", "Введите корректное количество");
+            showAlert(resources.getString("create_order.alert.error.invalid_number"));
         }
     }
 
@@ -67,9 +74,9 @@ public class CreatOrderController {
         stage.close();
     }
 
-    private void showAlert(String title, String content) {
+    private void showAlert(String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle(resources.getString("alert.title.information"));
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
