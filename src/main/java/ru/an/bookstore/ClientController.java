@@ -11,12 +11,16 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class ClientController {
+
+    private static final Logger log = LoggerFactory.getLogger(ClientController.class);
 
     @FXML
     private ResourceBundle resources;
@@ -35,6 +39,8 @@ public class ClientController {
 
     @FXML
     void initialize() {
+        log.debug("Инициализация ClientController");
+
         colSurname.setCellValueFactory(new PropertyValueFactory<>("surname"));
         colName.setCellValueFactory(new PropertyValueFactory<>("nameClient"));
         colPatronymic.setCellValueFactory(new PropertyValueFactory<>("patrontmic"));
@@ -47,10 +53,12 @@ public class ClientController {
     private void refreshTable() {
         clientsList.setAll(clientsDAO.findAll());
         tvClients.setItems(clientsList);
+        log.debug("Таблица клиентов обновлена, загружено {} записей", clientsList.size());
     }
 
     @FXML
     public void onAdd(ActionEvent actionEvent) {
+        log.debug("Открытие диалога добавления клиента");
         showClientDialog(null);
     }
 
@@ -58,9 +66,11 @@ public class ClientController {
     public void onEdit(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка редактирования без выбора клиента");
             showAlert(resources.getString("clients.alert.warning.select_for_edit"), Alert.AlertType.WARNING);
             return;
         }
+        log.debug("Открытие диалога редактирования клиента id={}", selected.getIdClient());
         showClientDialog(selected);
     }
 
@@ -68,9 +78,13 @@ public class ClientController {
     public void onDelete(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка удаления без выбора клиента");
             showAlert(resources.getString("clients.alert.warning.select_for_delete"), Alert.AlertType.WARNING);
             return;
         }
+
+        log.info("Запрос на удаление/архивацию клиента id={}, name={} {}",
+                selected.getIdClient(), selected.getSurname(), selected.getNameClient());
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle(resources.getString("clients.alert.confirm.delete_title"));
@@ -86,26 +100,33 @@ public class ClientController {
             Alert.AlertType alertType;
 
             if (deleteResult == 1) {
+                log.info("Клиент id={} отправлен в архив", selected.getIdClient());
                 message = resources.getString("clients.alert.result.archived");
                 alertType = Alert.AlertType.WARNING;
             } else {
+                log.info("Клиент id={} полностью удалён", selected.getIdClient());
                 message = resources.getString("clients.alert.result.deleted");
                 alertType = Alert.AlertType.INFORMATION;
             }
 
             showAlert(message, alertType);
             refreshTable();
+        } else {
+            log.debug("Удаление клиента id={} отменено", selected.getIdClient());
         }
     }
 
     @FXML
     public void onFind(ActionEvent actionEvent) {
         String searchText = tfSearch.getText();
+        log.debug("Поиск клиентов: searchText='{}'", searchText);
+
         if (searchText == null || searchText.trim().isEmpty()) {
             refreshTable();
         } else {
             clientsList.setAll(clientsDAO.search(searchText));
             tvClients.setItems(clientsList);
+            log.debug("Найдено {} клиентов по запросу '{}'", clientsList.size(), searchText);
         }
     }
 
@@ -113,13 +134,16 @@ public class ClientController {
     public void onLoyaltyBase(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка открытия карты лояльности без выбора клиента");
             showAlert(resources.getString("clients.alert.warning.select_client"), Alert.AlertType.WARNING);
             return;
         }
 
+        log.debug("Проверка наличия карты лояльности для клиента id={}", selected.getIdClient());
         LoyaltyBase existingLoyalty = loyaltyBaseDAO.findByClient(selected.getIdClient());
 
         if (existingLoyalty == null) {
+            log.debug("Карта лояльности не найдена, запрос на создание для клиента id={}", selected.getIdClient());
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle(resources.getString("loyalty.alert.confirm.create_title"));
             confirm.setHeaderText(null);
@@ -130,6 +154,7 @@ public class ClientController {
                 showLoyaltyDialog(selected, null);
             }
         } else {
+            log.debug("Карта лояльности найдена для клиента id={}", selected.getIdClient());
             showLoyaltyDialog(selected, existingLoyalty);
         }
     }
@@ -155,8 +180,10 @@ public class ClientController {
             stage.setScene(scene);
             stage.showAndWait();
 
+            log.debug("Диалог клиента закрыт, обновление таблицы");
             refreshTable();
         } catch (IOException e) {
+            log.error("Ошибка загрузки FXML add-edit-clients.fxml", e);
             e.printStackTrace();
         }
     }
@@ -181,34 +208,41 @@ public class ClientController {
             stage.setScene(scene);
             stage.showAndWait();
 
+            log.debug("Диалог карты лояльности закрыт для клиента id={}", client.getIdClient());
             refreshTable();
         } catch (IOException e) {
+            log.error("Ошибка загрузки FXML loyality-base.fxml", e);
             e.printStackTrace();
         }
     }
 
     @FXML
     public void onMain(ActionEvent actionEvent) {
+        log.debug("Навигация: главное меню");
         navigateTo("main.fxml", resources.getString("app.title"), actionEvent);
     }
 
     @FXML
     public void onWarehouse(ActionEvent actionEvent) {
+        log.debug("Навигация: склад");
         navigateTo("warehouse.fxml", resources.getString("app.title.warehouse"), actionEvent);
     }
 
     @FXML
     public void onOrder(ActionEvent actionEvent) {
+        log.debug("Навигация: заказы");
         navigateTo("orders.fxml", resources.getString("app.title.orders"), actionEvent);
     }
 
     @FXML
     public void onReport(ActionEvent actionEvent) {
+        log.debug("Навигация: отчёты");
         navigateTo("report.fxml", resources.getString("app.title.reports"), actionEvent);
     }
 
     @FXML
     public void onExit(ActionEvent actionEvent) {
+        log.info("Завершение работы приложения");
         Platform.exit();
     }
 
@@ -221,7 +255,9 @@ public class ClientController {
                     .getParentPopup().getOwnerWindow();
             stage.setTitle(title);
             stage.setScene(scene);
+            log.debug("Успешная навигация на {}", fxml);
         } catch (IOException e) {
+            log.error("Ошибка навигации на {}", fxml, e);
             e.printStackTrace();
         }
     }
@@ -246,9 +282,11 @@ public class ClientController {
     public void onNotifications(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка просмотра уведомлений без выбора клиента");
             showAlert(resources.getString("clients.alert.warning.select_client"), Alert.AlertType.WARNING);
             return;
         }
+        log.debug("Открытие уведомлений для клиента id={}", selected.getIdClient());
         showNotificationsDialog(selected);
     }
 
@@ -256,9 +294,11 @@ public class ClientController {
     public void onChecks(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка просмотра чеков без выбора клиента");
             showAlert(resources.getString("clients.alert.warning.select_client"), Alert.AlertType.WARNING);
             return;
         }
+        log.debug("Открытие возвратов для клиента id={}", selected.getIdClient());
         showRefundDialog(selected);
     }
 
@@ -279,7 +319,10 @@ public class ClientController {
             stage.setTitle(resources.getString("app.title.refund") + " - " + client.getSurname() + " " + client.getNameClient());
             stage.setScene(scene);
             stage.showAndWait();
+
+            log.debug("Диалог возвратов закрыт для клиента id={}", client.getIdClient());
         } catch (IOException e) {
+            log.error("Ошибка загрузки FXML refund.fxml", e);
             e.printStackTrace();
         }
     }
@@ -288,9 +331,12 @@ public class ClientController {
     public void onMaking(ActionEvent actionEvent) {
         Clients selected = tvClients.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка оформления покупки без выбора клиента");
             showAlert(resources.getString("clients.alert.warning.select_client"), Alert.AlertType.WARNING);
             return;
         }
+        log.info("Оформление покупки для клиента id={}, name={} {}",
+                selected.getIdClient(), selected.getSurname(), selected.getNameClient());
         showMakingDialog(selected);
     }
 
@@ -311,7 +357,10 @@ public class ClientController {
             stage.setTitle(resources.getString("app.title.notifications"));
             stage.setScene(scene);
             stage.showAndWait();
+
+            log.debug("Диалог уведомлений закрыт для клиента id={}", client.getIdClient());
         } catch (IOException e) {
+            log.error("Ошибка загрузки FXML notifications.fxml", e);
             e.printStackTrace();
         }
     }
@@ -333,7 +382,10 @@ public class ClientController {
             stage.setTitle(resources.getString("app.title.making_purchase"));
             stage.setScene(scene);
             stage.showAndWait();
+
+            log.debug("Диалог оформления покупки закрыт для клиента id={}", client.getIdClient());
         } catch (IOException e) {
+            log.error("Ошибка загрузки FXML making-a-purchase.fxml", e);
             e.printStackTrace();
         }
     }

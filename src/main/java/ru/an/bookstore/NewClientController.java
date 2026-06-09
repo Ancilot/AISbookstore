@@ -5,10 +5,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ResourceBundle;
 
 public class NewClientController {
+
+    private static final Logger log = LoggerFactory.getLogger(NewClientController.class);
 
     @FXML private ResourceBundle resources;
     @FXML private TextField tfSurname;
@@ -30,7 +34,11 @@ public class NewClientController {
     public void setClient(Clients client) {
         this.client = client;
         if (client != null && client.getIdClient() != null) {
+            log.debug("Загрузка клиента для редактирования: id={}, name={} {}",
+                    client.getIdClient(), client.getSurname(), client.getNameClient());
             fillFormFromClient();
+        } else {
+            log.debug("Создание нового клиента");
         }
     }
 
@@ -78,24 +86,28 @@ public class NewClientController {
     private boolean validateFields() {
         String surname = tfSurname.getText();
         if (surname == null || surname.trim().isEmpty()) {
+            log.warn("Ошибка валидации: пустая фамилия");
             showAlert(resources.getString("client.alert.error.empty_surname"));
             return false;
         }
         surname = surname.trim();
 
         if (!surname.matches(NAME_REGEX)) {
+            log.warn("Ошибка валидации: неверный формат фамилии '{}'", surname);
             showAlert(resources.getString("client.alert.error.invalid_surname"));
             return false;
         }
 
         String name = tfName.getText();
         if (name == null || name.trim().isEmpty()) {
+            log.warn("Ошибка валидации: пустое имя");
             showAlert(resources.getString("client.alert.error.empty_firstname"));
             return false;
         }
         name = name.trim();
 
         if (!name.matches(NAME_REGEX)) {
+            log.warn("Ошибка валидации: неверный формат имени '{}'", name);
             showAlert(resources.getString("client.alert.error.invalid_firstname"));
             return false;
         }
@@ -104,6 +116,7 @@ public class NewClientController {
         if (patronymic != null && !patronymic.trim().isEmpty()) {
             patronymic = patronymic.trim();
             if (!patronymic.matches(NAME_REGEX)) {
+                log.warn("Ошибка валидации: неверный формат отчества '{}'", patronymic);
                 showAlert(resources.getString("client.alert.error.invalid_patronymic"));
                 return false;
             }
@@ -111,12 +124,14 @@ public class NewClientController {
 
         String phone = tfNumber.getText();
         if (phone == null || phone.trim().isEmpty()) {
+            log.warn("Ошибка валидации: пустой телефон");
             showAlert(resources.getString("client.alert.error.empty_phone"));
             return false;
         }
         phone = phone.trim();
 
         if (!phone.matches("^(\\+[0-9]{11}|[0-9]{11})$")) {
+            log.warn("Ошибка валидации: неверный формат телефона '{}'", phone);
             showAlert(resources.getString("client.alert.error.invalid_phone"));
             return false;
         }
@@ -125,6 +140,7 @@ public class NewClientController {
         if (email != null && !email.trim().isEmpty()) {
             email = email.trim();
             if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+                log.warn("Ошибка валидации: неверный формат email '{}'", email);
                 showAlert(resources.getString("client.alert.error.invalid_email"));
                 return false;
             }
@@ -135,6 +151,8 @@ public class NewClientController {
 
     @FXML
     public void onSave(ActionEvent actionEvent) {
+        log.debug("Сохранение клиента");
+
         if (!validateFields()) {
             return;
         }
@@ -142,10 +160,16 @@ public class NewClientController {
         fillClientFromForm();
 
         if (client.getIdClient() == null) {
+            log.info("Создание нового клиента: surname='{}', name='{}', phone='{}'",
+                    client.getSurname(), client.getNameClient(), client.getNumberClient());
             clientsDAO.save(client);
+            log.info("Клиент успешно создан с id={}", client.getIdClient());
             showAlert(resources.getString("client.alert.success.add"));
         } else {
+            log.info("Обновление клиента id={}: surname='{}', name='{}', phone='{}'",
+                    client.getIdClient(), client.getSurname(), client.getNameClient(), client.getNumberClient());
             clientsDAO.update(client);
+            log.info("Клиент id={} успешно обновлён", client.getIdClient());
             showAlert(resources.getString("client.alert.success.update"));
         }
         stage.close();
@@ -153,6 +177,7 @@ public class NewClientController {
 
     @FXML
     public void onExit(ActionEvent actionEvent) {
+        log.debug("Закрытие окна редактирования клиента");
         stage.close();
     }
 

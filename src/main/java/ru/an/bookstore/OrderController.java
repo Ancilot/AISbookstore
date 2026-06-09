@@ -10,12 +10,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class OrderController {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     @FXML private ResourceBundle resources;
 
@@ -33,6 +37,8 @@ public class OrderController {
 
     @FXML
     void initialize() {
+        log.debug("Инициализация OrderController");
+
         colClient.setCellValueFactory(cellData ->
                 new javafx.beans.property.SimpleStringProperty(
                         cellData.getValue().getClient().getSurname() + " " +
@@ -51,6 +57,7 @@ public class OrderController {
     private void refreshTable() {
         ordersList.setAll(ordersDAO.findAllActive());
         tvOrders.setItems(ordersList);
+        log.debug("Таблица заказов обновлена, загружено {} записей", ordersList.size());
     }
 
     @FXML
@@ -71,10 +78,12 @@ public class OrderController {
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
+                log.info("Завершение заказа id={}", selected.getIdOrder());
                 ordersDAO.completeOrder(selected.getIdOrder());
                 showAlert(resources.getString("orders.alert.success.complete"), Alert.AlertType.INFORMATION);
                 refreshTable();
             } catch (RuntimeException e) {
+                log.error("Ошибка завершения заказа id={}", selected.getIdOrder(), e);
                 showAlert(resources.getString("orders.alert.error.insufficient_stock"), Alert.AlertType.ERROR);
             }
         }
@@ -100,10 +109,12 @@ public class OrderController {
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
+                log.info("Архивация заказа id={}", selected.getIdOrder());
                 ordersDAO.deleteOrderToArchive(selected.getIdOrder());
                 showAlert(resources.getString("orders.alert.success.archive"), Alert.AlertType.INFORMATION);
                 refreshTable();
             } catch (RuntimeException e) {
+                log.error("Ошибка архивации заказа id={}", selected.getIdOrder(), e);
                 showAlert(resources.getString("orders.alert.error.cannot_archive"), Alert.AlertType.ERROR);
             }
         }
@@ -112,6 +123,8 @@ public class OrderController {
     @FXML
     public void onFind(ActionEvent actionEvent) {
         String searchText = tfSearch.getText();
+        log.debug("Поиск заказов: text='{}'", searchText);
+
         if (searchText == null || searchText.trim().isEmpty()) {
             refreshTable();
         } else {
@@ -122,26 +135,31 @@ public class OrderController {
 
     @FXML
     public void onMain(ActionEvent actionEvent) {
+        log.debug("Навигация: главное меню");
         navigateTo("main.fxml", resources.getString("app.title"), actionEvent);
     }
 
     @FXML
     public void onClient(ActionEvent actionEvent) {
+        log.debug("Навигация: клиенты");
         navigateTo("clients.fxml", resources.getString("app.title.clients"), actionEvent);
     }
 
     @FXML
     public void onWarehouse(ActionEvent actionEvent) {
+        log.debug("Навигация: склад");
         navigateTo("warehouse.fxml", resources.getString("app.title.warehouse"), actionEvent);
     }
 
     @FXML
     public void onReport(ActionEvent actionEvent) {
+        log.debug("Навигация: отчёты");
         navigateTo("report.fxml", resources.getString("app.title.reports"), actionEvent);
     }
 
     @FXML
     public void onExit(ActionEvent actionEvent) {
+        log.info("Завершение работы приложения");
         Platform.exit();
     }
 
@@ -152,7 +170,9 @@ public class OrderController {
             Stage stage = (Stage) ((MenuItem) actionEvent.getSource()).getParentPopup().getOwnerWindow();
             stage.setTitle(title);
             stage.setScene(scene);
+            log.debug("Успешная навигация на {}", fxml);
         } catch (IOException e) {
+            log.error("Ошибка навигации на {}", fxml, e);
             e.printStackTrace();
         }
     }

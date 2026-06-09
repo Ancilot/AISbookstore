@@ -10,12 +10,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ResourceBundle;
 
 public class ReportController {
+
+    private static final Logger log = LoggerFactory.getLogger(ReportController.class);
 
     @FXML
     private ResourceBundle resources;
@@ -69,6 +73,8 @@ public class ReportController {
 
     @FXML
     void initialize() {
+        log.debug("Инициализация ReportController");
+
         tfPeriod.setItems(FXCollections.observableArrayList(
                 resources.getString("period.day"),
                 resources.getString("period.month"),
@@ -117,6 +123,8 @@ public class ReportController {
 
     @FXML
     public void onPeriod(ActionEvent actionEvent) {
+        String periodValue = tfPeriod.getValue();
+        log.debug("Изменение периода отчёта: {}", periodValue);
         refreshAllReports();
     }
 
@@ -131,40 +139,58 @@ public class ReportController {
             period = "год";
         }
 
+        log.debug("Обновление всех отчётов для периода: {}", period);
+
         ReportDAO.SalesReport sales = reportDAO.getSalesReport(period);
         if (sales != null) {
             salesList.clear();
             salesList.add(sales);
+            log.debug("Отчёт по продажам: чеков={}, книг={}, сумма={}",
+                    sales.getChecksCount(), sales.getBooksCount(), sales.getTotalAmount());
+        } else {
+            log.warn("Не удалось получить отчёт по продажам для периода {}", period);
         }
 
         stockList.setAll(reportDAO.getStockReport());
+        log.debug("Отчёт по остаткам: {} записей", stockList.size());
+
         authorList.setAll(reportDAO.getAuthorPopularity(period));
+        log.debug("Популярность авторов: {} записей", authorList.size());
+
         genreList.setAll(reportDAO.getGenrePopularity(period));
+        log.debug("Популярность жанров: {} записей", genreList.size());
+
         bookList.setAll(reportDAO.getBookPopularity(period));
+        log.debug("Топ книг: {} записей", bookList.size());
     }
 
     @FXML
     public void onMain(ActionEvent actionEvent) {
+        log.debug("Навигация: главное меню");
         navigateTo(actionEvent, "main.fxml", resources.getString("app.title"));
     }
 
     @FXML
     public void onClient(ActionEvent actionEvent) {
+        log.debug("Навигация: клиенты");
         navigateTo(actionEvent, "clients.fxml", resources.getString("app.title.clients"));
     }
 
     @FXML
     public void onWarehouse(ActionEvent actionEvent) {
+        log.debug("Навигация: склад");
         navigateTo(actionEvent, "warehouse.fxml", resources.getString("app.title.warehouse"));
     }
 
     @FXML
     public void onOreder(ActionEvent actionEvent) {
+        log.debug("Навигация: заказы");
         navigateTo(actionEvent, "orders.fxml", resources.getString("app.title.orders"));
     }
 
     @FXML
     public void onExit(ActionEvent actionEvent) {
+        log.info("Завершение работы приложения");
         Platform.exit();
     }
 
@@ -177,7 +203,9 @@ public class ReportController {
                     .getParentPopup().getOwnerWindow();
             stage.setTitle(title);
             stage.setScene(scene);
+            log.debug("Успешная навигация на {}", fxml);
         } catch (IOException e) {
+            log.error("Ошибка навигации на {}", fxml, e);
             e.printStackTrace();
         }
     }

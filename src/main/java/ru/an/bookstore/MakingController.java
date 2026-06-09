@@ -10,6 +10,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MakingController {
+
+    private static final Logger log = LoggerFactory.getLogger(MakingController.class);
 
     @FXML private ResourceBundle resources;
     @FXML private TableView<BookCatalog> tvAvailableBooks;
@@ -55,6 +59,8 @@ public class MakingController {
 
     @FXML
     void initialize() {
+        log.debug("Инициализация MakingController");
+
         colAvailableName.setCellValueFactory(new PropertyValueFactory<>("nameBook"));
         colAvailableAuthor.setCellValueFactory(new PropertyValueFactory<>("authors"));
         colAvailableGenre.setCellValueFactory(new PropertyValueFactory<>("genres"));
@@ -80,6 +86,8 @@ public class MakingController {
 
     public void setClient(Clients client) {
         this.client = client;
+        log.info("Оформление покупки для клиента id={}, name={} {}",
+                client.getIdClient(), client.getSurname(), client.getNameClient());
         loadAvailableBooks();
         createNewCheck();
     }
@@ -87,13 +95,17 @@ public class MakingController {
     private void loadAvailableBooks() {
         allAvailableBooks = warehouseDAO.findBooksForSale(null);
         availableBooks.setAll(allAvailableBooks);
+        log.debug("Загружено {} книг для продажи", allAvailableBooks.size());
     }
 
     private void createNewCheck() {
+        log.debug("Создание нового чека для клиента id={}", client.getIdClient());
         currentCheck = checksDAO.createCheck(client.getIdClient());
         if (currentCheck != null) {
+            log.info("Создан чек id={} для клиента id={}", currentCheck.getIdCheck(), client.getIdClient());
             refreshCheckItems();
         } else {
+            log.error("Не удалось создать чек для клиента id={}", client.getIdClient());
             showAlert(resources.getString("making.alert.error.check_not_created"));
         }
     }
@@ -101,29 +113,35 @@ public class MakingController {
     @FXML
     public void onFindAvailable(ActionEvent actionEvent) {
         String searchText = tfAvailableSearch.getText();
+        log.debug("Поиск доступных книг: searchText='{}'", searchText);
+
         if (searchText == null || searchText.trim().isEmpty()) {
             refreshAvailableBooks();
         } else {
             List<BookCatalog> results = warehouseDAO.findBooksForSale(searchText);
             availableBooks.setAll(results);
+            log.debug("Найдено {} книг по запросу '{}'", results.size(), searchText);
         }
     }
 
     @FXML
     public void onAddToCheck(ActionEvent actionEvent) {
         if (currentCheck == null) {
+            log.warn("Попытка добавления книги в чек, но чек не создан");
             showAlert(resources.getString("making.alert.error.check_not_created"));
             return;
         }
 
         BookCatalog selected = tvAvailableBooks.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка добавления книги в чек без выбора книги");
             showAlert(resources.getString("making.alert.error.select_book"));
             return;
         }
 
         String countText = tfAvailableCount.getText();
         if (countText == null || countText.trim().isEmpty()) {
+            log.warn("Попытка добавления книги в чек без указания количества");
             showAlert(resources.getString("making.alert.error.enter_quantity"));
             return;
         }
@@ -132,20 +150,26 @@ public class MakingController {
         try {
             quantity = Integer.parseInt(countText);
         } catch (NumberFormatException e) {
+            log.warn("Ошибка парсинга количества: value='{}'", countText);
             showAlert(resources.getString("making.alert.error.invalid_quantity"));
             return;
         }
 
         if (quantity <= 0) {
+            log.warn("Попытка добавления книги с неположительным количеством: {}", quantity);
             showAlert(resources.getString("making.alert.error.quantity_positive"));
             return;
         }
         if (quantity > selected.getQuantity()) {
+            log.warn("Недостаточно книг на складе: requested={}, available={}", quantity, selected.getQuantity());
             showAlert(java.text.MessageFormat.format(
                     resources.getString("making.alert.error.insufficient_stock"),
                     selected.getQuantity()));
             return;
         }
+
+        log.info("Добавление книги в чек: checkId={}, bookId={}, bookName='{}', quantity={}",
+                currentCheck.getIdCheck(), selected.getIdBook(), selected.getNameBook(), quantity);
 
         CompositionCheck composition = new CompositionCheck();
         composition.setChecks(currentCheck);
@@ -156,6 +180,8 @@ public class MakingController {
         refreshAvailableBooks();
         refreshCheckItems();
         tfAvailableCount.clear();
+
+        log.debug("Книга успешно добавлена в чек, обновлены таблицы");
     }
 
     @FXML
@@ -165,26 +191,36 @@ public class MakingController {
             return;
         }
         String searchText = tfCheckSearch.getText();
+        log.debug("Поиск в чеке: searchText='{}'", searchText);
+
         if (searchText == null || searchText.trim().isEmpty()) {
             refreshCheckItems();
         } else {
             List<CompositionCheck> items = compositionCheckDAO.searchCheckDetails(currentCheck.getIdCheck(), searchText);
             checkItems.setAll(items);
+            log.debug("Найдено {} позиций в чеке по запросу '{}'", items.size(), searchText);
         }
     }
 
     @FXML
     public void onRemoveFromCheck(ActionEvent actionEvent) {
         if (currentCheck == null) {
+            log.warn("Попытка удаления из чека, но чек не найден");
             showAlert(resources.getString("making.alert.error.check_not_found"));
             return;
         }
 
         CompositionCheck selected = tvCheckItems.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка удаления из чека без выбора позиции");
             showAlert(resources.getString("making.alert.error.select_for_remove"));
             return;
         }
+
+        log.info("Удаление позиции из чека: checkId={}, bookId={}, bookName='{}'",
+                currentCheck.getIdCheck(),
+                selected.getBook().getIdBook(),
+                selected.getBook().getNameBook());
 
         if (selected.getIdComposition() != null) {
             compositionCheckDAO.deleteById(selected.getIdComposition());
@@ -194,15 +230,18 @@ public class MakingController {
 
         refreshAvailableBooks();
         refreshCheckItems();
+        log.debug("Позиция удалена из чека, таблицы обновлены");
     }
 
     @FXML
     public void onPurchase(ActionEvent actionEvent) {
         if (currentCheck == null) {
+            log.warn("Попытка завершения покупки, но чек не найден");
             showAlert(resources.getString("making.alert.error.check_not_found"));
             return;
         }
         if (checkItems.isEmpty()) {
+            log.warn("Попытка завершения пустого чека id={}", currentCheck.getIdCheck());
             showAlert(resources.getString("making.alert.error.empty_check"));
             return;
         }
@@ -214,9 +253,14 @@ public class MakingController {
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+            log.info("Завершение покупки по чеку id={}, сумма={} позиций",
+                    currentCheck.getIdCheck(), checkItems.size());
             checksDAO.completeCheck(currentCheck.getIdCheck());
+            log.info("Чек id={} успешно завершён", currentCheck.getIdCheck());
             showAlert(resources.getString("making.alert.success.purchase"));
             stage.close();
+        } else {
+            log.debug("Покупка отменена пользователем");
         }
     }
 
@@ -224,10 +268,13 @@ public class MakingController {
     public void onMakeOrderDirect(ActionEvent actionEvent) {
         BookCatalog selected = tvAvailableBooks.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка создания прямого заказа без выбора книги");
             showAlert(resources.getString("making.alert.error.select_book"));
             return;
         }
 
+        log.debug("Создание прямого заказа для клиента id={}, книга id={}",
+                client.getIdClient(), selected.getIdBook());
         showCreateOrderDialog(selected);
     }
 
@@ -250,7 +297,10 @@ public class MakingController {
             orderStage.setScene(scene);
             orderStage.showAndWait();
 
+            log.debug("Диалог создания заказа закрыт");
+
         } catch (IOException e) {
+            log.error("Ошибка загрузки FXML creating-an-order.fxml", e);
             e.printStackTrace();
             showAlert(resources.getString("making.alert.error.order_form"));
         }
@@ -259,9 +309,11 @@ public class MakingController {
     @FXML
     public void onBack(ActionEvent actionEvent) {
         if (checkItems.isEmpty() && currentCheck != null) {
+            log.info("Отмена оформления покупки, удаление пустого чека id={}", currentCheck.getIdCheck());
             compositionCheckDAO.deleteByCheck(currentCheck.getIdCheck());
             checksDAO.deleteCheck(currentCheck.getIdCheck());
         }
+        log.debug("Закрытие окна оформления покупки");
         stage.close();
     }
 
@@ -280,6 +332,7 @@ public class MakingController {
         if (currentCheck != null) {
             List<CompositionCheck> items = compositionCheckDAO.findByCheck(currentCheck.getIdCheck());
             checkItems.setAll(items);
+            log.debug("В чеке id={} находится {} позиций", currentCheck.getIdCheck(), items.size());
         } else {
             checkItems.clear();
         }

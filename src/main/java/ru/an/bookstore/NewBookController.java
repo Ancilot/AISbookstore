@@ -10,6 +10,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -22,6 +24,8 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class NewBookController {
+
+    private static final Logger log = LoggerFactory.getLogger(NewBookController.class);
 
     @FXML
     private ResourceBundle resources;
@@ -85,6 +89,8 @@ public class NewBookController {
 
     @FXML
     public void initialize() {
+        log.debug("Инициализация NewBookController");
+
         // Инициализация таблиц авторов
         colAvailableSurname.setCellValueFactory(new PropertyValueFactory<>("surname"));
         colAvailableName.setCellValueFactory(new PropertyValueFactory<>("nameAuthor"));
@@ -135,11 +141,13 @@ public class NewBookController {
         ObservableList<PublishingHouses> publishers = FXCollections.observableArrayList();
         publishers.setAll((Collection<PublishingHouses>) publisherDAO.findAll());
         cbPublisher.setItems(publishers);
-
+        log.debug("Загружено {} издательств", publishers.size());
     }
 
     private void searchAuthors() {
         String searchText = tfAuthorSearch.getText();
+        log.debug("Поиск доступных авторов: searchText='{}'", searchText);
+
         if (searchText == null || searchText.trim().isEmpty()) {
             loadAvailableAuthors();
         } else {
@@ -150,11 +158,14 @@ public class NewBookController {
             availableAuthors.setAll(results.stream()
                     .filter(a -> !bookAuthorIds.contains(a.getIdAuthors()))
                     .collect(Collectors.toList()));
+            log.debug("Найдено {} авторов по запросу '{}'", availableAuthors.size(), searchText);
         }
     }
 
     private void searchBookAuthors() {
         String searchText = tfBookAuthorSearch.getText();
+        log.debug("Поиск авторов книги: searchText='{}'", searchText);
+
         if (searchText == null || searchText.trim().isEmpty()) {
             tvBookAuthors.setItems(bookAuthors);
         } else {
@@ -163,6 +174,7 @@ public class NewBookController {
                             (author.getPatronymic() != null ? author.getPatronymic() : ""))
                             .toLowerCase().contains(searchText.toLowerCase()));
             tvBookAuthors.setItems(filtered);
+            log.debug("Найдено {} авторов в книге по запросу '{}'", filtered.size(), searchText);
         }
     }
 
@@ -174,31 +186,42 @@ public class NewBookController {
         availableAuthors.setAll(allAuthors.stream()
                 .filter(a -> !bookAuthorIds.contains(a.getIdAuthors()))
                 .collect(Collectors.toList()));
+        log.debug("Загружено {} доступных авторов", availableAuthors.size());
     }
 
     private void addAuthorToBook() {
         Authors selected = tvAvailableAuthors.getSelectionModel().getSelectedItem();
         if (selected != null) {
+            log.info("Добавление автора в книгу: authorId={}, name={} {}",
+                    selected.getIdAuthors(), selected.getSurname(), selected.getNameAuthor());
             bookAuthors.add(selected);
             availableAuthors.remove(selected);
             bookAuthors.sort((a1, a2) -> a1.getSurname().compareTo(a2.getSurname()));
+        } else {
+            log.warn("Попытка добавления автора без выбора");
         }
     }
 
     private void removeAuthorFromBook() {
         Authors selected = tvBookAuthors.getSelectionModel().getSelectedItem();
         if (selected != null) {
+            log.info("Удаление автора из книги: authorId={}, name={} {}",
+                    selected.getIdAuthors(), selected.getSurname(), selected.getNameAuthor());
             bookAuthors.remove(selected);
             Authors freshAuthor = authorsDAO.findById(selected.getIdAuthors());
             if (freshAuthor != null) {
                 availableAuthors.add(freshAuthor);
                 availableAuthors.sort((a1, a2) -> a1.getSurname().compareTo(a2.getSurname()));
             }
+        } else {
+            log.warn("Попытка удаления автора без выбора");
         }
     }
 
     private void searchGenres() {
         String searchText = tfGenreSearch.getText();
+        log.debug("Поиск доступных жанров: searchText='{}'", searchText);
+
         if (searchText == null || searchText.trim().isEmpty()) {
             loadAvailableGenres();
         } else {
@@ -209,17 +232,21 @@ public class NewBookController {
             availableGenres.setAll(results.stream()
                     .filter(g -> !bookGenreIds.contains(g.getIdGenr()))
                     .collect(Collectors.toList()));
+            log.debug("Найдено {} жанров по запросу '{}'", availableGenres.size(), searchText);
         }
     }
 
     private void searchBookGenres() {
         String searchText = tfBookGenreSearch.getText();
+        log.debug("Поиск жанров книги: searchText='{}'", searchText);
+
         if (searchText == null || searchText.trim().isEmpty()) {
             tvBookGenres.setItems(bookGenres);
         } else {
             ObservableList<Genres> filtered = bookGenres.filtered(genre ->
                     genre.getGenr().toLowerCase().contains(searchText.toLowerCase()));
             tvBookGenres.setItems(filtered);
+            log.debug("Найдено {} жанров в книге по запросу '{}'", filtered.size(), searchText);
         }
     }
 
@@ -231,26 +258,35 @@ public class NewBookController {
         availableGenres.setAll(allGenres.stream()
                 .filter(g -> !bookGenreIds.contains(g.getIdGenr()))
                 .collect(Collectors.toList()));
+        log.debug("Загружено {} доступных жанров", availableGenres.size());
     }
 
     private void addGenreToBook() {
         Genres selected = tvAvailableGenres.getSelectionModel().getSelectedItem();
         if (selected != null) {
+            log.info("Добавление жанра в книгу: genreId={}, name='{}'",
+                    selected.getIdGenr(), selected.getGenr());
             bookGenres.add(selected);
             availableGenres.remove(selected);
             bookGenres.sort((g1, g2) -> g1.getGenr().compareTo(g2.getGenr()));
+        } else {
+            log.warn("Попытка добавления жанра без выбора");
         }
     }
 
     private void removeGenreFromBook() {
         Genres selected = tvBookGenres.getSelectionModel().getSelectedItem();
         if (selected != null) {
+            log.info("Удаление жанра из книги: genreId={}, name='{}'",
+                    selected.getIdGenr(), selected.getGenr());
             bookGenres.remove(selected);
             Genres freshGenre = genresDAO.findById(selected.getIdGenr());
             if (freshGenre != null) {
                 availableGenres.add(freshGenre);
                 availableGenres.sort((g1, g2) -> g1.getGenr().compareTo(g2.getGenr()));
             }
+        } else {
+            log.warn("Попытка удаления жанра без выбора");
         }
     }
 
@@ -265,15 +301,18 @@ public class NewBookController {
             selectedImagePath = selectedFile.getAbsolutePath();
             Image image = new Image(selectedFile.toURI().toString());
             ivBookImage.setImage(image);
+            log.debug("Выбрано изображение: {}", selectedImagePath);
         }
     }
 
     private boolean validateFields() {
         if (tfNameBook.getText() == null || tfNameBook.getText().trim().isEmpty()) {
+            log.warn("Ошибка валидации: пустое название книги");
             showAlert(resources.getString("book.alert.error.empty_title"));
             return false;
         }
         if (cbPublisher.getValue() == null) {
+            log.warn("Ошибка валидации: не выбрано издательство");
             showAlert(resources.getString("book.alert.error.select_publisher"));
             return false;
         }
@@ -281,41 +320,49 @@ public class NewBookController {
             int year = Integer.parseInt(tfYearPublication.getText());
             int currentYear = Year.now().getValue();
             if (year < 1450 || year > currentYear) {
+                log.warn("Ошибка валидации: неверный год {} (диапазон 1450-{})", year, currentYear);
                 showAlert(java.text.MessageFormat.format(
                         resources.getString("book.alert.error.year_range"),
                         currentYear));
                 return false;
             }
         } catch (NumberFormatException e) {
+            log.warn("Ошибка валидации: неверный формат года '{}'", tfYearPublication.getText());
             showAlert(resources.getString("book.alert.error.invalid_year"));
             return false;
         }
         if (tfIsbn.getText() == null || tfIsbn.getText().trim().isEmpty()) {
+            log.warn("Ошибка валидации: пустой ISBN");
             showAlert(resources.getString("book.alert.error.empty_isbn"));
             return false;
         }
 
         if (!tfIsbn.getText().matches("\\d{13}")) {
+            log.warn("Ошибка валидации: неверный формат ISBN '{}'", tfIsbn.getText());
             showAlert(resources.getString("book.alert.error.isbn_format"));
             return false;
         }
         try {
             int pages = Integer.parseInt(tfNumberPages.getText());
             if (pages <= 0 || pages > 1500) {
+                log.warn("Ошибка валидации: неверное количество страниц {}", pages);
                 showAlert(resources.getString("book.alert.error.pages_range"));
                 return false;
             }
         } catch (NumberFormatException e) {
+            log.warn("Ошибка валидации: неверный формат страниц '{}'", tfNumberPages.getText());
             showAlert(resources.getString("book.alert.error.invalid_pages"));
             return false;
         }
         try {
             BigDecimal price = new BigDecimal(tfPrice.getText());
             if (price.compareTo(BigDecimal.ZERO) < 0) {
+                log.warn("Ошибка валидации: отрицательная цена {}", price);
                 showAlert(resources.getString("book.alert.error.negative_price"));
                 return false;
             }
         } catch (NumberFormatException e) {
+            log.warn("Ошибка валидации: неверный формат цены '{}'", tfPrice.getText());
             showAlert(resources.getString("book.alert.error.invalid_price"));
             return false;
         }
@@ -341,6 +388,8 @@ public class NewBookController {
     private void fillFormFromBook() {
         if (book == null) return;
 
+        log.debug("Заполнение формы данными книги id={}, name='{}'", book.getIdBook(), book.getNameBook());
+
         tfNameBook.setText(book.getNameBook());
         cbPublisher.setValue(book.getPublishingHouses());
         if (book.getYearPublication() != null) {
@@ -357,12 +406,14 @@ public class NewBookController {
             bookAuthors.setAll(book.getAuthorsBook().stream()
                     .map(AuthorsBook::getAuthor)
                     .collect(Collectors.toList()));
+            log.debug("Загружено {} авторов для книги", bookAuthors.size());
         }
 
         if (book.getGenresBooks() != null) {
             bookGenres.setAll(book.getGenresBooks().stream()
                     .map(GenresBook::getGenr)
                     .collect(Collectors.toList()));
+            log.debug("Загружено {} жанров для книги", bookGenres.size());
         }
 
         if (book.getImages() != null && !book.getImages().isEmpty()) {
@@ -371,6 +422,7 @@ public class NewBookController {
                 selectedImagePath = imagePath;
                 Image image = new Image(new File(imagePath).toURI().toString());
                 ivBookImage.setImage(image);
+                log.debug("Загружено изображение: {}", imagePath);
             }
         }
     }
@@ -417,6 +469,8 @@ public class NewBookController {
 
     @FXML
     public void onSave(ActionEvent actionEvent) {
+        log.debug("Сохранение книги");
+
         if (!validateFields()) {
             return;
         }
@@ -424,21 +478,27 @@ public class NewBookController {
         fillBookFromForm();
 
         if (book.getIdBook() == null) {
+            log.info("Создание новой книги: name='{}', isbn='{}'", book.getNameBook(), book.getIsbn());
             BookCatalog saved = bookCatalogDAO.save(book);
             if (saved != null && saved.getIdBook() != null) {
                 saved.setAuthorsBook(book.getAuthorsBook());
                 saved.setGenresBooks(book.getGenresBooks());
                 saved.setImages(book.getImages());
                 bookCatalogDAO.update(saved);
+                log.info("Книга успешно создана с id={}", saved.getIdBook());
                 showSuccessAlert(resources.getString("book.alert.success.add"));
             } else {
+                log.error("Ошибка создания книги");
                 showAlert(resources.getString("book.alert.error.save"));
             }
         } else {
+            log.info("Обновление книги id={}, name='{}'", book.getIdBook(), book.getNameBook());
             BookCatalog updated = bookCatalogDAO.update(book);
             if (updated != null) {
+                log.info("Книга id={} успешно обновлена", book.getIdBook());
                 showSuccessAlert(resources.getString("book.alert.success.update"));
             } else {
+                log.error("Ошибка обновления книги id={}", book.getIdBook());
                 showAlert(resources.getString("book.alert.error.update"));
             }
         }
@@ -451,6 +511,7 @@ public class NewBookController {
     public void setBook(BookCatalog book) {
         this.book = book;
         if (book != null && book.getIdBook() != null) {
+            log.debug("Загрузка полных данных книги id={}", book.getIdBook());
             BookCatalog fullBook = bookCatalogDAO.findById(book.getIdBook());
             if (fullBook != null) {
                 this.book = fullBook;
@@ -463,6 +524,7 @@ public class NewBookController {
 
     @FXML
     public void onExit(ActionEvent actionEvent) {
+        log.debug("Закрытие окна редактирования книги");
         stage.close();
     }
 }

@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -19,6 +21,9 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainController {
+
+    private static final Logger log = LoggerFactory.getLogger(MainController.class);
+
     @FXML
     private ResourceBundle resources;
 
@@ -50,6 +55,8 @@ public class MainController {
 
     @FXML
     void initialize() {
+        log.debug("Инициализация MainController");
+
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("nameBook"));
         isbnColumn.setCellValueFactory(new PropertyValueFactory<>("isbn"));
         genresColumn.setCellValueFactory(new PropertyValueFactory<>("genres"));
@@ -64,23 +71,29 @@ public class MainController {
 
     private void refreshTable() {
         tvBooks.getItems().setAll(dao.findAll());
+        log.debug("Таблица книг обновлена, загружено {} записей", tvBooks.getItems().size());
     }
 
     public void onExit(ActionEvent actionEvent) {
+        log.info("Завершение работы приложения");
         Platform.exit();
     }
 
     public void onAdd(ActionEvent actionEvent) {
+        log.debug("Открытие диалога добавления книги");
         showDialog(null);
     }
 
     public void onEdit(ActionEvent actionEvent) {
         BookCatalog selected = tvBooks.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            log.warn("Попытка редактирования без выбора книги");
             showAlert(resources.getString("main.alert.warning.select_book"),
                     Alert.AlertType.WARNING);
             return;
         }
+        log.debug("Открытие диалога редактирования книги id={}, name='{}'",
+                selected.getIdBook(), selected.getNameBook());
         showDialog(selected);
     }
 
@@ -105,26 +118,32 @@ public class MainController {
             stage.setScene(scene);
             stage.showAndWait();
 
+            log.debug("Диалог книги закрыт, обновление таблицы");
             refreshTable();
 
         } catch (IOException e) {
+            log.error("Ошибка загрузки FXML adding-and-editing.fxml", e);
             e.printStackTrace();
         }
     }
 
     public void onClient(ActionEvent actionEvent) {
+        log.debug("Навигация: клиенты");
         navigateTo("clients.fxml", resources.getString("app.title.clients"), actionEvent);
     }
 
     public void onWarehouse(ActionEvent actionEvent) {
+        log.debug("Навигация: склад");
         navigateTo("warehouse.fxml", resources.getString("app.title.warehouse"), actionEvent);
     }
 
     public void onOrder(ActionEvent actionEvent) {
+        log.debug("Навигация: заказы");
         navigateTo("orders.fxml", resources.getString("app.title.orders"), actionEvent);
     }
 
     public void OnReport(ActionEvent actionEvent) {
+        log.debug("Навигация: отчёты");
         navigateTo("report.fxml", resources.getString("app.title.reports"), actionEvent);
     }
 
@@ -139,8 +158,10 @@ public class MainController {
 
             stage.setTitle(title);
             stage.setScene(scene);
+            log.debug("Успешная навигация на {}", fxml);
 
         } catch (IOException e) {
+            log.error("Ошибка навигации на {}", fxml, e);
             e.printStackTrace();
         }
     }
@@ -149,10 +170,13 @@ public class MainController {
         BookCatalog selected = tvBooks.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
+            log.warn("Попытка удаления без выбора книги");
             showAlert(resources.getString("main.alert.warning.select_book_delete"),
                     Alert.AlertType.WARNING);
             return;
         }
+
+        log.info("Запрос на удаление книги id={}, name='{}'", selected.getIdBook(), selected.getNameBook());
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle(resources.getString("main.alert.confirm.delete_title"));
@@ -165,13 +189,17 @@ public class MainController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 dao.delete(selected);
+                log.info("Книга id={} успешно удалена", selected.getIdBook());
                 refreshTable();
                 showAlert(resources.getString("main.alert.success.delete"),
                         Alert.AlertType.INFORMATION);
             } catch (RuntimeException e) {
+                log.error("Ошибка удаления книги id={}: {}", selected.getIdBook(), e.getMessage());
                 showAlert(resources.getString("main.alert.error.delete"),
                         Alert.AlertType.ERROR);
             }
+        } else {
+            log.debug("Удаление книги id={} отменено", selected.getIdBook());
         }
     }
 
@@ -195,6 +223,7 @@ public class MainController {
 
     public void onFind(ActionEvent actionEvent) {
         String text = tfFind.getText();
+        log.debug("Поиск книг: searchText='{}'", text);
 
         if (text == null || text.trim().isEmpty()) {
             refreshTable();
@@ -202,5 +231,6 @@ public class MainController {
         }
 
         tvBooks.getItems().setAll(dao.search(text));
+        log.debug("Найдено {} книг по запросу '{}'", tvBooks.getItems().size(), text);
     }
 }
