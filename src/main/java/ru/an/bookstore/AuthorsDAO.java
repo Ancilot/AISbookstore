@@ -1,18 +1,34 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 public class AuthorsDAO implements Dao<Authors, Long> {
 
-    private final static String FIND_ALL = "SELECT * FROM store.authors ORDER BY surname, name_author";
-    private final static String FIND_BY_ID = "SELECT * FROM store.authors WHERE id_authors = ?";
-    private final static String INSERT = "INSERT INTO store.authors (surname, name_author, patronymic) VALUES (?, ?, ?) RETURNING id_authors";
-    private final static String UPDATE = "UPDATE store.authors SET surname = ?, name_author = ?, patronymic = ? WHERE id_authors = ?";
-    private final static String DELETE = "DELETE FROM store.authors WHERE id_authors = ?";
-    private final static String SEARCH = "SELECT * FROM store.search_authors(?)";
+    private static Properties property = new Properties();
+
+    public AuthorsDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private final static String FIND_ALL = "SELECT * FROM store.authors ORDER BY surname, name_author";
+//    private final static String FIND_BY_ID = "SELECT * FROM store.authors WHERE id_authors = ?";
+//    private final static String INSERT = "INSERT INTO store.authors (surname, name_author, patronymic) VALUES (?, ?, ?) RETURNING id_authors";
+//    private final static String UPDATE = "UPDATE store.authors SET surname = ?, name_author = ?, patronymic = ? WHERE id_authors = ?";
+//    private final static String DELETE = "DELETE FROM store.authors WHERE id_authors = ?";
+//    private final static String SEARCH = "SELECT * FROM store.search_authors(?)";
 
     @Override
     public Authors findById(Long id) {
@@ -22,7 +38,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("authors.find_by_id"));
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -44,7 +60,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL);
+            ps = conn.prepareStatement(property.getProperty("authors.find_all"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -64,7 +80,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("authors.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getSurname());
             ps.setString(2, entity.getNameAuthor());
             ps.setString(3, entity.getPatronymic());
@@ -87,7 +103,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(UPDATE);
+            ps = conn.prepareStatement(property.getProperty("authors.update"));
             ps.setString(1, entity.getSurname());
             ps.setString(2, entity.getNameAuthor());
             ps.setString(3, entity.getPatronymic());
@@ -112,7 +128,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE);
+            ps = conn.prepareStatement(property.getProperty("authors.delete"));
             ps.setLong(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -129,7 +145,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(SEARCH);
+            ps = conn.prepareStatement(property.getProperty("authors.search"));
             ps.setString(1, searchText);
             rs = ps.executeQuery();
             while (rs.next()) {

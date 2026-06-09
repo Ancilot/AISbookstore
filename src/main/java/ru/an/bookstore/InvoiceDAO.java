@@ -1,22 +1,38 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class InvoiceDAO {
 
-    private final static String INSERT =
-            "INSERT INTO store.invoice (supplier, warehouse, date_invoice, quanity, price) " +
-                    "VALUES (?, ?, ?, ?, ?) RETURNING id_invoice";
+    private static Properties property = new Properties();
 
-    private final static String FIND_ALL =
-            "SELECT i.*, s.name_supplier, w.book " +
-                    "FROM store.invoice i " +
-                    "LEFT JOIN store.suppliers s ON s.id_supplier = i.supplier " +
-                    "LEFT JOIN store.warehouse w ON w.id_warehouse = i.warehouse " +
-                    "ORDER BY i.date_invoice DESC";
+    public InvoiceDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private final static String INSERT =
+//            "INSERT INTO store.invoice (supplier, warehouse, date_invoice, quanity, price) " +
+//                    "VALUES (?, ?, ?, ?, ?) RETURNING id_invoice";
+//
+//    private final static String FIND_ALL =
+//            "SELECT i.*, s.name_supplier, w.book " +
+//                    "FROM store.invoice i " +
+//                    "LEFT JOIN store.suppliers s ON s.id_supplier = i.supplier " +
+//                    "LEFT JOIN store.warehouse w ON w.id_warehouse = i.warehouse " +
+//                    "ORDER BY i.date_invoice DESC";
 
     public Invoice save(Invoice invoice) {
         Connection conn = null;
@@ -24,7 +40,7 @@ public class InvoiceDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("invoice.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, invoice.getSupplier().getIdSupplier());
             ps.setLong(2, invoice.getWarehouse().getIdWarehouse());
             ps.setDate(3, Date.valueOf(invoice.getDateInvoice()));
@@ -50,7 +66,7 @@ public class InvoiceDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL);
+            ps = conn.prepareStatement(property.getProperty("invoice.find_all"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));

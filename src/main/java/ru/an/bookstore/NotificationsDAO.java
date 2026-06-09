@@ -1,20 +1,36 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class NotificationsDAO {
 
-    private final static String FIND_ALL =
-            "SELECT n.*, c.surname, c.name_client " +
-                    "FROM store.notifications n " +
-                    "JOIN store.clients c ON c.id_client = n.client " +
-                    "ORDER BY n.date_notification DESC";
+    private static Properties property = new Properties();
 
-    private final static String DELETE_BY_ID =
-            "DELETE FROM store.notifications WHERE id_notification = ?";
+    public NotificationsDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private final static String FIND_ALL =
+//            "SELECT n.*, c.surname, c.name_client " +
+//                    "FROM store.notifications n " +
+//                    "JOIN store.clients c ON c.id_client = n.client " +
+//                    "ORDER BY n.date_notification DESC";
+//
+//    private final static String DELETE_BY_ID =
+//            "DELETE FROM store.notifications WHERE id_notification = ?";
 
     public List<Notifications> findAll() {
         List<Notifications> list = new ArrayList<>();
@@ -23,7 +39,7 @@ public class NotificationsDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL);
+            ps = conn.prepareStatement(property.getProperty("notifications.find_all"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -41,7 +57,7 @@ public class NotificationsDAO {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("notifications.delete_by_id"));
             ps.setLong(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -74,10 +90,7 @@ public class NotificationsDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(
-                    "SELECT n.*, c.surname, c.name_client FROM store.notifications n " +
-                            "JOIN store.clients c ON c.id_client = n.client " +
-                            "WHERE n.client = ? ORDER BY n.date_notification DESC");
+            ps = conn.prepareStatement(property.getProperty("notifications.find_by_client"));
             ps.setLong(1, clientId);
             rs = ps.executeQuery();
             while (rs.next()) {

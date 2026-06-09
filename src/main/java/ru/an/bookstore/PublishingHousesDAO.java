@@ -1,23 +1,39 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
 
+    private static Properties property = new Properties();
+
+    public PublishingHousesDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private final AdressDAO adressDAO = new AdressDAO();
 
-    private final static String FIND_ALL = "SELECT * FROM store.publishing_houses ORDER BY name_publishing";
-    private final static String FIND_BY_ID =
-            "SELECT ph.*, a.country, a.region, a.city, a.street, a.house " +
-                    "FROM store.publishing_houses ph " +
-                    "LEFT JOIN store.adress a ON a.id_adress = ph.adress " +
-                    "WHERE ph.id_pub = ?";
-    private final static String INSERT = "INSERT INTO store.publishing_houses (name_publishing, adress, number_publishing, email) VALUES (?, ?, ?, ?) RETURNING id_pub";
-    private final static String UPDATE = "UPDATE store.publishing_houses SET name_publishing = ?, adress = ?, number_publishing = ?, email = ? WHERE id_pub = ?";
-    private final static String DELETE = "DELETE FROM store.publishing_houses WHERE id_pub = ?";
+//    private final static String FIND_ALL = "SELECT * FROM store.publishing_houses ORDER BY name_publishing";
+//    private final static String FIND_BY_ID =
+//            "SELECT ph.*, a.country, a.region, a.city, a.street, a.house " +
+//                    "FROM store.publishing_houses ph " +
+//                    "LEFT JOIN store.adress a ON a.id_adress = ph.adress " +
+//                    "WHERE ph.id_pub = ?";
+//    private final static String INSERT = "INSERT INTO store.publishing_houses (name_publishing, adress, number_publishing, email) VALUES (?, ?, ?, ?) RETURNING id_pub";
+//    private final static String UPDATE = "UPDATE store.publishing_houses SET name_publishing = ?, adress = ?, number_publishing = ?, email = ? WHERE id_pub = ?";
+//    private final static String DELETE = "DELETE FROM store.publishing_houses WHERE id_pub = ?";
 
     @Override
     public PublishingHouses findById(Long id) {
@@ -27,7 +43,7 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("publishing_houses.find_by_id"));
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -49,7 +65,7 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL);
+            ps = conn.prepareStatement(property.getProperty("publishing_houses.find_all"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 PublishingHouses publisher = new PublishingHouses();
@@ -79,7 +95,7 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("publishing_houses.insert"), Statement.RETURN_GENERATED_KEYS);
 
             if (entity.getAdress() != null && entity.getAdress().getIdAdress() == null) {
                 adressDAO.save(entity.getAdress());
@@ -115,7 +131,7 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(UPDATE);
+            ps = conn.prepareStatement(property.getProperty("publishing_houses.update"));
 
             if (entity.getAdress() != null) {
                 if (entity.getAdress().getIdAdress() == null) {
@@ -156,7 +172,7 @@ public class PublishingHousesDAO implements Dao<PublishingHouses, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE);
+            ps = conn.prepareStatement(property.getProperty("publishing_houses.delete"));
             ps.setLong(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {

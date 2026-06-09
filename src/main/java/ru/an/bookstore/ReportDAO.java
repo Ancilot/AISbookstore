@@ -1,26 +1,42 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class ReportDAO {
 
+    private static Properties property = new Properties();
+
+    public ReportDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     // Продажи
-    private final static String REPORT_SALES = "SELECT * FROM store.report_sales(?)";
-
-    // Остатки товаров (VIEW)
-    private final static String REPORT_STOCK = "SELECT * FROM store.report_stock";
-
-    // Популярность по авторам
-    private final static String REPORT_AUTHOR_POPULARITY = "SELECT * FROM store.report_author_popularity(?)";
-
-    // Популярность по жанрам
-    private final static String REPORT_GENRE_POPULARITY = "SELECT * FROM store.report_genre_popularity(?)";
-
-    // Популярность по книгам
-    private final static String REPORT_BOOK_POPULARITY = "SELECT * FROM store.report_book_popularity(?)";
+//    private final static String REPORT_SALES = "SELECT * FROM store.report_sales(?)";
+//
+//    // Остатки товаров (VIEW)
+//    private final static String REPORT_STOCK = "SELECT * FROM store.report_stock";
+//
+//    // Популярность по авторам
+//    private final static String REPORT_AUTHOR_POPULARITY = "SELECT * FROM store.report_author_popularity(?)";
+//
+//    // Популярность по жанрам
+//    private final static String REPORT_GENRE_POPULARITY = "SELECT * FROM store.report_genre_popularity(?)";
+//
+//    // Популярность по книгам
+//    private final static String REPORT_BOOK_POPULARITY = "SELECT * FROM store.report_book_popularity(?)";
 
     // Класс для хранения данных о продажах
     public static class SalesReport {
@@ -121,7 +137,7 @@ public class ReportDAO {
         SalesReport report = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(REPORT_SALES);
+            ps = conn.prepareStatement(property.getProperty("report.sales"));
             ps.setString(1, period);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -146,7 +162,7 @@ public class ReportDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(REPORT_STOCK);
+            ps = conn.prepareStatement(property.getProperty("report.stock"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(new StockReport(
@@ -172,7 +188,7 @@ public class ReportDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(REPORT_AUTHOR_POPULARITY);
+            ps = conn.prepareStatement(property.getProperty("report.author_popularity"));
             ps.setString(1, period);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -197,7 +213,7 @@ public class ReportDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(REPORT_GENRE_POPULARITY);
+            ps = conn.prepareStatement(property.getProperty("report.genre_popularity"));
             ps.setString(1, period);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -222,7 +238,7 @@ public class ReportDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(REPORT_BOOK_POPULARITY);
+            ps = conn.prepareStatement(property.getProperty("report.book_popularity"));
             ps.setString(1, period);
             rs = ps.executeQuery();
             while (rs.next()) {

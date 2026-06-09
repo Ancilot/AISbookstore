@@ -1,14 +1,29 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 public class SuppliersDAO implements Dao<Suppliers, Long> {
+    private static Properties property = new Properties();
 
-    private final static String FIND_ALL = "SELECT * FROM store.suppliers ORDER BY name_supplier";
-    private final static String FIND_BY_ID = "SELECT * FROM store.suppliers WHERE id_supplier = ?";
+    public SuppliersDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private final static String FIND_ALL = "SELECT * FROM store.suppliers ORDER BY name_supplier";
+//    private final static String FIND_BY_ID = "SELECT * FROM store.suppliers WHERE id_supplier = ?";
 
     @Override
     public Suppliers findById(Long id) {
@@ -18,7 +33,7 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("suppliers.find_by_id"));
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -40,7 +55,7 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL);
+            ps = conn.prepareStatement(property.getProperty("suppliers.find_all"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));

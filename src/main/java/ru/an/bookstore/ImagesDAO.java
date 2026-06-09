@@ -1,15 +1,31 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class ImagesDAO {
 
-    private final static String INSERT = "INSERT INTO store.images (image, id_book) VALUES (?, ?) RETURNING id_image";
-    private final static String FIND_BY_BOOK = "SELECT * FROM store.images WHERE id_book = ?";
-    private final static String DELETE_BY_BOOK = "DELETE FROM store.images WHERE id_book = ?";
-    private final static String DELETE_BY_ID = "DELETE FROM store.images WHERE id_image = ?";
+    private static Properties property = new Properties();
+
+    public ImagesDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private final static String INSERT = "INSERT INTO store.images (image, id_book) VALUES (?, ?) RETURNING id_image";
+//    private final static String FIND_BY_BOOK = "SELECT * FROM store.images WHERE id_book = ?";
+//    private final static String DELETE_BY_BOOK = "DELETE FROM store.images WHERE id_book = ?";
+//    private final static String DELETE_BY_ID = "DELETE FROM store.images WHERE id_image = ?";
 
     public Images save(Long bookId, String imagePath) {
         Images image = new Images();
@@ -20,7 +36,7 @@ public class ImagesDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("images.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, imagePath);
             ps.setLong(2, bookId);
             ps.executeUpdate();
@@ -43,7 +59,7 @@ public class ImagesDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_BOOK);
+            ps = conn.prepareStatement(property.getProperty("images.find_by_book"));
             ps.setLong(1, bookId);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -66,7 +82,7 @@ public class ImagesDAO {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE_BY_BOOK);
+            ps = conn.prepareStatement(property.getProperty("images.delete_by_book"));
             ps.setLong(1, bookId);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -81,7 +97,7 @@ public class ImagesDAO {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("images.delete_by_id"));
             ps.setLong(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {

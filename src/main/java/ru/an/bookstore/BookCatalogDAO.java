@@ -2,15 +2,30 @@ package ru.an.bookstore;
 
 import org.postgresql.util.PSQLException;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
+    private static Properties property = new Properties();
+
+    public BookCatalogDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private final AuthorsDAO authorsDAO = new AuthorsDAO();
     private final GenresDAO genresDAO = new GenresDAO();
     private final AuthorsBookDAO authorsBookDAO = new AuthorsBookDAO();
@@ -18,58 +33,58 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
     private final PriceDAO priceDAO = new PriceDAO();
     private final ImagesDAO imagesDAO = new ImagesDAO();
 
-    private final static String FIND_ALL =
-            "SELECT \n" +
-                    "    b.id_book,\n" +
-                    "    b.name_book,\n" +
-                    "    b.isbn,\n" +
-                    "    b.year_publication,\n" +
-                    "    b.number_pages,\n" +
-                    "    b.annotation,\n" +
-                    "    p.name_publishing,\n" +
-                    "    p.id_pub,\n" +
-                    "    COALESCE(\n" +
-                    "        (SELECT string_agg(DISTINCT g.genr, ', ') \n" +
-                    "         FROM store.genres_book gb \n" +
-                    "         JOIN store.genres g ON g.id_genr = gb.genr \n" +
-                    "         WHERE gb.book = b.id_book), '') AS genres,\n" +
-                    "    COALESCE(\n" +
-                    "        (SELECT string_agg(DISTINCT a.surname || ' ' || a.name_author, ', ') \n" +
-                    "         FROM store.authors_book ab \n" +
-                    "         JOIN store.authors a ON a.id_authors = ab.author \n" +
-                    "         WHERE ab.book = b.id_book), '') AS authors,\n" +
-                    "    (SELECT price FROM store.price \n" +
-                    "     WHERE id_books = b.id_book \n" +
-                    "     ORDER BY date_time DESC LIMIT 1) AS price,\n" +
-                    "    (SELECT quantity FROM store.warehouse \n" +
-                    "     WHERE book = b.id_book LIMIT 1) AS quantity\n" +
-                    "FROM store.book_catalog b\n" +
-                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses\n" +
-                    "ORDER BY b.id_book";
-
-    private final static String FIND_BY_ID =
-            "SELECT\n" +
-                    "    b.id_book,\n" +
-                    "    b.name_book,\n" +
-                    "    b.isbn,\n" +
-                    "    b.year_publication,\n" +
-                    "    b.number_pages,\n" +
-                    "    b.annotation,\n" +
-                    "    p.name_publishing,\n" +
-                    "    p.id_pub\n" +
-                    "FROM store.book_catalog b\n" +
-                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses\n" +
-                    "WHERE b.id_book = ?";
-
-    private final static String INSERT = "INSERT INTO store.book_catalog " +
-            "(name_book, publishing_houses, year_publication, isbn, number_pages, annotation) " +
-            "VALUES (?, ?, ?, ?, ?, ?) RETURNING id_book";
-
-    private final static String UPDATE = "UPDATE store.book_catalog SET " +
-            "name_book = ?, publishing_houses = ?, year_publication = ?, isbn = ?, number_pages = ?, annotation = ? " +
-            "WHERE id_book = ?";
-
-    private final static String DELETE = "DELETE FROM store.book_catalog WHERE id_book = ?";
+//    private final static String FIND_ALL =
+//            "SELECT \n" +
+//                    "    b.id_book,\n" +
+//                    "    b.name_book,\n" +
+//                    "    b.isbn,\n" +
+//                    "    b.year_publication,\n" +
+//                    "    b.number_pages,\n" +
+//                    "    b.annotation,\n" +
+//                    "    p.name_publishing,\n" +
+//                    "    p.id_pub,\n" +
+//                    "    COALESCE(\n" +
+//                    "        (SELECT string_agg(DISTINCT g.genr, ', ') \n" +
+//                    "         FROM store.genres_book gb \n" +
+//                    "         JOIN store.genres g ON g.id_genr = gb.genr \n" +
+//                    "         WHERE gb.book = b.id_book), '') AS genres,\n" +
+//                    "    COALESCE(\n" +
+//                    "        (SELECT string_agg(DISTINCT a.surname || ' ' || a.name_author, ', ') \n" +
+//                    "         FROM store.authors_book ab \n" +
+//                    "         JOIN store.authors a ON a.id_authors = ab.author \n" +
+//                    "         WHERE ab.book = b.id_book), '') AS authors,\n" +
+//                    "    (SELECT price FROM store.price \n" +
+//                    "     WHERE id_books = b.id_book \n" +
+//                    "     ORDER BY date_time DESC LIMIT 1) AS price,\n" +
+//                    "    (SELECT quantity FROM store.warehouse \n" +
+//                    "     WHERE book = b.id_book LIMIT 1) AS quantity\n" +
+//                    "FROM store.book_catalog b\n" +
+//                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses\n" +
+//                    "ORDER BY b.id_book";
+//
+//    private final static String FIND_BY_ID =
+//            "SELECT\n" +
+//                    "    b.id_book,\n" +
+//                    "    b.name_book,\n" +
+//                    "    b.isbn,\n" +
+//                    "    b.year_publication,\n" +
+//                    "    b.number_pages,\n" +
+//                    "    b.annotation,\n" +
+//                    "    p.name_publishing,\n" +
+//                    "    p.id_pub\n" +
+//                    "FROM store.book_catalog b\n" +
+//                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses\n" +
+//                    "WHERE b.id_book = ?";
+//
+//    private final static String INSERT = "INSERT INTO store.book_catalog " +
+//            "(name_book, publishing_houses, year_publication, isbn, number_pages, annotation) " +
+//            "VALUES (?, ?, ?, ?, ?, ?) RETURNING id_book";
+//
+//    private final static String UPDATE = "UPDATE store.book_catalog SET " +
+//            "name_book = ?, publishing_houses = ?, year_publication = ?, isbn = ?, number_pages = ?, annotation = ? " +
+//            "WHERE id_book = ?";
+//
+//    private final static String DELETE = "DELETE FROM store.book_catalog WHERE id_book = ?";
 
     @Override
     public BookCatalog findById(Long id) {
@@ -79,7 +94,7 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("book_catalog.find_by_id"));
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -147,7 +162,7 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL);
+            ps = conn.prepareStatement(property.getProperty("book_catalog.find_all"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 BookCatalog book = new BookCatalog();
@@ -182,7 +197,7 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("book_catalog.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getNameBook());
             ps.setObject(2, entity.getPublishingHouses() != null ? entity.getPublishingHouses().getIdPub() : null, Types.BIGINT);
             ps.setInt(3, entity.getYearPublication() != null ? entity.getYearPublication().getYear() : 0);
@@ -238,7 +253,7 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(UPDATE);
+            ps = conn.prepareStatement(property.getProperty("book_catalog.update"));
             ps.setString(1, entity.getNameBook());
             ps.setObject(2, entity.getPublishingHouses() != null ? entity.getPublishingHouses().getIdPub() : null, Types.BIGINT);
             ps.setInt(3, entity.getYearPublication() != null ? entity.getYearPublication().getYear() : 0);
@@ -297,7 +312,7 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE);
+            ps = conn.prepareStatement(property.getProperty("book_catalog.delete"));
             ps.setLong(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -311,14 +326,13 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
     }
 
     public List<BookCatalog> search(String text) {
-        String sql = "SELECT * FROM store.search_books(?)";
         List<BookCatalog> books = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(sql);
+            ps = conn.prepareStatement(property.getProperty("book_catalog.search"));
             if (text == null || text.trim().isEmpty()) {
                 ps.setNull(1, Types.VARCHAR);
             } else {
@@ -356,64 +370,6 @@ public class BookCatalogDAO implements Dao<BookCatalog, Long> {
 
     public List<Genres> searchGenres(String searchText) {
         return genresDAO.search(searchText);
-    }
-
-    public List<Authors> getAvailableAuthorsForBook(Long bookId) {
-        if (bookId == null) {
-            return (List<Authors>) authorsDAO.findAll();
-        }
-        return authorsBookDAO.findAuthorsNotInBook(bookId);
-    }
-
-    public List<Genres> getAvailableGenresForBook(Long bookId) {
-        if (bookId == null) {
-            return (List<Genres>) genresDAO.findAll();
-        }
-        return genresBookDAO.findGenresNotInBook(bookId);
-    }
-
-    public boolean bookHasGenre(Long bookId, String genre) {
-        String sql = "SELECT store.book_has_genre(?, ?)";
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setLong(1, bookId);
-            ps.setString(2, genre);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getBoolean(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeResources(rs, ps, conn);
-        }
-        return false;
-    }
-
-    public boolean bookHasAuthor(Long bookId, String author) {
-        String sql = "SELECT store.book_has_author(?, ?)";
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(sql);
-            ps.setLong(1, bookId);
-            ps.setString(2, author);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getBoolean(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeResources(rs, ps, conn);
-        }
-        return false;
     }
 
     private BookCatalog mapSimpleRow(ResultSet rs) throws SQLException {

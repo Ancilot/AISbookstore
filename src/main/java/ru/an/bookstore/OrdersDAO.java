@@ -1,33 +1,49 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class OrdersDAO {
 
-    private final static String FIND_ALL_ACTIVE =
-            "SELECT o.*, c.surname, c.name_client, c.patrontmic, b.name_book " +
-                    "FROM store.orders o " +
-                    "LEFT JOIN store.clients c ON c.id_client = o.client " +
-                    "LEFT JOIN store.book_catalog b ON b.id_book = o.book " +
-                    "WHERE o.archiv IS NOT TRUE " +
-                    "ORDER BY o.date_order DESC";
+    private static Properties property = new Properties();
 
-    private final static String SEARCH =
-            "SELECT o.*, c.surname, c.name_client, c.patrontmic, b.name_book " +
-                    "FROM store.orders o " +
-                    "LEFT JOIN store.clients c ON c.id_client = o.client " +
-                    "LEFT JOIN store.book_catalog b ON b.id_book = o.book " +
-                    "WHERE o.archiv IS NOT TRUE AND (" +
-                    "c.surname ILIKE ? OR c.name_client ILIKE ? OR " +
-                    "b.name_book ILIKE ? OR o.status ILIKE ?) " +
-                    "ORDER BY o.date_order DESC";
+    public OrdersDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    private final static String COMPLETE_ORDER = "{ call store.complete_order(?) }";
-    private final static String DELETE_ORDER = "{ ? = call store.delete_order(?) }";
-
-    private final static String SAVE = "INSERT INTO store.orders (client, book, quanity, text_order) VALUES (?, ?, ?, ?) RETURNING id_order";
+//    private final static String FIND_ALL_ACTIVE =
+//            "SELECT o.*, c.surname, c.name_client, c.patrontmic, b.name_book " +
+//                    "FROM store.orders o " +
+//                    "LEFT JOIN store.clients c ON c.id_client = o.client " +
+//                    "LEFT JOIN store.book_catalog b ON b.id_book = o.book " +
+//                    "WHERE o.archiv IS NOT TRUE " +
+//                    "ORDER BY o.date_order DESC";
+//
+//    private final static String SEARCH =
+//            "SELECT o.*, c.surname, c.name_client, c.patrontmic, b.name_book " +
+//                    "FROM store.orders o " +
+//                    "LEFT JOIN store.clients c ON c.id_client = o.client " +
+//                    "LEFT JOIN store.book_catalog b ON b.id_book = o.book " +
+//                    "WHERE o.archiv IS NOT TRUE AND (" +
+//                    "c.surname ILIKE ? OR c.name_client ILIKE ? OR " +
+//                    "b.name_book ILIKE ? OR o.status ILIKE ?) " +
+//                    "ORDER BY o.date_order DESC";
+//
+//    private final static String COMPLETE_ORDER = "{ call store.complete_order(?) }";
+//    private final static String DELETE_ORDER = "{ ? = call store.delete_order(?) }";
+//
+//    private final static String SAVE = "INSERT INTO store.orders (client, book, quanity, text_order) VALUES (?, ?, ?, ?) RETURNING id_order";
 
     public List<Orders> findAllActive() {
         List<Orders> list = new ArrayList<>();
@@ -36,7 +52,7 @@ public class OrdersDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL_ACTIVE);
+            ps = conn.prepareStatement(property.getProperty("orders.find_all_active"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -56,7 +72,7 @@ public class OrdersDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(SEARCH);
+            ps = conn.prepareStatement(property.getProperty("orders.search"));
             String pattern = "%" + searchText + "%";
             ps.setString(1, pattern);
             ps.setString(2, pattern);
@@ -79,7 +95,7 @@ public class OrdersDAO {
         CallableStatement cs = null;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(COMPLETE_ORDER);
+            cs = conn.prepareCall(property.getProperty("orders.complete"));
             cs.setInt(1, orderId.intValue());
             cs.execute();
         } catch (SQLException e) {
@@ -97,7 +113,7 @@ public class OrdersDAO {
         try {
             conn = DBHelper.getConnection();
 
-            cs = conn.prepareCall(DELETE_ORDER);
+            cs = conn.prepareCall(property.getProperty("orders.delete"));
             cs.registerOutParameter(1, Types.INTEGER);
             cs.setInt(2, orderId.intValue());
 
@@ -142,7 +158,7 @@ public class OrdersDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(SAVE,
+            ps = conn.prepareStatement(property.getProperty("orders.insert"),
                     Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, order.getClient().getIdClient());
             ps.setLong(2, order.getBook().getIdBook());

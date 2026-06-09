@@ -1,17 +1,33 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class PriceDAO {
 
-    private final static String INSERT = "INSERT INTO store.price (price, id_books) VALUES (?, ?) RETURNING id_price";
-    private final static String FIND_CURRENT_BY_BOOK = "SELECT * FROM store.price WHERE id_books = ? ORDER BY date_time DESC LIMIT 1";
-    private final static String FIND_HISTORY_BY_BOOK = "SELECT * FROM store.price WHERE id_books = ? ORDER BY date_time DESC";
-    private final static String DELETE_BY_BOOK = "DELETE FROM store.price WHERE id_books = ?";
+    private static Properties property = new Properties();
+
+    public PriceDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private final static String INSERT = "INSERT INTO store.price (price, id_books) VALUES (?, ?) RETURNING id_price";
+//    private final static String FIND_CURRENT_BY_BOOK = "SELECT * FROM store.price WHERE id_books = ? ORDER BY date_time DESC LIMIT 1";
+//    private final static String FIND_HISTORY_BY_BOOK = "SELECT * FROM store.price WHERE id_books = ? ORDER BY date_time DESC";
+//    private final static String DELETE_BY_BOOK = "DELETE FROM store.price WHERE id_books = ?";
 
     public Price save(Long bookId, BigDecimal priceValue) {
         Price price = new Price();
@@ -23,7 +39,7 @@ public class PriceDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("price.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setBigDecimal(1, priceValue);
             ps.setLong(2, bookId);
             ps.executeUpdate();
@@ -46,7 +62,7 @@ public class PriceDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_CURRENT_BY_BOOK);
+            ps = conn.prepareStatement(property.getProperty("price.find_current_by_book"));
             ps.setLong(1, bookId);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -67,7 +83,7 @@ public class PriceDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_HISTORY_BY_BOOK);
+            ps = conn.prepareStatement(property.getProperty("price.find_history_by_book"));
             ps.setLong(1, bookId);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -86,7 +102,7 @@ public class PriceDAO {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE_BY_BOOK);
+            ps = conn.prepareStatement(property.getProperty("price.delete_by_book"));
             ps.setLong(1, bookId);
             ps.executeUpdate();
         } catch (SQLException e) {

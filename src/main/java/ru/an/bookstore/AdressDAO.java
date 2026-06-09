@@ -1,17 +1,32 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 public class AdressDAO implements Dao<Adress, Long> {
+    private static Properties property = new Properties();
 
-    private final static String FIND_ALL = "SELECT * FROM store.adress ORDER BY country, region, city";
-    private final static String FIND_BY_ID = "SELECT * FROM store.adress WHERE id_adress = ?";
-    private final static String INSERT = "INSERT INTO store.adress (country, region, city, street, house) VALUES (?, ?, ?, ?, ?) RETURNING id_adress";
-    private final static String UPDATE = "UPDATE store.adress SET country = ?, region = ?, city = ?, street = ?, house = ? WHERE id_adress = ?";
-    private final static String DELETE = "DELETE FROM store.adress WHERE id_adress = ?";
+    public AdressDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    private final static String FIND_ALL = "SELECT * FROM store.adress ORDER BY country, region, city";
+//    private final static String FIND_BY_ID = "SELECT * FROM store.adress WHERE id_adress = ?";
+//    private final static String INSERT = "INSERT INTO store.adress (country, region, city, street, house) VALUES (?, ?, ?, ?, ?) RETURNING id_adress";
+//    private final static String UPDATE = "UPDATE store.adress SET country = ?, region = ?, city = ?, street = ?, house = ? WHERE id_adress = ?";
+//    private final static String DELETE = "DELETE FROM store.adress WHERE id_adress = ?";
 
     @Override
     public Adress findById(Long id) {
@@ -21,7 +36,7 @@ public class AdressDAO implements Dao<Adress, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("adress.find_by_id"));
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -43,7 +58,7 @@ public class AdressDAO implements Dao<Adress, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL);
+            ps = conn.prepareStatement(property.getProperty("adress.find_all"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -63,7 +78,7 @@ public class AdressDAO implements Dao<Adress, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("adress.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getCountry());
             ps.setString(2, entity.getRegion());
             ps.setString(3, entity.getCity());
@@ -88,7 +103,7 @@ public class AdressDAO implements Dao<Adress, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(UPDATE);
+            ps = conn.prepareStatement(property.getProperty("adress.update"));
             ps.setString(1, entity.getCountry());
             ps.setString(2, entity.getRegion());
             ps.setString(3, entity.getCity());
@@ -115,7 +130,7 @@ public class AdressDAO implements Dao<Adress, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE);
+            ps = conn.prepareStatement(property.getProperty("adress.delete"));
             ps.setLong(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {

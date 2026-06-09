@@ -1,25 +1,41 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class LoyaltyBaseDAO {
 
-    private final static String FIND_BY_CLIENT =
-            "SELECT * FROM store.loyalty_base WHERE client = ?";
+    private static Properties property = new Properties();
 
-    private final static String INSERT =
-            "INSERT INTO store.loyalty_base (card_number, client, date_card, ransom_amount, discount) " +
-                    "VALUES (?, ?, DEFAULT, 0, '0%') RETURNING card_number, date_card, ransom_amount, discount";
+    public LoyaltyBaseDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    private final static String UPDATE =
-            "UPDATE store.loyalty_base SET card_number = ? WHERE client = ?";
-
-    private final static String DELETE_BY_CLIENT =
-            "DELETE FROM store.loyalty_base WHERE client = ?";
+//    private final static String FIND_BY_CLIENT =
+//            "SELECT * FROM store.loyalty_base WHERE client = ?";
+//
+//    private final static String INSERT =
+//            "INSERT INTO store.loyalty_base (card_number, client, date_card, ransom_amount, discount) " +
+//                    "VALUES (?, ?, DEFAULT, 0, '0%') RETURNING card_number, date_card, ransom_amount, discount";
+//
+//    private final static String UPDATE =
+//            "UPDATE store.loyalty_base SET card_number = ? WHERE client = ?";
+//
+//    private final static String DELETE_BY_CLIENT =
+//            "DELETE FROM store.loyalty_base WHERE client = ?";
 
     public LoyaltyBase findByClient(Long clientId) {
         LoyaltyBase loyalty = null;
@@ -28,7 +44,7 @@ public class LoyaltyBaseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_CLIENT);
+            ps = conn.prepareStatement(property.getProperty("loyalty_base.find_by_client"));
             ps.setLong(1, clientId);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -48,7 +64,7 @@ public class LoyaltyBaseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("loyalty_base.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getCardNumber());
             ps.setLong(2, entity.getClient().getIdClient());
             ps.executeUpdate();
@@ -72,7 +88,7 @@ public class LoyaltyBaseDAO {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(UPDATE);
+            ps = conn.prepareStatement(property.getProperty("loyalty_base.update"));
             ps.setString(1, entity.getCardNumber());
             ps.setLong(2, entity.getClient().getIdClient());
             ps.executeUpdate();
@@ -89,7 +105,7 @@ public class LoyaltyBaseDAO {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE_BY_CLIENT);
+            ps = conn.prepareStatement(property.getProperty("loyalty_base.delete_by_client"));
             ps.setLong(1, clientId);
             ps.executeUpdate();
         } catch (SQLException e) {

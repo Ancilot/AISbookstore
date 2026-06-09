@@ -25,7 +25,6 @@
                               <MenuItem mnemonicParsing="false" text="Главная" />
                           <MenuItem mnemonicParsing="false" text="Клиенты" />
                               <MenuItem mnemonicParsing="false" text="Склад" />
-                              <MenuItem mnemonicParsing="false" text="Справочники" />
                               <MenuItem mnemonicParsing="false" text="Отчеты" />
                         </items>
                       </Menu>

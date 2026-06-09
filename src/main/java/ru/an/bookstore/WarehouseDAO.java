@@ -1,79 +1,94 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class WarehouseDAO {
+    private static Properties property = new Properties();
 
-    // Получить все книги на складе (не в архиве)
-    private final static String FIND_ALL_ACTIVE =
-            "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
-                    "       b.name_book, b.isbn, b.year_publication, " +
-                    "       p.name_publishing " +
-                    "FROM store.warehouse w " +
-                    "JOIN store.book_catalog b ON b.id_book = w.book " +
-                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
-                    "WHERE w.archiv IS NOT TRUE " +
-                    "ORDER BY b.name_book";
+    public WarehouseDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    // Для поиска книг на складе
-    private final static String SEARCH_WAREHOUSE = "SELECT * FROM store.search_warehouse(?)";
-
-    // Получить все книги в архиве
-    private final static String FIND_ALL_ARCHIVE =
-            "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
-                    "       b.name_book, b.isbn, b.year_publication, " +
-                    "       p.name_publishing " +
-                    "FROM store.warehouse w " +
-                    "JOIN store.book_catalog b ON b.id_book = w.book " +
-                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
-                    "WHERE w.archiv = TRUE " +
-                    "ORDER BY b.name_book";
-
-    // Книги, которых нет на складе (для добавления)
-    private final static String FIND_BOOKS_NOT_IN_WAREHOUSE =
-            "SELECT b.id_book, b.name_book, b.isbn, b.year_publication, " +
-                    "       p.name_publishing, " +
-                    "       COALESCE(string_agg(DISTINCT a.surname || ' ' || a.name_author, ', '), '') AS authors " +
-                    "FROM store.book_catalog b " +
-                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
-                    "LEFT JOIN store.authors_book ab ON ab.book = b.id_book " +
-                    "LEFT JOIN store.authors a ON a.id_authors = ab.author " +
-                    "WHERE NOT EXISTS (SELECT 1 FROM store.warehouse w WHERE w.book = b.id_book) " +
-                    "GROUP BY b.id_book, b.name_book, b.isbn, b.year_publication, p.name_publishing " +
-                    "ORDER BY b.name_book";
-
-    // Добавить книгу на склад
-    private final static String INSERT_WAREHOUSE =
-            "INSERT INTO store.warehouse (book, quantity) VALUES (?, ?) RETURNING id_warehouse";
-
-    // Удалить книгу со склада (архивация)
-    private final static String DELETE_BOOK = "{ ? = call store.delete_book(?) }";
-
-    // Поиск на складе
-    private final static String SEARCH_ACTIVE =
-            "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
-                    "       b.name_book, b.isbn, b.year_publication, " +
-                    "       p.name_publishing " +
-                    "FROM store.warehouse w " +
-                    "JOIN store.book_catalog b ON b.id_book = w.book " +
-                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
-                    "WHERE w.archiv IS NOT TRUE " +
-                    "  AND b.name_book ILIKE ? " +
-                    "ORDER BY b.name_book";
-
-    // Поиск в архиве
-    private final static String SEARCH_ARCHIVE =
-            "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
-                    "       b.name_book, b.isbn, b.year_publication, " +
-                    "       p.name_publishing " +
-                    "FROM store.warehouse w " +
-                    "JOIN store.book_catalog b ON b.id_book = w.book " +
-                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
-                    "WHERE w.archiv = TRUE " +
-                    "  AND b.name_book ILIKE ? " +
-                    "ORDER BY b.name_book";
+//    // Получить все книги на складе (не в архиве)
+//    private final static String FIND_ALL_ACTIVE =
+//            "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
+//                    "       b.name_book, b.isbn, b.year_publication, " +
+//                    "       p.name_publishing " +
+//                    "FROM store.warehouse w " +
+//                    "JOIN store.book_catalog b ON b.id_book = w.book " +
+//                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
+//                    "WHERE w.archiv IS NOT TRUE " +
+//                    "ORDER BY b.name_book";
+//
+//    // Для поиска книг на складе
+//    private final static String SEARCH_WAREHOUSE = "SELECT * FROM store.search_warehouse(?)";
+//
+//    // Получить все книги в архиве
+//    private final static String FIND_ALL_ARCHIVE =
+//            "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
+//                    "       b.name_book, b.isbn, b.year_publication, " +
+//                    "       p.name_publishing " +
+//                    "FROM store.warehouse w " +
+//                    "JOIN store.book_catalog b ON b.id_book = w.book " +
+//                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
+//                    "WHERE w.archiv = TRUE " +
+//                    "ORDER BY b.name_book";
+//
+//    // Книги, которых нет на складе (для добавления)
+//    private final static String FIND_BOOKS_NOT_IN_WAREHOUSE =
+//            "SELECT b.id_book, b.name_book, b.isbn, b.year_publication, " +
+//                    "       p.name_publishing, " +
+//                    "       COALESCE(string_agg(DISTINCT a.surname || ' ' || a.name_author, ', '), '') AS authors " +
+//                    "FROM store.book_catalog b " +
+//                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
+//                    "LEFT JOIN store.authors_book ab ON ab.book = b.id_book " +
+//                    "LEFT JOIN store.authors a ON a.id_authors = ab.author " +
+//                    "WHERE NOT EXISTS (SELECT 1 FROM store.warehouse w WHERE w.book = b.id_book) " +
+//                    "GROUP BY b.id_book, b.name_book, b.isbn, b.year_publication, p.name_publishing " +
+//                    "ORDER BY b.name_book";
+//
+//    // Добавить книгу на склад
+//    private final static String INSERT_WAREHOUSE =
+//            "INSERT INTO store.warehouse (book, quantity) VALUES (?, ?) RETURNING id_warehouse";
+//
+//    // Удалить книгу со склада (архивация)
+//    private final static String DELETE_BOOK = "{ ? = call store.delete_book(?) }";
+//
+//    // Поиск на складе
+//    private final static String SEARCH_ACTIVE =
+//            "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
+//                    "       b.name_book, b.isbn, b.year_publication, " +
+//                    "       p.name_publishing " +
+//                    "FROM store.warehouse w " +
+//                    "JOIN store.book_catalog b ON b.id_book = w.book " +
+//                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
+//                    "WHERE w.archiv IS NOT TRUE " +
+//                    "  AND b.name_book ILIKE ? " +
+//                    "ORDER BY b.name_book";
+//
+//    // Поиск в архиве
+//    private final static String SEARCH_ARCHIVE =
+//            "SELECT w.id_warehouse, w.book, w.quantity, w.status, " +
+//                    "       b.name_book, b.isbn, b.year_publication, " +
+//                    "       p.name_publishing " +
+//                    "FROM store.warehouse w " +
+//                    "JOIN store.book_catalog b ON b.id_book = w.book " +
+//                    "LEFT JOIN store.publishing_houses p ON p.id_pub = b.publishing_houses " +
+//                    "WHERE w.archiv = TRUE " +
+//                    "  AND b.name_book ILIKE ? " +
+//                    "ORDER BY b.name_book";
 
     public List<Warehouse> findAllActive() {
         List<Warehouse> list = new ArrayList<>();
@@ -82,7 +97,7 @@ public class WarehouseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL_ACTIVE);
+            ps = conn.prepareStatement(property.getProperty("warehouse.find_all_active"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -102,7 +117,7 @@ public class WarehouseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL_ARCHIVE);
+            ps = conn.prepareStatement(property.getProperty("warehouse.find_all_archive"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -122,7 +137,7 @@ public class WarehouseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BOOKS_NOT_IN_WAREHOUSE);
+            ps = conn.prepareStatement(property.getProperty("warehouse.find_books_not_in_warehouse"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 BookCatalog book = new BookCatalog();
@@ -151,7 +166,7 @@ public class WarehouseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT_WAREHOUSE, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("warehouse.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, warehouse.getBook().getIdBook());
             ps.setInt(2, warehouse.getQuantity());
             ps.executeUpdate();
@@ -173,7 +188,7 @@ public class WarehouseDAO {
         int result = 0;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(DELETE_BOOK);
+            cs = conn.prepareCall(property.getProperty("warehouse.delete_book"));
             cs.registerOutParameter(1, Types.INTEGER);
             cs.setInt(2, bookId);
             cs.execute();
@@ -194,7 +209,7 @@ public class WarehouseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(SEARCH_ACTIVE);
+            ps = conn.prepareStatement(property.getProperty("warehouse.search_active"));
             ps.setString(1, "%" + searchText + "%");
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -215,7 +230,7 @@ public class WarehouseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(SEARCH_ARCHIVE);
+            ps = conn.prepareStatement(property.getProperty("warehouse.search_archive"));
             ps.setString(1, "%" + searchText + "%");
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -256,8 +271,7 @@ public class WarehouseDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            String sql = "SELECT * FROM store.search_warehouse(?)";
-            ps = conn.prepareStatement(sql);
+            ps = conn.prepareStatement(property.getProperty("warehouse.search_for_sale"));
             if (searchText == null || searchText.trim().isEmpty()) {
                 ps.setNull(1, Types.VARCHAR);
             } else {

@@ -26,7 +26,6 @@
                           <MenuItem mnemonicParsing="false" onAction="#onClirnt" text="Клиенты" />
                               <MenuItem mnemonicParsing="false" text="Склад" />
                               <MenuItem mnemonicParsing="false" onAction="#onOreder" text="Заказы" />
-                              <MenuItem mnemonicParsing="false" text="Справочники" />
                               <MenuItem mnemonicParsing="false" onAction="#onReprt" text="Отчеты" />
                         </items>
                       </Menu>

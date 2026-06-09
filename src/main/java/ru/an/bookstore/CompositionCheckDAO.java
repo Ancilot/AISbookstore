@@ -1,66 +1,82 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class CompositionCheckDAO {
 
+    private static Properties property = new Properties();
+
+    public CompositionCheckDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     // Функции для работы со складом
-    private final static String RESERVE_BOOK_STOCK = "{ call store.reserve_book_stock(?, ?) }";
-    private final static String RETURN_BOOK_STOCK = "{ call store.return_book_stock(?, ?) }";
-    private final static String UPDATE_RESERVED_STOCK = "{ call store.update_reserved_stock(?, ?, ?) }";
-    private final static String RETURN_FROM_CHECK = "{ call store.return_from_check(?, ?) }";
-
-    private final static String INSERT =
-            "INSERT INTO store.composition_check (checks, book, quantity) VALUES (?, ?, ?) RETURNING id_composition";
-
-    private final static String DELETE_BY_ID =
-            "DELETE FROM store.composition_check WHERE id_composition = ?";
-
-    private final static String DELETE_BY_CHECK_AND_BOOK =
-            "DELETE FROM store.composition_check WHERE checks = ? AND book = ?";
-
-    private final static String DELETE_BY_CHECK =
-            "DELETE FROM store.composition_check WHERE checks = ?";
-
-    private final static String FIND_BY_CHECK =
-            "SELECT cc.*, b.name_book, b.isbn, c.date_time, c.status, " +
-                    "COALESCE((SELECT string_agg(DISTINCT a.surname || ' ' || a.name_author, ', ') " +
-                    "FROM store.authors_book ab JOIN store.authors a ON a.id_authors = ab.author " +
-                    "WHERE ab.book = b.id_book), '') AS authors, " +
-                    "COALESCE((SELECT string_agg(DISTINCT g.genr, ', ') " +
-                    "FROM store.genres_book gb JOIN store.genres g ON g.id_genr = gb.genr " +
-                    "WHERE gb.book = b.id_book), '') AS genres " +
-                    "FROM store.composition_check cc " +
-                    "JOIN store.book_catalog b ON b.id_book = cc.book " +
-                    "JOIN store.checks c ON c.id_check = cc.checks " +
-                    "WHERE cc.checks = ?";
-
-    private final static String SEARCH_CHECK_DETAILS =
-            "SELECT * FROM store.search_check_details(?, ?)";
-
-    private final static String FIND_BY_CLIENT =
-            "SELECT cc.*, b.name_book, b.isbn, c.date_time, c.status, " +
-                    "COALESCE((SELECT string_agg(DISTINCT a.surname || ' ' || a.name_author, ', ') " +
-                    "FROM store.authors_book ab JOIN store.authors a ON a.id_authors = ab.author " +
-                    "WHERE ab.book = b.id_book), '') AS authors, " +
-                    "COALESCE((SELECT string_agg(DISTINCT g.genr, ', ') " +
-                    "FROM store.genres_book gb JOIN store.genres g ON g.id_genr = gb.genr " +
-                    "WHERE gb.book = b.id_book), '') AS genres " +
-                    "FROM store.composition_check cc " +
-                    "JOIN store.book_catalog b ON b.id_book = cc.book " +
-                    "JOIN store.checks c ON c.id_check = cc.checks " +
-                    "WHERE c.client = ? " +
-                    "ORDER BY c.date_time DESC";
+//    private final static String RESERVE_BOOK_STOCK = "{ call store.reserve_book_stock(?, ?) }";
+//    private final static String RETURN_BOOK_STOCK = "{ call store.return_book_stock(?, ?) }";
+//    private final static String UPDATE_RESERVED_STOCK = "{ call store.update_reserved_stock(?, ?, ?) }";
+//    private final static String RETURN_FROM_CHECK = "{ call store.return_from_check(?, ?) }";
+//
+//    private final static String INSERT =
+//            "INSERT INTO store.composition_check (checks, book, quantity) VALUES (?, ?, ?) RETURNING id_composition";
+//
+//    private final static String DELETE_BY_ID =
+//            "DELETE FROM store.composition_check WHERE id_composition = ?";
+//
+//    private final static String DELETE_BY_CHECK_AND_BOOK =
+//            "DELETE FROM store.composition_check WHERE checks = ? AND book = ?";
+//
+//    private final static String DELETE_BY_CHECK =
+//            "DELETE FROM store.composition_check WHERE checks = ?";
+//
+//    private final static String FIND_BY_CHECK =
+//            "SELECT cc.*, b.name_book, b.isbn, c.date_time, c.status, " +
+//                    "COALESCE((SELECT string_agg(DISTINCT a.surname || ' ' || a.name_author, ', ') " +
+//                    "FROM store.authors_book ab JOIN store.authors a ON a.id_authors = ab.author " +
+//                    "WHERE ab.book = b.id_book), '') AS authors, " +
+//                    "COALESCE((SELECT string_agg(DISTINCT g.genr, ', ') " +
+//                    "FROM store.genres_book gb JOIN store.genres g ON g.id_genr = gb.genr " +
+//                    "WHERE gb.book = b.id_book), '') AS genres " +
+//                    "FROM store.composition_check cc " +
+//                    "JOIN store.book_catalog b ON b.id_book = cc.book " +
+//                    "JOIN store.checks c ON c.id_check = cc.checks " +
+//                    "WHERE cc.checks = ?";
+//
+//    private final static String SEARCH_CHECK_DETAILS =
+//            "SELECT * FROM store.search_check_details(?, ?)";
+//
+//    private final static String FIND_BY_CLIENT =
+//            "SELECT cc.*, b.name_book, b.isbn, c.date_time, c.status, " +
+//                    "COALESCE((SELECT string_agg(DISTINCT a.surname || ' ' || a.name_author, ', ') " +
+//                    "FROM store.authors_book ab JOIN store.authors a ON a.id_authors = ab.author " +
+//                    "WHERE ab.book = b.id_book), '') AS authors, " +
+//                    "COALESCE((SELECT string_agg(DISTINCT g.genr, ', ') " +
+//                    "FROM store.genres_book gb JOIN store.genres g ON g.id_genr = gb.genr " +
+//                    "WHERE gb.book = b.id_book), '') AS genres " +
+//                    "FROM store.composition_check cc " +
+//                    "JOIN store.book_catalog b ON b.id_book = cc.book " +
+//                    "JOIN store.checks c ON c.id_check = cc.checks " +
+//                    "WHERE c.client = ? " +
+//                    "ORDER BY c.date_time DESC";
 
     public void reserveBookStock(Long bookId, int quantity) {
         Connection conn = null;
         CallableStatement cs = null;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(RESERVE_BOOK_STOCK);
+            cs = conn.prepareCall(property.getProperty("sp.reserve_book_stock"));
             cs.setInt(1, bookId.intValue());
             cs.setInt(2, quantity);
             cs.execute();
@@ -77,7 +93,7 @@ public class CompositionCheckDAO {
         CallableStatement cs = null;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(RETURN_BOOK_STOCK);
+            cs = conn.prepareCall(property.getProperty("sp.return_book_stock"));
             cs.setInt(1, bookId.intValue());
             cs.setInt(2, quantity);
             cs.execute();
@@ -94,7 +110,7 @@ public class CompositionCheckDAO {
         CallableStatement cs = null;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(UPDATE_RESERVED_STOCK);
+            cs = conn.prepareCall(property.getProperty("sp.update_reserved_stock"));
             cs.setInt(1, bookId.intValue());
             cs.setInt(2, oldQuantity);
             cs.setInt(3, newQuantity);
@@ -113,7 +129,7 @@ public class CompositionCheckDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("composition_check.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, composition.getChecks().getIdCheck());
             ps.setLong(2, composition.getBook().getIdBook());
             ps.setInt(3, composition.getQuantity());
@@ -145,7 +161,7 @@ public class CompositionCheckDAO {
             PreparedStatement ps = null;
             try {
                 conn = DBHelper.getConnection();
-                ps = conn.prepareStatement(DELETE_BY_ID);
+                ps = conn.prepareStatement(property.getProperty("composition_check.delete_by_id"));
                 ps.setLong(1, id);
                 ps.executeUpdate();
             } catch (SQLException e) {
@@ -167,7 +183,7 @@ public class CompositionCheckDAO {
             PreparedStatement ps = null;
             try {
                 conn = DBHelper.getConnection();
-                ps = conn.prepareStatement(DELETE_BY_CHECK_AND_BOOK);
+                ps = conn.prepareStatement(property.getProperty("composition_check.delete_by_check_book"));
                 ps.setLong(1, checkId);
                 ps.setLong(2, bookId);
                 ps.executeUpdate();
@@ -191,7 +207,7 @@ public class CompositionCheckDAO {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE_BY_CHECK);
+            ps = conn.prepareStatement(property.getProperty("composition_check.delete_by_check"));
             ps.setLong(1, checkId);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -211,7 +227,7 @@ public class CompositionCheckDAO {
             PreparedStatement ps = null;
             try {
                 conn = DBHelper.getConnection();
-                ps = conn.prepareStatement("UPDATE store.composition_check SET quantity = ? WHERE id_composition = ?");
+                ps = conn.prepareStatement(property.getProperty("composition_check.update_quantity"));
                 ps.setInt(1, newQuantity);
                 ps.setLong(2, compositionId);
                 ps.executeUpdate();
@@ -234,7 +250,7 @@ public class CompositionCheckDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_CLIENT);
+            ps = conn.prepareStatement(property.getProperty("composition_check.find_by_client"));
             ps.setLong(1, clientId);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -255,7 +271,7 @@ public class CompositionCheckDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_CHECK);
+            ps = conn.prepareStatement(property.getProperty("composition_check.find_by_check"));
             ps.setLong(1, checkId);
             rs = ps.executeQuery();
             while (rs.next()) {
@@ -276,7 +292,7 @@ public class CompositionCheckDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(SEARCH_CHECK_DETAILS);
+            ps = conn.prepareStatement(property.getProperty("composition_check.search_details"));
             ps.setInt(1, checkId.intValue());
             if (searchText == null || searchText.trim().isEmpty()) {
                 ps.setNull(2, Types.VARCHAR);
@@ -310,7 +326,7 @@ public class CompositionCheckDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement("SELECT * FROM store.composition_check WHERE id_composition = ?");
+            ps = conn.prepareStatement(property.getProperty("composition_check.find_by_id"));
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -342,7 +358,7 @@ public class CompositionCheckDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement("SELECT * FROM store.composition_check WHERE checks = ? AND book = ?");
+            ps = conn.prepareStatement(property.getProperty("composition_check.find_by_check_book"));
             ps.setLong(1, checkId);
             ps.setLong(2, bookId);
             rs = ps.executeQuery();
@@ -371,7 +387,7 @@ public class CompositionCheckDAO {
         int count = 0;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement("SELECT COUNT(*) FROM store.composition_check WHERE checks = ?");
+            ps = conn.prepareStatement(property.getProperty("composition_check.count_by_check"));
             ps.setLong(1, checkId);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -390,7 +406,7 @@ public class CompositionCheckDAO {
         CallableStatement cs = null;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(RETURN_FROM_CHECK);
+            cs = conn.prepareCall(property.getProperty("sp.return_from_check"));
             cs.setInt(1, compositionId.intValue());
             cs.setInt(2, returnQuantity);
             cs.execute();

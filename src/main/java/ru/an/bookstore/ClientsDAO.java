@@ -1,36 +1,52 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 
 public class ClientsDAO implements Dao<Clients, Long> {
 
-    private final static String FIND_ALL_ACTIVE =
-            "SELECT * FROM store.clients WHERE archiv IS NOT TRUE ORDER BY surname, name_client";
+    private static Properties property = new Properties();
 
-    private final static String FIND_ALL_ARCHIVE =
-            "SELECT * FROM store.clients WHERE archiv = TRUE ORDER BY surname, name_client";
+    public ClientsDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    private final static String FIND_BY_ID =
-            "SELECT * FROM store.clients WHERE id_client = ?";
-
-    private final static String INSERT =
-            "INSERT INTO store.clients (surname, name_client, patrontmic, number_client, email) " +
-                    "VALUES (?, ?, ?, ?, ?) RETURNING id_client";
-
-    private final static String UPDATE =
-            "UPDATE store.clients SET surname = ?, name_client = ?, patrontmic = ?, " +
-                    "number_client = ?, email = ? WHERE id_client = ?";
-
-    private final static String SEARCH =
-            "SELECT * FROM store.clients WHERE archiv IS NOT TRUE AND " +
-                    "(surname ILIKE ? OR name_client ILIKE ? OR patrontmic ILIKE ?) " +
-                    "ORDER BY surname, name_client";
-
-    private final static String DELETE_CLIENT =
-            "{ ? = call store.delete_client(?) }";
+//    private final static String FIND_ALL_ACTIVE =
+//            "SELECT * FROM store.clients WHERE archiv IS NOT TRUE ORDER BY surname, name_client";
+//
+//    private final static String FIND_ALL_ARCHIVE =
+//            "SELECT * FROM store.clients WHERE archiv = TRUE ORDER BY surname, name_client";
+//
+//    private final static String FIND_BY_ID =
+//            "SELECT * FROM store.clients WHERE id_client = ?";
+//
+//    private final static String INSERT =
+//            "INSERT INTO store.clients (surname, name_client, patrontmic, number_client, email) " +
+//                    "VALUES (?, ?, ?, ?, ?) RETURNING id_client";
+//
+//    private final static String UPDATE =
+//            "UPDATE store.clients SET surname = ?, name_client = ?, patrontmic = ?, " +
+//                    "number_client = ?, email = ? WHERE id_client = ?";
+//
+//    private final static String SEARCH =
+//            "SELECT * FROM store.clients WHERE archiv IS NOT TRUE AND " +
+//                    "(surname ILIKE ? OR name_client ILIKE ? OR patrontmic ILIKE ?) " +
+//                    "ORDER BY surname, name_client";
+//
+//    private final static String DELETE_CLIENT =
+//            "{ ? = call store.delete_client(?) }";
 
     @Override
     public Clients findById(Long id) {
@@ -40,7 +56,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("clients.find_by_id"));
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -62,7 +78,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL_ACTIVE);
+            ps = conn.prepareStatement(property.getProperty("clients.find_all_active"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -82,7 +98,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_ALL_ARCHIVE);
+            ps = conn.prepareStatement(property.getProperty("clients.find_all_archive"));
             rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapRow(rs));
@@ -102,7 +118,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("clients.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, entity.getSurname());
             ps.setString(2, entity.getNameClient());
             ps.setString(3, entity.getPatrontmic());
@@ -127,7 +143,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(UPDATE);
+            ps = conn.prepareStatement(property.getProperty("clients.update"));
             ps.setString(1, entity.getSurname());
             ps.setString(2, entity.getNameClient());
             ps.setString(3, entity.getPatrontmic());
@@ -154,7 +170,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         CallableStatement cs = null;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(DELETE_CLIENT);
+            cs = conn.prepareCall(property.getProperty("clients.delete"));
             cs.registerOutParameter(1, Types.INTEGER);
             cs.setInt(2, id.intValue());
             cs.execute();
@@ -171,7 +187,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         int result = 0;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(DELETE_CLIENT);
+            cs = conn.prepareCall(property.getProperty("clients.delete"));
             cs.registerOutParameter(1, Types.INTEGER);
             cs.setInt(2, clientId.intValue());
             cs.execute();
@@ -191,7 +207,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(SEARCH);
+            ps = conn.prepareStatement(property.getProperty("clients.search"));
             String searchPattern = "%" + searchText + "%";
             ps.setString(1, searchPattern);
             ps.setString(2, searchPattern);

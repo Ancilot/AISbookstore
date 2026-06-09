@@ -1,22 +1,37 @@
 package ru.an.bookstore;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class ChecksDAO {
+    private static Properties property = new Properties();
 
-    private final static String INSERT_CHECK =
-            "INSERT INTO store.checks (client, sum_check) VALUES (?, 0) RETURNING id_check";
+    public ChecksDAO() {
+        try {
+            URL url = getClass().getResource("/ru/an/bookstore/statements.properties");
+            FileInputStream fis = new FileInputStream(url.getFile());
+            property.load(fis);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-    private final static String FIND_BY_ID =
-            "SELECT * FROM store.checks WHERE id_check = ?";
-
-    private final static String COMPLETE_CHECK = "{ call store.complete_check(?) }";
-
-    private final static String DELETE_BY_ID =
-            "DELETE FROM store.checks WHERE id_check = ?";
+//    private final static String INSERT_CHECK =
+//            "INSERT INTO store.checks (client, sum_check) VALUES (?, 0) RETURNING id_check";
+//
+//    private final static String FIND_BY_ID =
+//            "SELECT * FROM store.checks WHERE id_check = ?";
+//
+//    private final static String COMPLETE_CHECK = "{ call store.complete_check(?) }";
+//
+//    private final static String DELETE_BY_ID =
+//            "DELETE FROM store.checks WHERE id_check = ?";
 
     public Checks createCheck(Long clientId) {
         Checks check = null;
@@ -25,7 +40,7 @@ public class ChecksDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(INSERT_CHECK, Statement.RETURN_GENERATED_KEYS);
+            ps = conn.prepareStatement(property.getProperty("checks.insert"), Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, clientId);
             ps.executeUpdate();
             rs = ps.getGeneratedKeys();
@@ -48,7 +63,7 @@ public class ChecksDAO {
         ResultSet rs = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(FIND_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("checks.find_by_id"));
             ps.setLong(1, id);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -68,7 +83,7 @@ public class ChecksDAO {
         CallableStatement cs = null;
         try {
             conn = DBHelper.getConnection();
-            cs = conn.prepareCall(COMPLETE_CHECK);
+            cs = conn.prepareCall(property.getProperty("checks.complete"));
             cs.setInt(1, checkId.intValue());
             cs.execute();
         } catch (SQLException e) {
@@ -83,7 +98,7 @@ public class ChecksDAO {
         PreparedStatement ps = null;
         try {
             conn = DBHelper.getConnection();
-            ps = conn.prepareStatement(DELETE_BY_ID);
+            ps = conn.prepareStatement(property.getProperty("checks.delete"));
             ps.setLong(1, checkId);
             ps.executeUpdate();
         } catch (SQLException e) {
