@@ -42,7 +42,7 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return supplier;
     }
@@ -63,7 +63,7 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -89,9 +89,8 @@ public class SuppliersDAO implements Dao<Suppliers, Long> {
         return supplier;
     }
 
-    private void closeResources(ResultSet rs, PreparedStatement ps, Connection conn) {
+    private void closeResources(ResultSet rs, PreparedStatement ps) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (ps != null) ps.close(); } catch (SQLException e) {}
-        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
     }
 }

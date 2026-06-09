@@ -65,7 +65,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return client;
     }
@@ -86,7 +86,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -106,7 +106,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -132,7 +132,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return entity;
     }
@@ -154,7 +154,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
         return entity;
     }
@@ -177,7 +177,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
     }
 
@@ -195,7 +195,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
         return result;
     }
@@ -219,7 +219,7 @@ public class ClientsDAO implements Dao<Clients, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -235,9 +235,8 @@ public class ClientsDAO implements Dao<Clients, Long> {
         return client;
     }
 
-    private void closeResources(ResultSet rs, Statement st, Connection conn) {
+    private void closeResources(ResultSet rs, Statement st) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (st != null) st.close(); } catch (SQLException e) {}
-        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
     }
 }

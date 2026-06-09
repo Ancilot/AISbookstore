@@ -105,7 +105,7 @@ public class WarehouseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -125,7 +125,7 @@ public class WarehouseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -155,7 +155,7 @@ public class WarehouseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -177,7 +177,7 @@ public class WarehouseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return warehouse;
     }
@@ -197,7 +197,7 @@ public class WarehouseDAO {
             e.printStackTrace();
             result = 0;
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
         return result;
     }
@@ -218,7 +218,7 @@ public class WarehouseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -239,7 +239,7 @@ public class WarehouseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -292,15 +292,14 @@ public class WarehouseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
 
 
-    private void closeResources(ResultSet rs, PreparedStatement ps, Connection conn) {
+    private void closeResources(ResultSet rs, PreparedStatement ps) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (ps != null) ps.close(); } catch (SQLException e) {}
-        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
     }
 }

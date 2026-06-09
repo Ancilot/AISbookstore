@@ -47,7 +47,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return author;
     }
@@ -68,7 +68,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -92,7 +92,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return entity;
     }
@@ -112,7 +112,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
         return entity;
     }
@@ -134,7 +134,7 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
     }
 
@@ -154,12 +154,12 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
 
-    private void closeResources(ResultSet rs, PreparedStatement ps, Connection conn) {
+    private void closeResources(ResultSet rs, PreparedStatement ps) {
         try {
             if (rs != null) rs.close();
         } catch (SQLException e) {
@@ -168,11 +168,6 @@ public class AuthorsDAO implements Dao<Authors, Long> {
         try {
             if (ps != null) ps.close();
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (conn != null) DBHelper.close(conn);
-        } catch (Exception e) {
             e.printStackTrace();
         }
     }

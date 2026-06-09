@@ -60,7 +60,7 @@ public class OrdersDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -85,7 +85,7 @@ public class OrdersDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -102,7 +102,7 @@ public class OrdersDAO {
             e.printStackTrace();
             throw new RuntimeException("Ошибка при выполнении заказа: " + e.getMessage(), e);
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
     }
 
@@ -124,7 +124,7 @@ public class OrdersDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage(), e);
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
     }
 
@@ -172,14 +172,13 @@ public class OrdersDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return order;
     }
 
-    private void closeResources(ResultSet rs, Statement st, Connection conn) {
+    private void closeResources(ResultSet rs, Statement st) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (st != null) st.close(); } catch (SQLException e) {}
-        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
     }
 }

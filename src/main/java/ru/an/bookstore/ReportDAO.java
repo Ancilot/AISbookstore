@@ -150,7 +150,7 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return report;
     }
@@ -176,7 +176,7 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -201,7 +201,7 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -226,7 +226,7 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -252,14 +252,13 @@ public class ReportDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
 
-    private void closeResources(ResultSet rs, Statement st, Connection conn) {
+    private void closeResources(ResultSet rs, Statement st) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (st != null) st.close(); } catch (SQLException e) {}
-        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
     }
 }

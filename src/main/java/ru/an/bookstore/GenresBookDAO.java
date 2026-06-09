@@ -42,7 +42,7 @@ public class GenresBookDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
     }
 
@@ -57,7 +57,7 @@ public class GenresBookDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
     }
 
@@ -73,7 +73,7 @@ public class GenresBookDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
     }
 
@@ -96,7 +96,7 @@ public class GenresBookDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -124,16 +124,15 @@ public class GenresBookDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
 
-    private void closeResources(ResultSet rs, PreparedStatement ps, Connection conn) {
+    private void closeResources(ResultSet rs, PreparedStatement ps) {
         try {
             if (rs != null) rs.close();
             if (ps != null) ps.close();
-            if (conn != null) DBHelper.close(conn);
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -53,7 +53,7 @@ public class LoyaltyBaseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return loyalty;
     }
@@ -78,7 +78,7 @@ public class LoyaltyBaseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return entity;
     }
@@ -95,7 +95,7 @@ public class LoyaltyBaseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
         return entity;
     }
@@ -111,7 +111,7 @@ public class LoyaltyBaseDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
     }
 
@@ -129,9 +129,8 @@ public class LoyaltyBaseDAO {
         return loyalty;
     }
 
-    private void closeResources(ResultSet rs, Statement st, Connection conn) {
+    private void closeResources(ResultSet rs, Statement st) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (st != null) st.close(); } catch (SQLException e) {}
-        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
     }
 }

@@ -51,7 +51,7 @@ public class ChecksDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return check;
     }
@@ -72,7 +72,7 @@ public class ChecksDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return check;
     }
@@ -89,7 +89,7 @@ public class ChecksDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
     }
 
@@ -104,7 +104,7 @@ public class ChecksDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
     }
 
@@ -122,9 +122,8 @@ public class ChecksDAO {
         return check;
     }
 
-    private void closeResources(ResultSet rs, Statement st, Connection conn) {
+    private void closeResources(ResultSet rs, Statement st) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (st != null) st.close(); } catch (SQLException e) {}
-        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
     }
 }

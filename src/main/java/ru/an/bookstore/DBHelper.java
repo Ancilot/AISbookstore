@@ -13,39 +13,41 @@ public class DBHelper {
     private static String dbUrl;
     private static String login;
     private static String pass;
-    // TODO: После локализации переделать на single connection
-    // Вместо создания подключения каждый раз, создать одно при старте
+    private static Connection connection;  // ← одно подключение
+
     public static Connection getConnection() {
-        try {
-            URL url = DBHelper.class.getResource("/ru/an/bookstore/config.properties");
-            if (url == null) {
-                throw new RuntimeException("config.properties не найден");
+        if (connection == null) {
+            try {
+                URL url = DBHelper.class.getResource("/ru/an/bookstore/config.properties");
+                if (url == null) {
+                    throw new RuntimeException("config.properties не найден");
+                }
+
+                Properties property = new Properties();
+                try (FileInputStream fis = new FileInputStream(url.getFile())) {
+                    property.load(fis);
+                }
+
+                dbUrl = property.getProperty("db.url");
+                login = property.getProperty("db.login");
+                pass = property.getProperty("db.pass");
+
+                connection = DriverManager.getConnection(dbUrl, login, pass);
+
+            } catch (SQLException | IOException ex) {
+                throw new RuntimeException("Ошибка подключения к БД", ex);
             }
-
-            Properties property = new Properties();
-            FileInputStream fis = new FileInputStream(url.getFile());
-            property.load(fis);
-            fis.close();
-
-            dbUrl = property.getProperty("db.url");
-            login = property.getProperty("db.login");
-            pass = property.getProperty("db.pass");
-
-            return DriverManager.getConnection(dbUrl, login, pass);
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Ошибка подключения к базе данных", ex);
-        } catch (IOException ex) {
-            throw new RuntimeException("Ошибка чтения config.properties", ex);
         }
+        return connection;
     }
 
-    public static void close(Connection connection) {
+    public static void close() {
         if (connection != null) {
             try {
                 connection.close();
+                connection = null;
             } catch (SQLException e) {
-                System.err.println("Ошибка при закрытии соединения: " + e.getMessage());
+                throw new RuntimeException("Ошибка при закрытии соединения", e);
             }
         }
     }

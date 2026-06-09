@@ -84,7 +84,7 @@ public class CompositionCheckDAO {
             e.printStackTrace();
             throw new RuntimeException("Ошибка при резервировании книги: " + e.getMessage(), e);
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
     }
 
@@ -101,7 +101,7 @@ public class CompositionCheckDAO {
             e.printStackTrace();
             throw new RuntimeException("Ошибка при возврате книги на склад: " + e.getMessage(), e);
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
     }
 
@@ -119,7 +119,7 @@ public class CompositionCheckDAO {
             e.printStackTrace();
             throw new RuntimeException("Ошибка при обновлении резерва: " + e.getMessage(), e);
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
     }
 
@@ -145,7 +145,7 @@ public class CompositionCheckDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return composition;
     }
@@ -167,7 +167,7 @@ public class CompositionCheckDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
-                closeResources(null, ps, conn);
+                closeResources(null, ps);
             }
         }
     }
@@ -190,7 +190,7 @@ public class CompositionCheckDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
-                closeResources(null, ps, conn);
+                closeResources(null, ps);
             }
         }
     }
@@ -213,7 +213,7 @@ public class CompositionCheckDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(null, ps, conn);
+            closeResources(null, ps);
         }
     }
 
@@ -238,7 +238,7 @@ public class CompositionCheckDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
-                closeResources(null, ps, conn);
+                closeResources(null, ps);
             }
         }
     }
@@ -259,7 +259,7 @@ public class CompositionCheckDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -280,7 +280,7 @@ public class CompositionCheckDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -314,7 +314,7 @@ public class CompositionCheckDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return list;
     }
@@ -346,7 +346,7 @@ public class CompositionCheckDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return cc;
     }
@@ -375,7 +375,7 @@ public class CompositionCheckDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return cc;
     }
@@ -396,7 +396,7 @@ public class CompositionCheckDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            closeResources(rs, ps, conn);
+            closeResources(rs, ps);
         }
         return count;
     }
@@ -414,7 +414,7 @@ public class CompositionCheckDAO {
             e.printStackTrace();
             throw new RuntimeException("Ошибка при возврате товара: " + e.getMessage(), e);
         } finally {
-            closeResources(null, cs, conn);
+            closeResources(null, cs);
         }
     }
 
@@ -441,9 +441,8 @@ public class CompositionCheckDAO {
         return cc;
     }
 
-    private void closeResources(ResultSet rs, Statement st, Connection conn) {
+    private void closeResources(ResultSet rs, Statement st) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (st != null) st.close(); } catch (SQLException e) {}
-        try { if (conn != null) DBHelper.close(conn); } catch (Exception e) {}
     }
 }

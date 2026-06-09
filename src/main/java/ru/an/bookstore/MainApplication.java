@@ -46,6 +46,14 @@ public class MainApplication extends Application {
         stage.setTitle(bundle.getString("app.title"));
         stage.setScene(scene);
         stage.show();
+
+
+    }
+
+    @Override
+    public void stop() throws Exception {
+        DBHelper.close();  // закрываем подключение к БД при выходе из приложения
+        super.stop();
     }
 }
 
